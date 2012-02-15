@@ -17,8 +17,7 @@ public class FaceBreakRequestHandler extends Thread
 	{
 		// Some sort of authorization will take place here
 		
-		// Spawn a thread to create a request handler for every logged in user
-			// I think we might need this to keep track of session time for each user
+		System.out.println("Server started...");
 			
 		// Attempt to listen on a socket
 		ServerSocket serverSocket = null;
@@ -37,7 +36,7 @@ public class FaceBreakRequestHandler extends Thread
                 System.err.println("Failed to accept client connection: " + PORT + ", " + e.getMessage());
                 continue;
             }
-            new KKMultiServerThread(clientSocket).start();
+            new FaceBreakRequestHandler(clientSocket).start();
 		}
 		
 		try {
@@ -56,8 +55,35 @@ public class FaceBreakRequestHandler extends Thread
 	METHODS
 	*/
 	private FaceBreakRequestHandler(Socket client){
-	
+		clientSocket = client;
 	}
 	
-	private void handleRequest()
+	private void run(){
+		System.out.println("Client connected")
+		
+		// Set up streams
+		String inputLn, outputLn;
+		
+		BufferedReader clientReader = new BufferedReader(
+			new InputStreamReader(clientSocket.getInputStream()));
+			
+		PrintWriter clientWrite = new PrintWriter(
+			clientSocket.getOutputStream(), true);
+		
+		
+		
+		// Determine whether trying to login or create a new account
+		
+		// Load up the user
+		
+		
+		// Start up the request loop
+		while ((inputLn = clientReader.readLine()) != null)
+		{   
+			outputLn = process(inputLn);
+			clientWrit.println(outputLine);
+		}
+		
+		// When we are done, we can just clean up and exit run
+	}
 }
