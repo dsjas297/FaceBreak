@@ -51,7 +51,7 @@ public class FaceBreakUser {
 		}
 	}
 	
-	private static boolean checkIfUserExists(String userID){
+	public static boolean checkIfUserExists(String userID){
 		try{
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
