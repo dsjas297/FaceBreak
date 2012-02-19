@@ -55,7 +55,7 @@ public class FBWindow extends JFrame implements ActionListener{
 			//transition to user's FBPage with user's ID
 				logged_in = true;
 				login.setVisible(false);
-				setContentPane(new FBPage(0));
+				setContentPane(new FBPage(0,0));
 			}
 			else {
 				//if not print "Login failed"
