@@ -53,7 +53,6 @@ public class Login extends JPanel implements ActionListener{
 		loginPanel.setMaximumSize(new Dimension(200,100));
 		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.PAGE_AXIS));
 		loginPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-		System.out.println(loginPanel.getHeight());
 	
 		//userid panel
 		JPanel useridPanel = new JPanel();
