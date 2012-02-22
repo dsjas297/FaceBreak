@@ -3,9 +3,11 @@ package facebreak.networking;
 public class AuthenticatedUser {
 	private int id;
 	private boolean isLoggedIn;
+	private String username;
 	// more stuff here in future
 	
-	protected AuthenticatedUser() {
+	protected AuthenticatedUser(String username) {
+		this.username = username;
 		isLoggedIn = false;
 	}
 	
@@ -14,6 +16,14 @@ public class AuthenticatedUser {
 		isLoggedIn = false;
 	}
 	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	protected int getId() {
 		return id;
 	}
@@ -30,11 +40,6 @@ public class AuthenticatedUser {
 		isLoggedIn = false;
 	}
 	
-	protected void authenticate(MyUser user) {
-		int uid = 0;
-		id = uid;
-		// if user exists && password matches, then logIn();
-	}
 	protected boolean isLoggedIn() {
 		return isLoggedIn;
 	}

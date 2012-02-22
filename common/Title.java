@@ -6,16 +6,12 @@ public enum Title {
 	SOLDIER(2, "Soldier"), 
 	ASSOC(3, "Associate");
 
-	private final int rank;
+	public final int rank;
 	private final String title;
 
 	private Title(int rank, String title) {
 		this.rank = rank;
 		this.title = title;
-	}
-
-	public int getRank() {
-		return rank;
 	}
 
 	@Override

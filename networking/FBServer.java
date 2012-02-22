@@ -3,13 +3,11 @@ package facebreak.networking;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 
 public class FBServer {
 	private ServerSocket listener;
-	private int port;
-
-	private HashMap<Integer, AuthenticatedUser> connectedUsers;
+	
+	private static final int port = 4444;
 
 	public FBServer() {
 		System.out.println("Starting up server...");
@@ -25,7 +23,7 @@ public class FBServer {
 			System.exit(-1);
 		}
 
-		System.out.println("Listening for clients on 12111...");
+		System.out.println("Listening for clients...");
 
 		// Successfully created Server Socket. Now wait for connections.
 		while (true) {
@@ -34,23 +32,13 @@ public class FBServer {
 				FBClientHandler clientThread = new FBClientHandler(clientSocket);
 				clientThread.start();
 			} catch (IOException ioe) {
-				System.out
-						.println("Exception encountered on accept. Stack Trace:");
+				System.out.println("Error accepting client. Stack Trace:");
 				ioe.printStackTrace();
 			}
 		}
 	}
 
-	public synchronized void connectToUser(AuthenticatedUser user) {
-		connectedUsers.put(user.getId(), user);
-	}
-
-	public synchronized void disconnectToUser(AuthenticatedUser user) {
-		user.logOut();
-		connectedUsers.put(user.getId(), user);
-	}
-
 	public static void main(String args[]) {
-
+		new FBServer();
 	}
 }
