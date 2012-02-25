@@ -35,7 +35,7 @@ public class FaceBreakUser {
 			bWriter.close();
 			
 			// Create directory for user + their regions
-			String directory = userID + "\\" + "regions";
+			String directory = userID + "\\" + FaceBreakRegion.regionsFolder;
 			(new File(directory)).mkdirs();
 			
 			// Fill in info for user
@@ -43,6 +43,12 @@ public class FaceBreakUser {
 			bWriter = new BufferedWriter(new FileWriter(userID + "\\" + userInfoFile, false));
 			bWriter.write(userInfo);
 			bWriter.close();
+			
+			// Make sure that the public and private regions exist
+			File file = new File(userID + "\\" + FaceBreakRegion.regionsFolder + "\\" + "public");
+			file.createNewFile();
+			file = new File(userID + "\\" + FaceBreakRegion.regionsFolder + "\\" + "private");
+			file.createNewFile();
 			
 			return 0;
 		} catch (Exception e) {
@@ -86,6 +92,8 @@ public class FaceBreakUser {
 			this.userName = inputReader.readLine();
 			this.rank = inputReader.readLine();
 			this.family = inputReader.readLine();
+			
+			inputReader.close();
 			
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
@@ -151,7 +159,7 @@ public class FaceBreakUser {
 	
 	public int view(String id, String region){
 		FaceBreakRegion postingBoard = new FaceBreakRegion(id, region);
-		ArrayList<String> msgs = postingBoard.view(id);
+		ArrayList<String> msgs = postingBoard.view();
 		for(int i = 0; i < msgs.size(); i++){
 			System.out.println(msgs.get(i));
 		}
