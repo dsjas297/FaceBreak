@@ -195,7 +195,7 @@ public class FaceBreakUser {
 	public int addFriend(int friendID){
 		try{
 			if(checkIfFriendExists(friendID) || !checkIfUserExists(friendID)){
-				System.err.println("Error: Friend already exists");
+				System.err.println("Error: Friend already exists or is an invalid user");
 				return 1;
 			}
 			
@@ -223,6 +223,7 @@ public class FaceBreakUser {
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
 			while( (temp = inputReader.readLine()) != null){
+				/*
 				String [] linesplit = temp.split(":");
 				if(linesplit.length > 1){
 					String existingID = linesplit[0].trim();
@@ -230,6 +231,11 @@ public class FaceBreakUser {
 						inputReader.close();
 						return true;
 					}
+				}
+				*/
+				if(temp.equals(Integer.toString(friendID))){
+					inputReader.close();
+					return true;
 				}
 			}
 			
@@ -262,6 +268,8 @@ public class FaceBreakUser {
 				this.untrustworthy.put(foeID, new ArrayList<String>());
 			}
 			this.untrustworthy.get(foeID).add(timestamp);
+			
+			System.out.println(this.untrustworthy.toString());
 			
 			return 0;
 			
