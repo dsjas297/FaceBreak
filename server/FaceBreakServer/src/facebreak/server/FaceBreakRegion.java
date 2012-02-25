@@ -19,32 +19,58 @@ public class FaceBreakRegion {
 	private static final int NUM_POSTS_TO_READ = 10;
 	
 	public FaceBreakRegion(int posterID, int ownerID, int regionID){
-		if (FaceBreakUser.checkIfUserExists(ownerID) &&
-				checkIfRegionExists(ownerID, regionID) &&
-				FaceBreakUser.checkIfUserExists(posterID)){
-			viewerID = posterID;
-			this.regionID = regionID;
-			
-			RegionType type;
-			switch(regionID){
-			case 0:
-				type = Post.RegionType.PUBLIC;
-				break;
-			case 1:
-				type = Post.RegionType.PRIVATE;
-				break;
-			default:
-				type = Post.RegionType.COVERT;
-				break;
+		try{
+			if (FaceBreakUser.checkIfUserExists(ownerID) &&
+					checkIfRegionExists(ownerID, regionID) &&
+					FaceBreakUser.checkIfUserExists(posterID)){
+				viewerID = posterID;
+				this.regionID = regionID;
+				
+				RegionType type;
+				switch(regionID){
+				case 0:
+					type = Post.RegionType.PUBLIC;
+					break;
+				case 1:
+					type = Post.RegionType.PRIVATE;
+					break;
+				default:
+					type = Post.RegionType.COVERT;
+					break;
+				}
+				
+				this.region = new Region(ownerID, type);
+				
+				FileReader fReader = new FileReader(Integer.toString(ownerID) +
+						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
+						"\\" + regionInfoFile);
+				BufferedReader inputReader = new BufferedReader(fReader);
+				String temp;
+				while( (temp = inputReader.readLine()) != null){
+					int allowedID = Integer.parseInt(temp);
+					FaceBreakUser fbuser = new FaceBreakUser(allowedID);
+					this.region.getPermissibleUsers().add(fbuser.getUser());
+				}
+				
+				fReader = new FileReader(Integer.toString(ownerID) +
+						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
+						"\\" + regionPostsFile);
+				inputReader = new BufferedReader(fReader);;
+				while( (temp = inputReader.readLine()) != null){
+					String [] linesplit = temp.split(":");
+					FaceBreakUser poster = new FaceBreakUser(Integer.parseInt(linesplit[1]));
+					Post post = new Post(ownerID, type,
+							poster.getUser().getName(), linesplit[2]);
+					this.region.getPosts().add(post);
+				}
+				
+				this.view();
 			}
-			
-			this.region = new Region(ownerID, type);
-			
-			
-			
-			this.view();
-		}
-		else {
+			else {
+				region = null;
+			}
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
 			region = null;
 		}
 	}
@@ -130,7 +156,7 @@ public class FaceBreakRegion {
 	public void post(int posterID, String msg){
 		try{
 			String newPost = "\n" + Long.toString((new Date()).getTime())
-					+ " " + Integer.toString(posterID) + ":" + msg;
+					+ ":" + Integer.toString(posterID) + ":" + msg;
 			BufferedWriter bWriter = new BufferedWriter(
 					new FileWriter(Integer.toString(this.region.getOwnerId())
 							+ "\\" + regionsFolder + "\\" + Integer.toString(regionID) + 
