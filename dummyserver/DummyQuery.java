@@ -1,9 +1,11 @@
 package facebreak.dummyserver;
 
+import java.util.ArrayList;
+
 import facebreak.common.Post;
 import facebreak.common.Profile;
 import facebreak.common.Title;
-import facebreak.common.User;
+import facebreak.common.FBClientUser;
 import facebreak.common.Post.RegionType;
 
 /*
@@ -13,8 +15,10 @@ import facebreak.common.Post.RegionType;
 
 public class DummyQuery {
 	
-	private static int id_counter = 0;
-
+	private static int id_counter = 1;
+	private static Profile tmpProfile;
+	private static ArrayList<Post> myBoard;
+	
 	// does user with id uid exist already?
 	public static boolean userExists(int uid) {
 		
@@ -31,8 +35,8 @@ public class DummyQuery {
 	 *  is username/password combo correct?
 	 *  If yes, return the user's id, otherwise return -1
 	 */
-	public static int loginUser(User user) {
-		if(userExists(user.getName())) {
+	public static int loginUser(FBClientUser user) {
+		if(userExists(user.getUsername())) {
 			int uid = id_counter++;	// return user id
 			return uid;
 		}
@@ -44,14 +48,15 @@ public class DummyQuery {
 	 * Create new user as long as username does not exist already
 	 * return -1 if user already exists
 	 */
-	public static int createUser(User user) {
-		if(userExists(user.getName()))
-			return -1;
-		else {
-			// create new user; generate uid
-			int uid = id_counter++;
-			return uid;
-		}
+	public static int createUser(FBClientUser user) {
+//		if(userExists(user.getUsername()))
+//			return -1;
+//		else {
+//			// create new user; generate uid
+//			int uid = id_counter++;
+//			return uid;
+//		}
+		return id_counter++;
 	}
 	
 	// is userid allowed to view this post?
@@ -86,6 +91,8 @@ public class DummyQuery {
 	 * write on newPost.getOwner()'s board/region
 	 */
 	public static boolean newPost(Post newPost) {
+		
+		
 		return true;
 	}
 	
@@ -94,7 +101,8 @@ public class DummyQuery {
 	 * the 10 most recent posts on boardOwner's board/region.
 	 * See Posting class
 	 */
-	public static Post[] getBoard(String boardOwner, int requestingUid, RegionType r) {
+	public static ArrayList<Post> getBoard(String boardOwner, int requestingUid, RegionType r) {
+		
 		return null;
 	}
 	
@@ -105,22 +113,23 @@ public class DummyQuery {
 	 * profile object passed as param.
 	 * Return -1 if username does not actually exist.
 	 */
-	public static boolean getProfile(int requesterUid, Profile profile) {
-		if(!userExists(profile.getUsername()))
-			return false;
+	public static Profile getProfile(int requesterUid, Profile profile) {
+//		if(!userExists(profile.getUsername()))
+//			return false;
 		// else, set fields in Profile
-		return true;
+		return tmpProfile;
 	}
 	
 	/*
 	 * Updates user uid's profile with new information (see UserProfile class)
 	 */
 	public static void editProfile(int uid, Profile profile) {
+		tmpProfile = profile;
 		return;
 	}
 	
 	
-	public static void changePassword(User user) {
+	public static void changePassword(FBClientUser user) {
 		// changes user's password
 		// new password stored in User's pwd field
 		String newPassword = user.getPassword();
