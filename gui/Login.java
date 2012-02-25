@@ -17,12 +17,14 @@ public class Login extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 1L;
 
 	//Fields and labels for UserId and Password
-	private JLabel useridPrompt = new JLabel("User ID: ");
-	JTextField useridEntry= new JTextField(8);
+	private JLabel usernamePrompt = new JLabel("User ID: ");
+	JTextField usernameEntry= new JTextField(8);
 	private JLabel pwdPrompt = new JLabel("Password: ");
 	protected JTextField pwdEntry= new JTextField(8);
 	JButton loginButton = new JButton("Log in");
+	JButton signupButton = new JButton("Sign up!");
 	JLabel loginFailed = new JLabel("Login failed");
+	JLabel loggedOut = new JLabel("Thank you for using FaceBreak");
 
 	public Login(){
 		// Create welcome panel
@@ -47,37 +49,41 @@ public class Login extends JPanel implements ActionListener{
 		
 		//login panel
 		JPanel loginPanel = new JPanel();
-		loginPanel.setBackground(Color.cyan);
+		loginPanel.setBackground(new Color(130, 0, 0));
 		loginPanel.setAlignmentX((float) 0.5);
 		//loginPanel.setSize(300,100);
 		loginPanel.setMaximumSize(new Dimension(200,100));
 		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.PAGE_AXIS));
 		loginPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 	
-		//userid panel
-		JPanel useridPanel = new JPanel();
-		useridPanel.setAlignmentX((float) 0.5);
-		useridPanel.setMaximumSize(new Dimension(200,30));
-		useridPanel.setLayout(new BoxLayout(useridPanel, BoxLayout.LINE_AXIS));
-		useridEntry.setMaximumSize(new Dimension(150,20));
-		useridEntry.requestFocus();
-		useridEntry.setDocument(new LimitedText(10));
-		useridPanel.add(useridPrompt);
-		useridPanel.add(Box.createHorizontalGlue());
-		useridPanel.add(useridEntry);
+		//username panel
+		JPanel usernamePanel = new JPanel();
+		usernamePanel.setAlignmentX((float) 0.5);
+		usernamePanel.setMaximumSize(new Dimension(200,30));
+		usernamePanel.setLayout(new BoxLayout(usernamePanel, BoxLayout.LINE_AXIS));
+		usernamePanel.setBackground(new Color(130, 0, 0));
+		usernameEntry.setMaximumSize(new Dimension(150,20));
+		usernameEntry.requestFocus();
+		usernameEntry.setDocument(new LimitedText(10));
+		usernamePrompt.setForeground(Color.white);
+		usernamePanel.add(usernamePrompt);
+		usernamePanel.add(Box.createHorizontalGlue());
+		usernamePanel.add(usernameEntry);
 		
 		//pwd panel
 		JPanel pwdPanel = new JPanel();
 		pwdPanel.setAlignmentX((float) 0.5);
 		pwdPanel.setMaximumSize(new Dimension(200,30));
 		pwdPanel.setLayout(new BoxLayout(pwdPanel, BoxLayout.LINE_AXIS));
+		pwdPanel.setBackground(new Color(130, 0, 0));
 		pwdEntry.setMaximumSize(new Dimension(150,20));
 		pwdEntry.setDocument(new LimitedText(10));
+		pwdPrompt.setForeground(Color.white);
 		pwdPanel.add(pwdPrompt);
 		pwdPanel.add(Box.createHorizontalGlue());
 		pwdPanel.add(pwdEntry);
 		
-		loginPanel.add(useridPanel);
+		loginPanel.add(usernamePanel);
 		pwdPanel.add(Box.createVerticalGlue());
 		loginPanel.add(pwdPanel);
 		
@@ -88,9 +94,10 @@ public class Login extends JPanel implements ActionListener{
 		//Lay out the buttons from left to right.
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-		buttonPanel.setBackground(Color.cyan);
+		buttonPanel.setBackground(new Color(130, 0, 0));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPanel.setMaximumSize(new Dimension(200,100));
+		buttonPanel.add(signupButton);
 		buttonPanel.add(Box.createHorizontalGlue());
 		buttonPanel.add(loginButton);
 		
@@ -100,7 +107,11 @@ public class Login extends JPanel implements ActionListener{
 		this.add(facebreak);
 		this.add(welcome);
 		this.add(loginFailed);
+		loginFailed.setAlignmentX((float) 0.5);
 		loginFailed.setVisible(false);
+		this.add(loggedOut);
+		loggedOut.setAlignmentX((float) 0.5);
+		loggedOut.setVisible(false);
 		this.add(Box.createVerticalGlue());
 		this.add(loginPanel);
 		this.add(buttonPanel);

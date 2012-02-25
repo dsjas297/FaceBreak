@@ -2,85 +2,104 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.*;
 
-public class FBPage extends JPanel{
+public class FBPage extends JPanel implements ActionListener, MouseListener{
 
+	//permanent elements
+	private JPanel topnav;
+	private JLabel logo = new JLabel("FaceBreak");
+	public JLabel logout = new JLabel("Log out");
+	private JPanel content;
+	private JScrollPane prof_scroller;
+	private JPanel profile;
+	private JScrollPane wall_scroller;
+	private JPanel wall;
+	private JTextArea comment_box;
+	private JButton comment_button;
+	
+	//IDs
+	private int myUserID; //user who is logged in
+	private int curr_profile; //user whose profile is being looked at
+	private int curr_region; //region of profile being looked at
+	
+	//sizing
+	private int width;
+	private int height;
+	private int prof_width;
+	private int wall_width;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
-	public FBPage(int userID, int regionID){
+	public FBPage(JFrame parent, int userID, int regionID){
+		myUserID = userID;
+		curr_profile = userID;
+		curr_region = regionID;
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		//create topnav
-		JPanel topnav = new JPanel();
-		topnav.setMinimumSize(new Dimension(900,50));
-		topnav.setPreferredSize(new Dimension(900,50));
-		topnav.setMaximumSize(new Dimension(900,50));
-		topnav.setBackground(new Color(130, 0, 0));
-//		content.setBorder(BorderFactory.createCompoundBorder(
-//                BorderFactory.createLineBorder(Color.red),
-//                content.getBorder()));
+		//create and add topnav
+		width = 900;
+		height = 500;
+		prof_width = width*250/900;
+		wall_width = width*650/900;
+		create_topnav();
+		this.add(topnav);
 		
 		//create content
-		JPanel content = new JPanel();
+		content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.LINE_AXIS));
-		content.setMaximumSize(new Dimension(900,450));
+		content.setMaximumSize(new Dimension(width, height-50));
 		content.setBackground(Color.white);
-//		content.setBorder(BorderFactory.createCompoundBorder(
-//                BorderFactory.createLineBorder(Color.red),
-//                content.getBorder()));
 		
-		//create profile content
-		JPanel profile = new JPanel();
-		profile.setLayout(new BoxLayout(profile, BoxLayout.PAGE_AXIS));
-		profile.setMinimumSize(new Dimension(250,450));
-		profile.setMaximumSize(new Dimension(250,450));
-		profile.setBackground(Color.blue);
-		
-		profile = populate_userprofile(userID, profile);
-		JScrollPane prof_scroller = new JScrollPane(profile);
-		prof_scroller.setMinimumSize(new Dimension(250,450));
-		prof_scroller.setMaximumSize(new Dimension(250,450));
+		//add profile scroller to content
+		create_profile();
+		prof_scroller = new JScrollPane(profile);
+		prof_scroller.setMinimumSize(new Dimension(prof_width,height-50));
+		prof_scroller.setMaximumSize(new Dimension(prof_width,height-50));
 		prof_scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		//profile.setBorder(BorderFactory.createCompoundBorder(
-        //        BorderFactory.createLineBorder(Color.red),
-        //        profile.getBorder()));
 		
-		//create "wall"
-		JPanel wall = new JPanel();
-		wall.setLayout(new BoxLayout(wall, BoxLayout.PAGE_AXIS));
-		wall.setBackground(Color.white);
-		wall.setMinimumSize(new Dimension(650,450));
-		//wall.setPreferredSize(new Dimension(650,450));
-		wall.setMaximumSize(new Dimension(650,450));
-		populate_wall(userID, regionID, wall);
-			
-		JScrollPane wall_scroller = new JScrollPane(wall);
-		wall_scroller.setMinimumSize(new Dimension(650,450));
-		//wall_scroller.setPreferredSize(new Dimension(650,450));
-		wall_scroller.setMaximumSize(new Dimension(650,450));
-		wall_scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		wall_scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		
-		//add profile and wall to content.
 		content.add(prof_scroller);
-		content.add(wall_scroller);
 		
-		//add topnav and content to this.
-		this.add(topnav);
+		//add wall scroller to content
+		create_wall();
+		wall_scroller = new JScrollPane(wall);
+		wall_scroller.setMinimumSize(new Dimension(wall_width,height-50));
+		wall_scroller.setMaximumSize(new Dimension(wall_width,height-50));
+		wall_scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		wall_scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+//		//focus on comment_box
+//		comment_box.requestFocus();
+//		comment_box.setCaretPosition(0);
+		content.add(wall_scroller);
+		content.add(Box.createVerticalGlue());
+		
+		//add content to this.
 		this.add(content);
 	}
 	
 	//adds profile picture, information, to user profile.
-	public JPanel populate_userprofile(int userID, JPanel profile){
+	public void populate_userprofile(){
 		//get user picture from ID
-		String prof_pic = "C:/users/Boiar/workspace/Facebreak/src/gui/mc.jpg";
+		String prof_pic;
+		if (curr_profile==0){
+			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/mc.jpg";
+		}
+		else {
+			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/gangsters.jpg";
+		}
+		//System.out.println(prof_pic);
 		JLabel prof_pic_label = new JLabel(new ImageIcon(prof_pic));
 		prof_pic_label.setHorizontalAlignment(JLabel.CENTER);
-		//get user info
+		//TODO: get user info
 		JLabel username = new JLabel("Username");
 		username.setAlignmentX((float) 0.0);
 		JTextArea user_info = new JTextArea("Title: \nFamily: \n");
@@ -94,42 +113,42 @@ public class FBPage extends JPanel{
 		profile.add(user_info);
 		
 		//need a new label for each region
+		//TODO: get user's regions
 		for (int i=0; i<25; i++){
-			JLabel region = new JLabel("Region " + i);
+			Regionlink region = new Regionlink("Region " + i, i, "Username", curr_profile);
+			region.addMouseListener(this);
 			region.setAlignmentX((float) 0.0);
 			profile.add(region);
 		}
-		
-		return profile;
 	}
 	//adds posts to user wall.
-	public JPanel populate_wall(int userID, int regionID, JPanel wall){
-		//TODO: get the file for this user's region
-		//TODO: get 10 serialized posts
+	public void populate_wall(){
+		//TODO: given ownerID, regionID, get all posts for this region, with name, post, timestamp
+		//Content wall_posts = new Content();
+		//wall_posts.getPost();
+		//while there are still posts
 		
-		//get first 10 posts by time
 		for (int i=0; i<10; i++){
 			//for each post, get:
 			String poster_name = "Username";
+			int poster_id = 1;
 			String message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut volutpat lacus ac justo fermentum rutrum. Nullam porttitor scelerisque ipsum ac feugiat.";
 			String time = "8:00pm February 18, 2012";
 				
 			//for each post
 			JPanel post = new JPanel();
 			post.setLayout(new BoxLayout(post, BoxLayout.PAGE_AXIS));
-//			post.setMinimumSize(new Dimension(500,200));
-//			post.setPreferredSize(new Dimension(500,200));
-//			post.setMaximumSize(new Dimension(500,200));
 			post.setBackground(Color.white);
 			post.setBorder(BorderFactory.createCompoundBorder(
 			                BorderFactory.createLineBorder(new Color(130, 0, 0)),
-			                post.getBorder()));
-			
-			//
-			
-			JLabel poster = new JLabel(poster_name);
+			                post.getBorder()));			
+			//poster name
+			Userlink poster = new Userlink(poster_name, poster_id);
+			poster.addMouseListener(this);
 			poster.setAlignmentX((float) 0.0);
+			//post+timestamp
 			JTextArea msg = new JTextArea(message + "\n" + time);
+			msg.setEditable(false);
 			msg.setAlignmentX((float) 0.0);
 			msg.setColumns(10);
 			msg.setLineWrap(true);
@@ -143,23 +162,179 @@ public class FBPage extends JPanel{
 			wall.add(post);
 			wall.add(Box.createRigidArea(new Dimension(0,5)));
 		}
-		return wall;
 	}
 	
-	//view post information
-	public JPanel view_post(int ownerID, int regionID){
-		//get 
-		//, int posterID, String msg, String timestamp
+	public void create_topnav(){
+		topnav = new JPanel();
+		topnav.setLayout(new BoxLayout(topnav, BoxLayout.LINE_AXIS));
+		topnav.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		topnav.setMinimumSize(new Dimension(width,50));
+		topnav.setPreferredSize(new Dimension(width,50));
+		topnav.setMaximumSize(new Dimension(width,50));
+		topnav.setBackground(new Color(130, 0, 0));
 		
+		//add logo
+		logo.addMouseListener(this);
+		logo.setForeground(Color.white);
+		Font logoFont = logo.getFont();
+		logo.setFont(new Font(logoFont.getFontName(), logoFont.getStyle(), 36));
+		logo.setMinimumSize(new Dimension(prof_width, 50));
+		logo.setPreferredSize(new Dimension(prof_width, 50));
+		logo.setMaximumSize(new Dimension(prof_width, 50));
 		
-//		JLabel poster = new JLabel("Username");//TODO: get username from posterID
-//		JLabel message = new JLabel(msg);
-//		JLabel time = new JLabel(timestamp);
-		JPanel post_content = new JPanel();
-//		post_content.add(poster);
-//		post_content.add(message);
-//		post_content.add(time);
-		return post_content;
+		//TODO: add search bar
+		JLabel searchbar = new JLabel("[searchbar]");
+		//add logout
+		logout.setForeground(Color.white);
+
+		topnav.add(logo);
+		topnav.add(searchbar);
+		topnav.add(Box.createHorizontalGlue());
+		topnav.add(logout);
+	}
+	
+	public JPanel create_profile(){
+		profile = new JPanel();
+		profile.setLayout(new BoxLayout(profile, BoxLayout.PAGE_AXIS));
+		profile.setMinimumSize(new Dimension(prof_width,height-50));
+		profile.setMaximumSize(new Dimension(prof_width,height-50));
+		profile.setBackground(Color.blue);
+		
+		populate_userprofile();
+
+		return profile;
+	}
+	
+	public void create_wall(){
+		//create "wall"
+		wall = new JPanel();
+		wall.setLayout(new BoxLayout(wall, BoxLayout.PAGE_AXIS));
+		wall.setBackground(Color.white);
+		wall.setMinimumSize(new Dimension(wall_width,height-50));
+		//wall.setPreferredSize(new Dimension(650,450));
+		wall.setMaximumSize(new Dimension(wall_width,height-50));
+		
+		//create comment box
+		create_commentbox();
+		
+		//populate posts
+		populate_wall();
+		
+	}
+	
+	public void create_commentbox(){
+		//add containing JPanel
+		JPanel comment = new JPanel();
+		comment.setLayout(new BoxLayout(comment, BoxLayout.PAGE_AXIS));
+		comment.setMinimumSize(new Dimension(wall_width,150));
+		comment.setMaximumSize(new Dimension(wall_width,150));
+		comment.setBackground(Color.white);
+		comment.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		comment.setAlignmentX((float) 0.0);
+
+		//add label: "Leave a comment:"
+		JLabel leave_comm = new JLabel("Post to " + curr_region + ":");
+		leave_comm.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+		
+		//add text box
+		//TODO: implement character limit
+		comment_box = new JTextArea(3, 0);
+		comment_box.setEditable(true);
+		comment_box.setLineWrap(true);
+		comment_box.setWrapStyleWord(true);
+		comment_box.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(130, 0, 0)),
+                comment.getBorder()));
+
+		//add button panel
+		JPanel commPanel = new JPanel();
+		commPanel.setLayout(new BoxLayout(commPanel, BoxLayout.LINE_AXIS));
+		commPanel.setBackground(Color.white);
+		commPanel.setMaximumSize(new Dimension(wall_width-20,20));
+		//add comment button
+		comment_button = new JButton("Post");
+		comment_button.addActionListener(this);
+		commPanel.add(Box.createHorizontalGlue());
+		commPanel.add(comment_button);
+		
+		wall.add(leave_comm);
+		comment.add(comment_box);
+		comment.add(commPanel);
+		wall.add(comment);
+		wall.add(Box.createRigidArea(new Dimension(0,5)));
+	}
+	
+	public void change_profile(int userID){
+		curr_profile = userID;
+		curr_region = 0;
+		create_profile();
+		prof_scroller.setViewportView(profile);
+		prof_scroller.revalidate();
+		change_wall(userID, 0);
+	}
+	public void change_wall(int userID, int regionID){
+		curr_profile = userID;
+		curr_region = regionID;
+		create_wall();
+		wall_scroller.setViewportView(wall);
+		wall_scroller.revalidate();
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		if (arg0.getSource()==comment_button){
+			//if post is not all whitespace
+			String comm = comment_box.getText();
+			String stripped_comment = comm.replaceAll("\\s+", "");
+			if (!stripped_comment.equals("")){
+				//System.out.println("'"+comm+"'");
+				//TODO: post comment to server
+				//update wall
+			}
+		}
+	}
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		if (arg0.getSource()==logo){
+			System.out.println(arg0.getSource().getClass().getName());
+			//change wall to user's own wall.
+			change_profile(myUserID);
+			repaint();
+		}
+		//else if link clicked is of type username:
+		else if (arg0.getSource() instanceof Userlink){
+			//System.out.println(((Userlink)arg0.getSource()).get_username());
+			int new_user = ((Userlink)arg0.getSource()).get_userid();
+			change_profile(new_user);
+		}
+		//else if link clicked is of type region:
+		else if (arg0.getSource() instanceof Regionlink){
+			//System.out.println(((Regionlink)arg0.getSource()).get_regionname());
+			int new_region = ((Regionlink)arg0.getSource()).get_regionid();
+			int same_user = ((Regionlink)arg0.getSource()).get_userid();
+			change_wall(same_user, new_region);
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// 		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// 	
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// 		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// 		
+	}
+
+	
 }
