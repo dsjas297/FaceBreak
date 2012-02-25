@@ -10,88 +10,179 @@ public class FaceBreakRegion {
 	
 	private Region region;
 	
-	private int userID;
-	private String regionName;
+	private int regionID;
+	private int viewerID;
 	
 	public static final String regionsFolder = "regions";
-	private static final String postsFile = "posts";
+	private static final String regionPostsFile = "posts";
+	private static final String regionInfoFile = "regionInfo";
 	private static final int NUM_POSTS_TO_READ = 10;
 	
-	public FaceBreakRegion(String id, String region){
-		if (FaceBreakUser.checkIfUserExists(id) && checkIfRegionExists(id, region)){
-			userID = id;
-			regionName = region;
+	public FaceBreakRegion(int posterID, int ownerID, int regionID){
+		if (FaceBreakUser.checkIfUserExists(ownerID) &&
+				checkIfRegionExists(ownerID, regionID) &&
+				FaceBreakUser.checkIfUserExists(posterID)){
+			viewerID = posterID;
+			this.regionID = regionID;
+			
+			RegionType type;
+			switch(regionID){
+			case 0:
+				type = Post.RegionType.PUBLIC;
+				break;
+			case 1:
+				type = Post.RegionType.PRIVATE;
+				break;
+			default:
+				type = Post.RegionType.COVERT;
+				break;
+			}
+			
+			this.region = new Region(ownerID, type);
+			
+			
+			
+			this.view();
 		}
 		else {
-			userID = null;
-			regionName = null;
+			region = null;
 		}
 	}
 	
 	public static int addRegion(int ownerID, RegionType regionType){
-		
-		return 0;
+		// posts file indicates name of posts file, not folder
+		// posts are stored in single file
+		// Same directory as rest of user info, but different file
+		try{
+			String ownerIDstr = Integer.toString(ownerID);
+			int regionID = 1;
+			File regionFolder;
+			if(regionType == Post.RegionType.COVERT){
+				do{
+					regionID++;
+					regionFolder = new File(ownerIDstr + "\\" + regionsFolder + 
+						"\\" + Integer.toString(regionID));
+				} while(regionFolder.exists());
+			} else { // Public or private
+				if(regionType == Post.RegionType.PUBLIC){
+					regionID = 0;
+				} else {
+					regionID = 1;
+				}
+				if(checkIfRegionExists(ownerID, regionID)){
+					return 1;
+				}
+			}
+			
+			String path = ownerIDstr + "\\" + regionsFolder + "\\" +
+					Integer.toString(regionID) + "\\" + regionPostsFile;
+			File postsFile = new File(path);
+			postsFile.getParentFile().mkdirs();
+			postsFile.createNewFile();
+			
+			// Fill in info for user
+			// For now this file only contains allowed viewers of the board
+			String info = ownerIDstr;
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
+					Integer.toString(regionID) + "\\" + regionInfoFile, false));
+			bWriter.write(info);
+			bWriter.close();
+			
+			return 0;
+			
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return 1;
+		}
 	}
 	
-	private static boolean checkIfRegionExists(String userID, String region){
+	private static boolean checkIfRegionExists(int ownerID, int regionID){
 		try{
-			File regionFolder = new File(userID + "\\" + regionsFolder);
-			File[] regionList = regionFolder.listFiles();
-			for(int i = 0; i < regionList.length; i++){
-				if (regionList[i].isFile() &&
-						regionList[i].equals(region)) {
-			        return true;
-			    }
-			}
-			return false;
+			String ownerIDstr = Integer.toString(ownerID);
+			String regionIDstr = Integer.toString(regionID);
+			File regionFolder = new File(ownerIDstr + "\\" + regionsFolder + 
+					"\\" + regionIDstr);
+			return regionFolder.exists();
+					
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return false;
 		}
 	}
-		
-	public void post(int posterID, String msg){
+	
+	public void addToViewable(int friendID){
 		try{
-			String newPost = "\n" + "TIMESTAMP" + " " + userID + ":" + msg;
-			BufferedWriter bWriter = new BufferedWriter(
-					new FileWriter(userID + "\\" + regionsFolder + "\\" + regionName, true));
-			bWriter.write(newPost);
+			String ownerIDstr = Integer.toString(this.region.getOwnerId());
+			String regionIDstr = Integer.toString(this.regionID);
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
+					regionIDstr + "\\" + regionInfoFile, false));
+			bWriter.write("\n" + Integer.toString(friendID));
 			bWriter.close();
+			
+			FaceBreakUser fbuser = new FaceBreakUser(friendID);
+			
+			this.region.getPermissibleUsers().add(fbuser.getUser());
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
 		}
 	}
 	
-	public ArrayList<String> view(){
+	public void post(int posterID, String msg){
 		try{
-			ArrayList<String> posts = new ArrayList<String>();
+			String newPost = "\n" + Long.toString((new Date()).getTime())
+					+ " " + Integer.toString(posterID) + ":" + msg;
+			BufferedWriter bWriter = new BufferedWriter(
+					new FileWriter(Integer.toString(this.region.getOwnerId())
+							+ "\\" + regionsFolder + "\\" + Integer.toString(regionID) + 
+							"\\" + regionPostsFile, true));
+			bWriter.write(newPost);
+			bWriter.close();
 			
-			// Determine number of lines/messages in the region's file
-			FileReader fReader = new FileReader(userID + "\\" + regionsFolder + "\\" + regionName);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			int lineCount = 0;
-			while( inputReader.readLine() != null){
-				lineCount++;
+			FaceBreakUser poster = new FaceBreakUser(posterID);
+			
+			RegionType type;
+			switch(regionID){
+				case 0:
+					type = Post.RegionType.PUBLIC;
+					break;
+				case 1:
+					type = Post.RegionType.PRIVATE;
+					break;
+				default:
+					type = Post.RegionType.COVERT;
+					break;
 			}
-			inputReader.close();
+			Post post = new Post(this.region.getOwnerId(), type, poster.getUser().getName(), msg);
+			// Make sure to add this to the list of the region's posts
+			region.getPosts().add(post);
 			
+		}catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+	
+	public Post[] view(){
+		try{
+			ArrayList<Post> posts = this.region.getPosts();
+			
+			ArrayList<Post> postsToView = new ArrayList<Post>();
+			
+			int i = 0;
+			Post [] viewable = new Post[NUM_POSTS_TO_READ];
 			// Retrieve messages
-			fReader = new FileReader(userID + "\\" + regionsFolder + "\\" + regionName);
-			inputReader = new BufferedReader(fReader);
-			if (lineCount > NUM_POSTS_TO_READ){
-				for(int i = 0; i < lineCount - NUM_POSTS_TO_READ;){
-					inputReader.readLine();
-					i++;
-				}
+			if (posts.size() > NUM_POSTS_TO_READ){
+				i = posts.size() - NUM_POSTS_TO_READ;
 			}
-			String temp;
-			while( (temp = inputReader.readLine()) != null){
-				posts.add(temp);
+			int j = 0;
+			while(i < posts.size()){
+				postsToView.add(posts.get(i));
+				viewable[j] = posts.get(i);
+				i++; j++;
 			}
 			
-			inputReader.close();
+			region.setRecent(viewable);
 			
-			return posts;
+			return region.getRecent();
 			
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());

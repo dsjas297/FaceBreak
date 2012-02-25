@@ -226,22 +226,35 @@ public class FaceBreakUser {
 	}
 	
 	// This is also used to mark users as trustworthy
-	public int markUntrustworthy(int foeId){
-		
-		return 0;
+	public int markUntrustworthy(int foeID){
+		try{
+			// Append to friends file
+			String newFriend = "\n" + Integer.toString(foeID) + ":"
+					+ Long.toString((new Date()).getTime());
+			BufferedWriter bWriter = new BufferedWriter(
+					new FileWriter(Integer.toString(this.user.getId()) + "\\" + userUntrustworthyFile, true));
+			bWriter.write(newFriend);
+			bWriter.close();
+			
+			return 0;
+			
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return 1;
+		}
 	}
 	
-	public int post(int id, String region, String msg){
-		FaceBreakRegion postingBoard = new FaceBreakRegion(id, region);
+	public int post(int id, int ownerID, int regionID, String msg){
+		FaceBreakRegion postingBoard = new FaceBreakRegion(id, ownerID, regionID);
 		postingBoard.post(id, msg);
 		return 0;
 	}
 	
-	public int view(int id, String region){
-		FaceBreakRegion postingBoard = new FaceBreakRegion(id, region);
-		ArrayList<String> msgs = postingBoard.view();
-		for(int i = 0; i < msgs.size(); i++){
-			System.out.println(msgs.get(i));
+	public int view(int id, int ownerID, int regionID){
+		FaceBreakRegion postingBoard = new FaceBreakRegion(id, ownerID, regionID);
+		Post[] msgs = postingBoard.view();
+		for(int i = 0; i < msgs.length; i++){
+			System.out.println(msgs[i].getText());
 		}
 		return 0;
 	}
@@ -260,5 +273,9 @@ public class FaceBreakUser {
 			System.err.println("Error: " + e.getMessage());
 			return 0;
 		}
+	}
+	
+	public User getUser(){
+		return user;
 	}
 }
