@@ -1,33 +1,38 @@
 package facebreak.networking;
 
-import java.util.Date;
+import java.io.Serializable;
 
-public class Request {
-	private MyUser user;
-	private Date timestamp;
+public class Request implements Serializable {
+	private int uid;
+	private long timestamp;
 	private RequestType type;
+	private Content details;
 	
-	public Request() {
-		user = null;
+	public Request(RequestType type) {
+		this.type = type;
+		details = new Content();
 	}
 	
-	public Request(MyUser user) {
-		this.user = user;
+	public Request(int uid) {
+		this.uid = uid;
+		details = new Content();
+	}
+
+	public Request(int uid, RequestType type) {
+		this.uid = uid;
+		this.type = type;
+		details = new Content();
 	}
 	
-	public MyUser getUser() {
-		return user;
+	public int getUserId() {
+		return uid;
 	}
 	
-	public void setUser(MyUser user) {
-		this.user = user;
-	}
-	
-	public Date getTimestamp() {
+	public long getTimestamp() {
 		return timestamp;
 	}
 	
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 	
@@ -37,5 +42,25 @@ public class Request {
 	
 	public void setRequestType(RequestType type) {
 		this.type = type;
+	}
+	
+	public void setDetails(Content details) {
+		this.details = details;
+	}
+	
+	public Content getDetails() {
+		return details;
+	}
+	
+	public enum RequestType {
+		LOGIN,
+		LOGOUT,
+		CREATE_USER,
+		CHANGE_PWD,
+		VIEW_PROFILE,
+		EDIT_PROFILE,
+		VIEW_BOARD,
+		POST,
+		DELETE_POST;
 	}
 }

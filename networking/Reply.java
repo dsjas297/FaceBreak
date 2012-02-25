@@ -4,21 +4,20 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Reply implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	
-	private Date timestamp;
+	private long timestamp;
 	private Error error;
 	private Content contents;
 	
-	public Date getTimestamp() {
+	public Reply() {
+		contents = new Content();
+	}
+	
+	public long getTimestamp() {
 		return timestamp;
 	}
 	
-	public void setTimestamp(Date timestamp) {
+	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 	
