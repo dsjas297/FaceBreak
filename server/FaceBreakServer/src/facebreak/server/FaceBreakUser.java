@@ -13,7 +13,7 @@ public class FaceBreakUser {
 	private ArrayList<Integer> friends;
 	private HashMap<Integer,ArrayList<String>> untrustworthy;
 	
-	private static final String usersListFile = "users";
+	public static final String usersListFile = "users";
 	private static final String userInfoFile = "info";
 	private static final String userFriendsFile = "friends";
 	private static final String userUntrustworthyFile = "untrustworthy";
@@ -76,10 +76,13 @@ public class FaceBreakUser {
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
 			while( (temp = inputReader.readLine()) != null){
-				String existingName = temp.split(":")[1].trim();
-				if(existingName.equals(userName)){
-					inputReader.close();
-					return true;
+				String [] linesplit = temp.split(":");
+				if(linesplit.length > 1){
+					String existingName = linesplit[1].trim();
+					if(existingName.equals(userName)){
+						inputReader.close();
+						return true;
+					}
 				}
 			}
 			
@@ -98,10 +101,13 @@ public class FaceBreakUser {
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
 			while( (temp = inputReader.readLine()) != null){
-				String existingName = temp.split(":")[1].trim();
-				if(existingName.equals(userIDstr)){
-					inputReader.close();
-					return true;
+				String [] linesplit = temp.split(":");
+				if(linesplit.length > 1){
+					String existingID = linesplit[0].trim();
+					if(existingID.equals(userIDstr)){
+						inputReader.close();
+						return true;
+					}
 				}
 			}
 			
@@ -152,6 +158,7 @@ public class FaceBreakUser {
 			inputReader.close();
 			
 			// Load friends file
+			this.friends = new ArrayList<Integer>();
 			fReader = new FileReader(idStr + "\\" + userFriendsFile);
 			inputReader = new BufferedReader(fReader);
 			String temp;
@@ -164,16 +171,19 @@ public class FaceBreakUser {
 			inputReader.close();
 			
 			// Load hashmap of untrustworthy people
+			this.untrustworthy = new HashMap<Integer, ArrayList<String>>();
 			fReader = new FileReader(idStr + "\\" + userUntrustworthyFile);
 			inputReader = new BufferedReader(fReader);
 			String [] linesplit;
 			while( (temp = inputReader.readLine()) != null){
 				linesplit = temp.split(":");
-				Integer untrustworthyID = new Integer( Integer.parseInt(linesplit[0]));
-				if(this.untrustworthy.get(untrustworthyID) == null){
-					this.untrustworthy.put(untrustworthyID, new ArrayList<String>());
+				if(linesplit.length > 1){
+					Integer untrustworthyID = new Integer( Integer.parseInt(linesplit[0]));
+					if(this.untrustworthy.get(untrustworthyID) == null){
+						this.untrustworthy.put(untrustworthyID, new ArrayList<String>());
+					}
+					this.untrustworthy.get(untrustworthyID).add(linesplit[1]);
 				}
-				this.untrustworthy.get(untrustworthyID).add(linesplit[1]);
 			}
 			inputReader.close();
 			
@@ -184,8 +194,8 @@ public class FaceBreakUser {
 	
 	public int addFriend(int friendID){
 		try{
-			if(checkIfFriendExists(friendID)){
-				System.err.println("Error: Friend already exists");
+			if(checkIfFriendExists(friendID) || !checkIfUserExists(friendID)){
+				System.err.println("Error: Friend already exists or is an invalid user");
 				return 1;
 			}
 			
@@ -195,6 +205,9 @@ public class FaceBreakUser {
 					new FileWriter(Integer.toString(this.user.getId()) + "\\" + userFriendsFile, true));
 			bWriter.write(newFriend);
 			bWriter.close();
+			
+			// Append to friends list
+			this.friends.add(friendID);
 			
 			return 0;
 			
@@ -210,8 +223,17 @@ public class FaceBreakUser {
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
 			while( (temp = inputReader.readLine()) != null){
-				String existingID = temp.split(":")[0].trim();
-				if(existingID.equals(Integer.toString(friendID))){
+				/*
+				String [] linesplit = temp.split(":");
+				if(linesplit.length > 1){
+					String existingID = linesplit[0].trim();
+					if(existingID.equals(Integer.toString(friendID))){
+						inputReader.close();
+						return true;
+					}
+				}
+				*/
+				if(temp.equals(Integer.toString(friendID))){
 					inputReader.close();
 					return true;
 				}
@@ -228,13 +250,26 @@ public class FaceBreakUser {
 	// This is also used to mark users as trustworthy
 	public int markUntrustworthy(int foeID){
 		try{
+			if(!checkIfUserExists(foeID)){
+				System.err.println("Error: Attempted to mark nonexistent user untrustworthy");
+				return 1;
+			}
+			String timestamp = Long.toString((new Date()).getTime());
 			// Append to friends file
 			String newFriend = "\n" + Integer.toString(foeID) + ":"
-					+ Long.toString((new Date()).getTime());
+					+ timestamp;
 			BufferedWriter bWriter = new BufferedWriter(
 					new FileWriter(Integer.toString(this.user.getId()) + "\\" + userUntrustworthyFile, true));
 			bWriter.write(newFriend);
 			bWriter.close();
+			
+			// Append to untrustworthy list
+			if(this.untrustworthy.get(foeID) == null){
+				this.untrustworthy.put(foeID, new ArrayList<String>());
+			}
+			this.untrustworthy.get(foeID).add(timestamp);
+			
+			System.out.println(this.untrustworthy.toString());
 			
 			return 0;
 			
@@ -265,7 +300,7 @@ public class FaceBreakUser {
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp = inputReader.readLine();
 			int id = Integer.parseInt(temp);
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(usersListFile, true));
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(userIDFile, false));
 			bWriter.write(Integer.toString(id + 1));
 			bWriter.close();
 			return id;

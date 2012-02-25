@@ -1,21 +1,25 @@
-package gui;
+package facebreak.gui;
 
 import javax.swing.*;
 
-import networking.FBClient;
-import networking.MyUser;
+import facebreak.common.FBClientUser;
+import facebreak.common.Profile;
+import facebreak.common.Title;
+import facebreak.networking.Error;
+import facebreak.networking.FBClient;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.UnknownHostException;
 
 public class FBWindow extends JFrame implements ActionListener, MouseListener{
 	//this is defined for JFrame's uses
 	private static final long serialVersionUID = 1L;
 	
 	FBClient client;
-	MyUser myuser;
+	FBClientUser myuser;
 	Login login = new Login();
 	private boolean logged_in = false;
 	FBPage fbpage;
@@ -34,12 +38,21 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener{
 		setSize(900, 500); //set size in pixels
 		setVisible(true); //show the window
 		
+		
 		setContentPane(login);
 		login.loginButton.addActionListener(this);
 		login.signupButton.addActionListener(this);
 		
+		try {
+			client = new FBClient();
+			System.out.println("Created client socket");
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		//if login is successful:
-		while (logged_in){
+//		while (logged_in){
 			//user can click on:
 				//homepage
 				//another user
@@ -50,7 +63,7 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener{
 				//friend a user
 				//trust a user
 				//logout
-		}
+//		}
 		//show login again with "thank you" message
 	}
 
@@ -58,8 +71,15 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource()==login.loginButton){
-			myuser = new MyUser(login.usernameEntry.getText(), login.pwdEntry.getText());
+			try {
+				client.login(login.usernameEntry.getText(), login.pwdEntry.getText());
 				
+				Profile myProfile = new Profile("godfather", "Vito", "Corleone");
+				myProfile.setFamily("Notorious BJG");
+				myProfile.setTitle(Title.BOSS);	
+				
+				client.editProfile(myProfile);
+			
 //			try{
 //				client = new FBClient();
 //				Error login_success = client.login(user);
@@ -84,10 +104,13 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener{
 			logged_in = true;
 			login.setVisible(false);
 			curr_user = 0;
-			fbpage = new FBPage(this, curr_user,curr_region);
+			fbpage = new FBPage(client, curr_user,curr_region);
 			setContentPane(fbpage);
 			fbpage.logout.addMouseListener(this);
-			
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		else if (e.getSource()==login.signupButton){
 			//TODO: signup protocol
@@ -104,9 +127,16 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener{
 			logged_in = false;
 			getContentPane().remove(fbpage);
 			login.setVisible(true);
-			setContentPane(login);
-			login.loggedOut.setVisible(true);
-			repaint();
+			
+			try {
+				client.logout();
+				setContentPane(login);
+				login.loggedOut.setVisible(true);
+				repaint();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		//search

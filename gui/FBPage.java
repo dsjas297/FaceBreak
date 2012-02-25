@@ -1,4 +1,4 @@
-package gui;
+package facebreak.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -9,6 +9,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.*;
+
+import facebreak.common.Post;
+import facebreak.common.Profile;
+import facebreak.common.Post.RegionType;
+import facebreak.common.Region;
+import facebreak.networking.FBClient;
+import facebreak.networking.Error;
 
 public class FBPage extends JPanel implements ActionListener, MouseListener{
 
@@ -26,6 +33,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 	
 	//IDs
 	private int myUserID; //user who is logged in
+	private String myUserName;
 	private int curr_profile; //user whose profile is being looked at
 	private int curr_region; //region of profile being looked at
 	
@@ -34,13 +42,19 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 	private int height;
 	private int prof_width;
 	private int wall_width;
+	
+	// client
+	FBClient myClient;
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
-	public FBPage(JFrame parent, int userID, int regionID){
+	public FBPage(FBClient client, int userID, int regionID){
+		myClient = client;
+		
 		myUserID = userID;
 		curr_profile = userID;
 		curr_region = regionID;
@@ -87,7 +101,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 	}
 	
 	//adds profile picture, information, to user profile.
-	public void populate_userprofile(){
+	public void populate_userprofile() throws ClassNotFoundException{
+		Profile myProfile = new Profile("godfather");
+		myClient.viewProfile(myProfile);
+		
 		//get user picture from ID
 		String prof_pic;
 		if (curr_profile==0){
@@ -100,9 +117,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 		JLabel prof_pic_label = new JLabel(new ImageIcon(prof_pic));
 		prof_pic_label.setHorizontalAlignment(JLabel.CENTER);
 		//TODO: get user info
-		JLabel username = new JLabel("Username");
+		JLabel username = new JLabel(myProfile.getFname() + " " + myProfile.getLname());
 		username.setAlignmentX((float) 0.0);
-		JTextArea user_info = new JTextArea("Title: \nFamily: \n");
+		JTextArea user_info = new JTextArea("Title: "
+				+ myProfile.getTitle().toString() + "\nFamily: "
+				+ myProfile.getFamily());
 		user_info.setAlignmentX((float) 0.0);
 		user_info.setLineWrap(true);
 		user_info.setWrapStyleWord(true);
@@ -128,11 +147,21 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 		//wall_posts.getPost();
 		//while there are still posts
 		
-		for (int i=0; i<10; i++){
+		Region board = new Region("godfather");
+		try {
+			myClient.viewBoard(board);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Post[] postArray = board.getPosts();
+		
+		for(int i = postArray.length - 1; i >= 0; i--) {
 			//for each post, get:
-			String poster_name = "Username";
+			String poster_name = postArray[i].getWriterName();
 			int poster_id = 1;
-			String message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut volutpat lacus ac justo fermentum rutrum. Nullam porttitor scelerisque ipsum ac feugiat.";
+			String message = postArray[i].getText();
 			String time = "8:00pm February 18, 2012";
 				
 			//for each post
@@ -200,7 +229,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 		profile.setMaximumSize(new Dimension(prof_width,height-50));
 		profile.setBackground(Color.blue);
 		
-		populate_userprofile();
+		try {
+			populate_userprofile();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		return profile;
 	}
@@ -286,10 +320,20 @@ public class FBPage extends JPanel implements ActionListener, MouseListener{
 			//if post is not all whitespace
 			String comm = comment_box.getText();
 			String stripped_comment = comm.replaceAll("\\s+", "");
+
 			if (!stripped_comment.equals("")){
-				//System.out.println("'"+comm+"'");
-				//TODO: post comment to server
-				//update wall
+
+				Post post1 = new Post();
+				post1.setRegion(RegionType.PUBLIC);
+				post1.setText(comm);
+				try {
+					Error e = myClient.post(post1);
+					if(e == Error.SUCCESS)
+						change_wall(curr_profile, curr_region);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}

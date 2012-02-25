@@ -41,27 +41,33 @@ public class FaceBreakRegion {
 				
 				this.region = new Region(ownerID, type);
 				
+				// Get users that are allowed to read the file
 				FileReader fReader = new FileReader(Integer.toString(ownerID) +
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
 						"\\" + regionInfoFile);
 				BufferedReader inputReader = new BufferedReader(fReader);
 				String temp;
+				this.region.setPermissibleUsers(new ArrayList<User>());
 				while( (temp = inputReader.readLine()) != null){
 					int allowedID = Integer.parseInt(temp);
 					FaceBreakUser fbuser = new FaceBreakUser(allowedID);
 					this.region.getPermissibleUsers().add(fbuser.getUser());
 				}
 				
+				// Get posts in array
 				fReader = new FileReader(Integer.toString(ownerID) +
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
 						"\\" + regionPostsFile);
 				inputReader = new BufferedReader(fReader);;
+				this.region.setPosts(new ArrayList<Post>());
 				while( (temp = inputReader.readLine()) != null){
 					String [] linesplit = temp.split(":");
-					FaceBreakUser poster = new FaceBreakUser(Integer.parseInt(linesplit[1]));
-					Post post = new Post(ownerID, type,
-							poster.getUser().getName(), linesplit[2]);
-					this.region.getPosts().add(post);
+					if(linesplit.length > 1){
+						FaceBreakUser poster = new FaceBreakUser(Integer.parseInt(linesplit[1]));
+						Post post = new Post(ownerID, type,
+								poster.getUser().getName(), linesplit[2]);
+						this.region.getPosts().add(post);
+					}
 				}
 				
 				this.view();
@@ -96,6 +102,7 @@ public class FaceBreakRegion {
 					regionID = 1;
 				}
 				if(checkIfRegionExists(ownerID, regionID)){
+					System.err.println("Cannot create a second public or private region");
 					return 1;
 				}
 			}
@@ -136,20 +143,47 @@ public class FaceBreakRegion {
 		}
 	}
 	
-	public void addToViewable(int friendID){
+	public int addToViewable(int friendID){
 		try{
+			if(checkViewable(friendID) || !FaceBreakUser.checkIfUserExists(friendID)){
+				System.err.println("Error: User either doesn't exist or can already view board");
+				return 1;
+			}
+			
 			String ownerIDstr = Integer.toString(this.region.getOwnerId());
 			String regionIDstr = Integer.toString(this.regionID);
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
-					regionIDstr + "\\" + regionInfoFile, false));
+					regionIDstr + "\\" + regionInfoFile, true));
 			bWriter.write("\n" + Integer.toString(friendID));
 			bWriter.close();
 			
 			FaceBreakUser fbuser = new FaceBreakUser(friendID);
-			
 			this.region.getPermissibleUsers().add(fbuser.getUser());
+			return 0;
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
+			return 0;
+		}
+	}
+	
+	private boolean checkViewable(int friendID){
+		try{
+			FileReader fReader = new FileReader(Integer.toString(this.region.getOwnerId()) +
+					"\\" + regionsFolder + "\\" + Integer.toString(this.regionID) + "\\" + regionInfoFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String temp;
+			while( (temp = inputReader.readLine()) != null){
+				if(temp.equals(Integer.toString(friendID))){
+					inputReader.close();
+					return true;
+				}
+			}
+			
+			inputReader.close();
+			return false;
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return false;
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package gui;
+package facebreak.gui;
 
 import javax.swing.JLabel;
 

@@ -1,4 +1,4 @@
-package gui;
+package facebreak.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
