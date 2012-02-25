@@ -58,10 +58,12 @@ public class FaceBreakRegion {
 				inputReader = new BufferedReader(fReader);;
 				while( (temp = inputReader.readLine()) != null){
 					String [] linesplit = temp.split(":");
-					FaceBreakUser poster = new FaceBreakUser(Integer.parseInt(linesplit[1]));
-					Post post = new Post(ownerID, type,
-							poster.getUser().getName(), linesplit[2]);
-					this.region.getPosts().add(post);
+					if(linesplit.length > 1){
+						FaceBreakUser poster = new FaceBreakUser(Integer.parseInt(linesplit[1]));
+						Post post = new Post(ownerID, type,
+								poster.getUser().getName(), linesplit[2]);
+						this.region.getPosts().add(post);
+					}
 				}
 				
 				this.view();
