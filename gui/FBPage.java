@@ -8,15 +8,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-import common.Error;
 import networking.FBClient;
 
+import common.Error;
 import common.Post;
+import common.Post.RegionType;
 import common.Profile;
 import common.Region;
-import common.Post.RegionType;
 
 
 public class FBPage extends JPanel implements ActionListener, MouseListener{
