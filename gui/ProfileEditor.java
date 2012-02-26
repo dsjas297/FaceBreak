@@ -12,6 +12,11 @@ import javax.swing.JTextField;
 
 public class ProfileEditor extends JPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ProfileEditor(int wall_width){
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		setMinimumSize(new Dimension(wall_width,150));

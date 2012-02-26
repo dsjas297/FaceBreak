@@ -2,7 +2,6 @@ package gui;
 
 import javax.swing.*;
 
-import common.Error;
 import networking.FBClient;
 
 import common.FBClientUser;
