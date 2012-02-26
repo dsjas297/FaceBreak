@@ -6,15 +6,17 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import networking.Request.RequestType;
+
 import common.Error;
 import common.FBClientUser;
 import common.Post;
 import common.Profile;
 import common.Region;
-
-import networking.Request.RequestType;
-
 import dummyserver.DummyQuery;
+
+
+
 
 public class FBClientHandler extends Thread {
 	private Socket clientSocket;

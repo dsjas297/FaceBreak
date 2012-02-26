@@ -11,6 +11,7 @@ import common.Title;
 import common.Post.RegionType;
 
 
+
 public class SampleMain {
 	
 	public static void main(String args[]) throws IOException, ClassNotFoundException{

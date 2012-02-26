@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import common.Post.RegionType;
 
 
+
 public class Region implements Serializable {
 	private int owner;
 	private String ownerName;

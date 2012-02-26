@@ -1,10 +1,11 @@
-package facebreak.dummyserver;
+package dummyserver;
 
 import java.util.ArrayList;
 
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.FBClientUser;
+import common.FBClientUser;
+import common.Post;
+import common.Profile;
+
 
 /*
  * NOT FINALIZED YET!!

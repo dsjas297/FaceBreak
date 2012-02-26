@@ -1,9 +1,10 @@
-package facebreak.server;
+package server;
 
 import java.util.*;
 import java.io.*;
-import facebreak.common.*;
-import facebreak.common.Post.RegionType;
+
+import common.*;
+import common.Post.RegionType;
 
 public class FaceBreakUser {
 	
@@ -42,7 +43,7 @@ public class FaceBreakUser {
 			
 			// Fill in info for user
 			String userInfo = newUserIDstr + "\n" + userName + "\n" + 
-					Integer.toString(title.getRank()) + "\n" + family + "\n" + fname + "\n" +
+					Integer.toString(title.rank) + "\n" + family + "\n" + fname + "\n" +
 					lname;
 			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userInfoFile, false));
 			bWriter.write(userInfo);
@@ -140,7 +141,7 @@ public class FaceBreakUser {
 			String fname = inputReader.readLine();
 			String lname = inputReader.readLine();
 			
-			this.user = new User(userName, "");
+			this.user = new User(userName);
 			this.user.setId(userID);
 			
 			this.profile = new Profile(userName, fname, lname);
@@ -204,8 +205,8 @@ public class FaceBreakUser {
 			this.profile = prof;
 			
 			// Fill in info for user
-			String userInfo = Integer.toString(this.user.getId()) + "\n" + user.getName() + "\n" + 
-					Integer.toString(title.getRank()) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+			String userInfo = Integer.toString(this.user.getId()) + "\n" + user.getUsername() + "\n" + 
+					Integer.toString(title.rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 					prof.getLname();
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(Integer.toString(this.user.getId()) + "\\" + userInfoFile, false));
 			bWriter.write(userInfo);
