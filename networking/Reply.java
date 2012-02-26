@@ -3,6 +3,8 @@ package facebreak.networking;
 import java.io.Serializable;
 import java.util.Date;
 
+import facebreak.common.Error;
+
 public class Reply implements Serializable {
 	
 	private long timestamp;

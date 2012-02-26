@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import facebreak.common.Error;
 import facebreak.common.Post;
 import facebreak.common.Profile;
 import facebreak.common.FBClientUser;
@@ -27,7 +28,6 @@ public class FBClientHandler extends Thread {
 
 	public Reply parseRequest(Request r) {
 		RequestType type = r.getRequestType();
-		FBClientUser clientUser = r.getDetails().getUser();
 		Reply myReply = new Reply();
 		
 		// sanity checks
@@ -47,6 +47,11 @@ public class FBClientHandler extends Thread {
 //				return myReply;
 //			}
 		}
+		Content unpackedContent = r.getDetails();
+		FBClientUser clientUser = unpackedContent.getUser();
+		Profile profile = unpackedContent.getProfile();
+		Post post = unpackedContent.getPost();
+		Region region = unpackedContent.getBoard();
 		
 		switch (type) {
 			case LOGIN:
@@ -61,16 +66,7 @@ public class FBClientHandler extends Thread {
 			case CHANGE_PWD:
 				myReply = processChangePwd(clientUser);
 				break;
-			case VIEW_BOARD: {
-				Region region = r.getDetails().getBoard();
-				if(region == null)
-					myReply.setReturnError(Error.MALFORMED_REQUEST);
-				else
-					myReply = processViewBoard(region);
-				break;
-			}
 			case VIEW_PROFILE: {
-				Profile profile = r.getDetails().getProfile();
 				if(profile == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
@@ -78,7 +74,6 @@ public class FBClientHandler extends Thread {
 				break;
 			}
 			case EDIT_PROFILE: {
-				Profile profile = r.getDetails().getProfile();
 				if(profile == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
@@ -86,15 +81,20 @@ public class FBClientHandler extends Thread {
 				break;
 			}
 			case POST: {
-				Post post = r.getDetails().getPost();
 				if(post == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
 					myReply = processCreatePost(post);
 				break;
 			}
+			case VIEW_BOARD: {
+				if(region == null)
+					myReply.setReturnError(Error.MALFORMED_REQUEST);
+				else
+					myReply = processViewBoard(region);
+				break;
+			}
 			case DELETE_POST: {
-				Post post = r.getDetails().getPost();
 				if(post == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
@@ -172,46 +172,6 @@ public class FBClientHandler extends Thread {
 		return r;
 	}
 
-	/*
-	 * TODO: not sure how this should be implemented?
-	 */
-	public Reply processDeletePost() {
-		Reply r = new Reply();
-		
-		return r;
-	}
-
-	public Reply processCreatePost(Post newPost) {
-		Reply r = new Reply();
-		newPost.setWriterId(authUser.getId());
-		newPost.setWriterName(authUser.getUsername());
-		
-		if(!DummyQuery.newPost(newPost))
-			r.setReturnError(Error.PRIVILEGE);
-		else
-			r.setReturnError(Error.SUCCESS);
-		
-		return r;
-	}
-
-	/*
-	 * TODO: not sure how this should be implemented
-	 */
-	public Reply processViewBoard(Region region) {
-		Reply r = new Reply();
-		
-		ArrayList<Post> board = DummyQuery.getBoard();
-		
-		if(board == null)
-			r.setReturnError(Error.PRIVILEGE);
-		
-		region.setPosts(board);
-		r.getContents().setBoard(region);
-		r.setReturnError(Error.SUCCESS);
-		
-		return r;
-	}
-
 	public Reply processViewProfile(Profile requestedProf) {
 		Reply r = new Reply();
 		
@@ -240,15 +200,50 @@ public class FBClientHandler extends Thread {
 		
 		return r;
 	}
+
+	public Reply processCreatePost(Post newPost) {
+		Reply r = new Reply();
+		newPost.setWriterId(authUser.getId());
+		newPost.setWriterName(authUser.getUsername());
+		
+		if(!DummyQuery.newPost(newPost))
+			r.setReturnError(Error.PRIVILEGE);
+		else
+			r.setReturnError(Error.SUCCESS);
+		
+		return r;
+	}
+
+	public Reply processViewBoard(Region region) {
+		Reply r = new Reply();
+		
+		ArrayList<Post> board = DummyQuery.getBoard();
+		
+		if(board == null)
+			r.setReturnError(Error.PRIVILEGE);
+		
+		region.setPosts(board);
+		r.getContents().setBoard(region);
+		r.setReturnError(Error.SUCCESS);
+		
+		return r;
+	}
+	
+	/*
+	 * TODO: not sure how this should be implemented?
+	 */
+	public Reply processDeletePost() {
+		Reply r = new Reply();
+		
+		return r;
+	}
 	
 	public void closeConnection() throws IOException {
+		if(inStream != null) inStream.close();
+		if(outStream != null)outStream.close();
+		if(clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+
 		authUser = null;
-		if(inStream != null)
-			inStream.close();
-		if(outStream != null)
-			outStream.close();
-		if(clientSocket != null)
-			clientSocket.close();
 		inStream = null;
 		outStream = null;
 		clientSocket = null;
@@ -260,16 +255,11 @@ public class FBClientHandler extends Thread {
 		
 		System.out.println("Accepted client on machine "
 				+ clientSocket.getInetAddress().getHostName());
-
 		try {
-			inStream = new ObjectInputStream(clientSocket.getInputStream());
-			outStream = new ObjectOutputStream(clientSocket.getOutputStream());
-			
 			boolean loop = true;
 
-//			Request clientRequest = (Request)inStream.readObject();
-//			Reply myReply = parseRequest(clientRequest);
-//			outStream.writeObject(myReply);
+			inStream = new ObjectInputStream(clientSocket.getInputStream());
+			outStream = new ObjectOutputStream(clientSocket.getOutputStream());
 			
 			while(clientSocket.isConnected() && loop) {
 				// examine client's request
@@ -277,25 +267,24 @@ public class FBClientHandler extends Thread {
 				System.out.println("Request type: "
 						+ clientRequest.getRequestType().toString());
 
+				// parse client's request and send my reply
 				Reply myReply = parseRequest(clientRequest);
-
-				// send reply back to client
 				outStream.writeObject(myReply);
 
 				// exit loop on logout
-				if (clientRequest.getRequestType() == RequestType.LOGOUT)
+				if(clientRequest.getRequestType() == RequestType.LOGOUT)
 					loop = false;
 			}
-		} catch (IOException e) {
+		} catch(IOException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch(ClassNotFoundException e) {
 			System.out.println("Class not found!");
 			e.printStackTrace();
 		} finally {
 			System.out.println("Closing connection.");
 			try {
 				closeConnection();
-			} catch (IOException e) {
+			} catch(IOException e) {
 				System.out.println("Errors closing socket");
 				e.printStackTrace();
 			}

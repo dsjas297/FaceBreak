@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+import facebreak.common.Error;
 import facebreak.common.Post;
 import facebreak.common.Profile;
 import facebreak.common.Region;
