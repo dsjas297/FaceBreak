@@ -250,5 +250,14 @@ public class FaceBreakRegion {
 		}
 	}
 	
+	public ArrayList<Post> viewAll(){
+		try{
+			return this.region.getPosts();
+		}catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
 	
 }
