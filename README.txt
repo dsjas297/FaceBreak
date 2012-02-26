@@ -1,0 +1,10 @@
+README
+
+CONTENTS
+[file names/description]
+
+INSTALLATION
+[<10 min]
+COMPILING
+
+RUNNING/TUTORIAL

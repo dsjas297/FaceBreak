@@ -1,0 +1,14 @@
+TEAM MEMBERS;
+Gaomin Deng (gd226)
+Jasdeep Hundal (jsh263)
+Boiar Qin (bq27)
+
+Gaomin:
+[description]
+[hours]
+Jasdeep:
+[description]
+[hours]
+Boiar:
+[description]
+[hours]
