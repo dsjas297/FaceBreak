@@ -1,9 +1,10 @@
-package facebreak.networking;
+package networking;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import facebreak.common.Error;
+import common.Error;
+
 
 public class Reply implements Serializable {
 	

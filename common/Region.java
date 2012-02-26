@@ -1,9 +1,10 @@
-package facebreak.common;
+package common;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import facebreak.common.Post.RegionType;
+import common.Post.RegionType;
+
 
 public class Region implements Serializable {
 	private int owner;

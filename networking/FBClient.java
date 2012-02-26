@@ -1,4 +1,4 @@
-package facebreak.networking;
+package networking;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,12 +7,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import facebreak.common.Error;
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Region;
-import facebreak.common.FBClientUser;
-import facebreak.networking.Request.RequestType;
+import common.Error;
+import common.FBClientUser;
+import common.Post;
+import common.Profile;
+import common.Region;
+
+import networking.Request.RequestType;
+
 
 public class FBClient implements Client {
 	private Socket socket;

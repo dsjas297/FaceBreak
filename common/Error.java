@@ -1,4 +1,4 @@
-package facebreak.common;
+package common;
 
 public enum Error {
 	SUCCESS(0, "Success!"), 

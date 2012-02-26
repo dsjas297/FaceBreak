@@ -1,4 +1,4 @@
-package facebreak.common;
+package common;
 
 public enum Title {
 	BOSS(0, "Boss"), 
