@@ -8,8 +8,8 @@ import facebreak.common.Post.RegionType;
 public class FaceBreakUser {
 	
 	private User user;
+	private Profile profile;
 	private Title title;
-	private String family;
 	private ArrayList<Integer> friends;
 	private HashMap<Integer,ArrayList<String>> untrustworthy;
 	
@@ -18,8 +18,9 @@ public class FaceBreakUser {
 	private static final String userFriendsFile = "friends";
 	private static final String userUntrustworthyFile = "untrustworthy";
 	private static final String userIDFile = "userID";
+	private static final String imageFile = "avatar.jpg";
 	
-	public static int addUser(String userName, Title title, String family){
+	public static int addUser(String userName, Title title, String family, String fname, String lname){
 		
 		try{
 			if(checkIfUserExists(userName)){
@@ -40,7 +41,9 @@ public class FaceBreakUser {
 			(new File(directory)).mkdirs();
 			
 			// Fill in info for user
-			String userInfo = newUserIDstr + "\n" + userName + "\n" + Integer.toString(title.getRank()) + "\n" + family;
+			String userInfo = newUserIDstr + "\n" + userName + "\n" + 
+					Integer.toString(title.getRank()) + "\n" + family + "\n" + fname + "\n" +
+					lname;
 			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userInfoFile, false));
 			bWriter.write(userInfo);
 			bWriter.close();
@@ -134,11 +137,15 @@ public class FaceBreakUser {
 			String userName = inputReader.readLine();
 			int rank = Integer.parseInt(inputReader.readLine());
 			String family = inputReader.readLine();
+			String fname = inputReader.readLine();
+			String lname = inputReader.readLine();
 			
 			this.user = new User(userName, "");
 			this.user.setId(userID);
 			
-			this.family = family;
+			this.profile = new Profile(userName, fname, lname);
+			
+			this.profile.setFamily(family);
 			
 			switch(rank){
 				case 0:
@@ -190,6 +197,26 @@ public class FaceBreakUser {
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
+	}
+	
+	public void setProfile(Profile prof){
+		try{
+			this.profile = prof;
+			
+			// Fill in info for user
+			String userInfo = Integer.toString(this.user.getId()) + "\n" + user.getName() + "\n" + 
+					Integer.toString(title.getRank()) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+					prof.getLname();
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(Integer.toString(this.user.getId()) + "\\" + userInfoFile, false));
+			bWriter.write(userInfo);
+			bWriter.close();
+		}catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+	
+	public Profile getProfile(){
+		return profile;
 	}
 	
 	public int addFriend(int friendID){
