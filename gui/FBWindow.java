@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 
 import networking.FBClient;
 
+import common.Error;
 import common.FBClientUser;
 import common.Profile;
 import common.Title;
@@ -66,54 +67,45 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		// show login again with "thank you" message
 	}
 
+	public void login_protocol(){
+		try {
+			client.login(login.usernameEntry.getText(),
+					login.pwdEntry.getText());
+			
+
+			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
+			myProfile.setFamily("Notorious BJG");
+			myProfile.setTitle(Title.BOSS);
+			client.editProfile(myProfile);
+
+			System.out.println(login.usernameEntry.getText());
+			logged_in = true;
+			login.setVisible(false);
+			curr_user = 0;
+			fbpage = new FBPage(client, curr_user, curr_region);
+			setContentPane(fbpage);
+			fbpage.logout.addMouseListener(this);
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == login.loginButton) {
+			login_protocol();
+		} else if (e.getSource() == login.signupButton) {
+			// TODO: signup protocol
 			try {
-				client.login(login.usernameEntry.getText(),
+				client.createUser(login.usernameEntry.getText(),
 						login.pwdEntry.getText());
-				
-
-				Profile myProfile = new Profile("godfather", "Vito", "Corleone");
-				myProfile.setFamily("Notorious BJG");
-				myProfile.setTitle(Title.BOSS);
-
-				client.editProfile(myProfile);
-
-				// try{
-				// client = new FBClient();
-				// Error login_success = client.login(user);
-				// if (login_success==Error.SUCCESS){
-				// int userID = user.getId();
-				// //transition to user's FBPage with user's ID
-				// logged_in = true;
-				// login.setVisible(false);
-				// setContentPane(new FBPage(userID,0));
-				// }
-				// else {
-				// System.out.println("Login failed");
-				// //TODO: change this to a function with 3 strikes/15 minutes
-				// policy
-				// login.loginFailed.setVisible(true);
-				// }
-				//
-				// }
-				// catch (UnknownHostException exp){
-				// System.out.println(exp);
-				// }
-				System.out.println(login.usernameEntry.getText());
-				logged_in = true;
-				login.setVisible(false);
-				curr_user = 0;
-				fbpage = new FBPage(client, curr_user, curr_region);
-				setContentPane(fbpage);
-				fbpage.logout.addMouseListener(this);
 			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		} else if (e.getSource() == login.signupButton) {
-			// TODO: signup protocol
+			//auto-login
+			login_protocol();
 		}
 	}
 

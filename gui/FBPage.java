@@ -41,7 +41,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JTextArea comment_box;
 	private JButton comment_button;
 	private JPanel edit;
-	private JButton save_edit;
+	private JButton save_edit = new JButton("Save profile");
 
 	// IDs
 	private int myUserID; // user who is logged in
@@ -338,7 +338,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	}
 
 	public void edit_profile() {
-
+		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
 	@Override
