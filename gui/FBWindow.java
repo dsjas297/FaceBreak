@@ -1,12 +1,14 @@
-package facebreak.gui;
+package gui;
 
 import javax.swing.*;
 
-import facebreak.common.FBClientUser;
-import facebreak.common.Profile;
-import facebreak.common.Title;
-import facebreak.networking.Error;
-import facebreak.networking.FBClient;
+import common.Error;
+import networking.FBClient;
+
+import common.FBClientUser;
+import common.Profile;
+import common.Title;
+
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

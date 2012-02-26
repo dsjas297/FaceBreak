@@ -1,10 +1,11 @@
-package facebreak.server;
+package server;
 
 import java.util.*;
 import java.io.*;
 
-import facebreak.common.*;
-import facebreak.common.Post.RegionType;
+import common.*;
+import common.Post.RegionType;
+
 
 public class FaceBreakRegion {
 	

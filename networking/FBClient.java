@@ -7,13 +7,15 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import networking.Request.RequestType;
+
 import common.Error;
 import common.FBClientUser;
 import common.Post;
 import common.Profile;
 import common.Region;
 
-import networking.Request.RequestType;
+
 
 
 public class FBClient implements Client {

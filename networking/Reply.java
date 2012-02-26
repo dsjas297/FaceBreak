@@ -6,6 +6,7 @@ import java.util.Date;
 import common.Error;
 
 
+
 public class Reply implements Serializable {
 	
 	private long timestamp;

@@ -1,4 +1,4 @@
-package facebreak.gui;
+package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,12 +10,14 @@ import java.awt.event.MouseListener;
 
 import javax.swing.*;
 
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Post.RegionType;
-import facebreak.common.Region;
-import facebreak.networking.FBClient;
-import facebreak.networking.Error;
+import common.Error;
+import networking.FBClient;
+
+import common.Post;
+import common.Profile;
+import common.Region;
+import common.Post.RegionType;
+
 
 public class FBPage extends JPanel implements ActionListener, MouseListener{
 

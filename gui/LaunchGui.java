@@ -1,4 +1,4 @@
-package facebreak.gui;
+package gui;
 
 public class LaunchGui {
 	public static FBWindow window;
