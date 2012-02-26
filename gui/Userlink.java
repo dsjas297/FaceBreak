@@ -3,6 +3,10 @@ package gui;
 import javax.swing.JLabel;
 
 public class Userlink extends JLabel{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int userID; //associated userID
 	String username;
 	
