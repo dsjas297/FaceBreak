@@ -117,6 +117,7 @@ public class FBClientHandler extends Thread {
 	public Reply processLogin(FBClientUser client) {
 		Reply r = new Reply();
 		
+		System.out.println(client.getUsername());
 		int uid = DummyQuery.loginUser(client);
 		// if not valid username/passwd combo, return only error
 		if(uid == -1) {
