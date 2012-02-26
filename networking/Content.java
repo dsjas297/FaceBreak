@@ -1,11 +1,12 @@
-package facebreak.networking;
+package networking;
 
 import java.io.Serializable;
 
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Region;
-import facebreak.common.FBClientUser;
+import common.FBClientUser;
+import common.Post;
+import common.Profile;
+import common.Region;
+
 
 /*
  * Wrapper class

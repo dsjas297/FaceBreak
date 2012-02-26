@@ -1,4 +1,4 @@
-package facebreak.networking;
+package networking;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,13 +7,16 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Region;
-import facebreak.common.FBClientUser;
-import facebreak.networking.Request.RequestType;
+import common.Error;
+import common.FBClientUser;
+import common.Post;
+import common.Profile;
+import common.Region;
 
-public class FBClient {
+import networking.Request.RequestType;
+
+
+public class FBClient implements Client {
 	private Socket socket;
 	private InetAddress serverAddr;
 	private FBClientUser user;
@@ -22,6 +25,9 @@ public class FBClient {
 
 	private static final int port = 4444;
 
+	/*
+	 * Automatically sets server address to localhost
+	 */
 	public FBClient() throws UnknownHostException {
 		serverAddr = InetAddress.getLocalHost();
 		user = null;
@@ -30,6 +36,9 @@ public class FBClient {
 		inStream = null;
 	}
 
+	/*
+	 * Allows user to specify server address, other than localhost
+	 */
 	public FBClient(InetAddress serverAddr) {
 		this.serverAddr = serverAddr;
 		user = null;
@@ -38,70 +47,35 @@ public class FBClient {
 		inStream = null;
 	}
 
-	public void setCurrentUser(FBClientUser user) {
-		this.user = user;
-	}
-
 	public void setCurrentUser(String username, String pwd) {
 		user = new FBClientUser(username, pwd);
 	}
 
-	public FBClientUser getCurrentUser() {
-		return user;
-	}
-
 	/*
-	 * Send myRequest over network; get reply back from server
+	 * Closes socket and object streams; sets all fields to null in preparation for new user
 	 */
-	public Reply talkToServer(Request myRequest) {
-		Reply serverReply;
-		myRequest.setTimestamp(System.currentTimeMillis());
-		try {
-			// send request to server
-			outStream.writeObject(myRequest);
-
-			// get reply
-			serverReply = (Reply) inStream.readObject();
-		} catch (IOException e) {
-			serverReply = new Reply();
-			serverReply.setReturnError(Error.CONNECTION);
-		} catch (ClassNotFoundException e) {
-			serverReply = new Reply();
-			serverReply.setReturnError(Error.UNKNOWN_ERROR);
-		}
-
-		return serverReply;
-	}
-
 	public void closeConnection() throws IOException {
-		if(inStream != null)
-			inStream.close();
-		if(outStream != null)
-			outStream.close();
-		if(socket != null)
-			socket.close();
+		if(inStream != null) inStream.close();
+		if(outStream != null) outStream.close();
+		if(socket != null && !socket.isClosed()) socket.close();
+		
 		inStream = null;
 		outStream = null;
 		socket = null;
 		user = null;
-		System.out.println("Closing connection");
+		System.out.println("Closed connection");
 	}
 
+	/**
+	 * Logs in user with (username, pwd) combo. Fails if another user is already logged in.
+	 * Creates new socket and initializes input/output streams;
+	 * will close connection and close io streams on failure.
+	 */
 	public Error login(String username, String pwd) throws ClassNotFoundException {
 		// cannot login while there's another user logged in
 		if(user != null)
 			return Error.MALFORMED_REQUEST;
 		
-		user = new FBClientUser(username, pwd);
-		return login();
-	}
-	
-	/*
-	 * Creates new socket and initializes input/output streams. If does not
-	 * succeed, closes connection; must create new client
-	 */
-	public Error login() throws ClassNotFoundException {
-		// open new connection
 		try {
 			socket = new Socket(serverAddr, port);
 			outStream = new ObjectOutputStream(socket.getOutputStream());
@@ -121,7 +95,6 @@ public class FBClient {
 				user.setId(serverReply.getContents().getUser().getId());
 			else
 				closeConnection();
-
 			return e;
 		} catch (IOException ioe) {
 			return Error.CONNECTION;
@@ -129,7 +102,7 @@ public class FBClient {
 	}
 
 	/*
-	 * Logout of current session
+	 * Log out of current session
 	 */
 	public Error logout() throws ClassNotFoundException {
 		// sanity check
@@ -155,7 +128,8 @@ public class FBClient {
 
 	/*
 	 * Cannot create a new user while another user is logged in on this machine.
-	 * If error occurs, automatically closes connection
+	 * If error occurs, automatically closes connection.
+	 * Otherwise, creates user and automatically logs them in.
 	 */
 	public Error createUser(String username, String pwd) throws ClassNotFoundException {
 
@@ -254,8 +228,8 @@ public class FBClient {
 	}
 
 	/*
-	 * Edit your own profile by creating new Profile object and editting
-	 * whatever fields
+	 * Edit your own profile by creating new Profile object and setting
+	 * whatever fields you want to change
 	 */
 	public Error editProfile(Profile myProfile) throws ClassNotFoundException {
 		// sanity check
@@ -282,7 +256,7 @@ public class FBClient {
 	}
 	
 	/*
-	 * Post a new item on someone's region creating new Post object and setting
+	 * Post a new item on someone's region by creating new Post object and setting
 	 * the necessary fields
 	 */
 	public Error post(Post newPost) throws ClassNotFoundException {
@@ -307,7 +281,8 @@ public class FBClient {
 	}
 
 	/*
-	 * TODO: implement view board...how to do this?
+	 * View my or someone else's board/region by creating new Region object and
+	 * setting necessary fields
 	 */
 	public Error viewBoard(Region board) throws ClassNotFoundException {
 		// sanity check

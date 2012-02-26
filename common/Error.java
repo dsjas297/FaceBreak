@@ -1,4 +1,4 @@
-package facebreak.networking;
+package common;
 
 public enum Error {
 	SUCCESS(0, "Success!"), 
@@ -26,6 +26,8 @@ public enum Error {
 
 	@Override
 	public String toString() {
+		if(code == SUCCESS.code)
+			return msg;
 		return "Error: " + msg;
 	}
 }

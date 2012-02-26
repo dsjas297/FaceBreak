@@ -1,4 +1,4 @@
-package facebreak.networking;
+package networking;
 
 import java.io.Serializable;
 

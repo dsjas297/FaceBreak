@@ -1,4 +1,4 @@
-package facebreak.networking;
+package networking;
 
 public class AuthenticatedUser {
 	private int id;
