@@ -9,6 +9,5 @@ public class LaunchGui {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		window = new FBWindow();
-
 	}
 }

@@ -35,12 +35,7 @@ public class DummyQuery {
 	 *  If yes, return the user's id, otherwise return -1
 	 */
 	public static int loginUser(FBClientUser user) {
-		if(userExists(user.getUsername())) {
-			int uid = id_counter++;	// return user id
-			return uid;
-		}
-		else
-			return -1;
+		return id_counter++;
 	}
 	
 	/*
