@@ -3,8 +3,11 @@ package server;
 import java.util.*;
 import java.io.*;
 
-import common.*;
+import common.Post;
 import common.Post.RegionType;
+import common.Profile;
+import common.Title;
+import common.User;
 
 public class FaceBreakUser {
 	
@@ -315,7 +318,7 @@ public class FaceBreakUser {
 	
 	public int view(int id, int ownerID, int regionID){
 		FaceBreakRegion postingBoard = new FaceBreakRegion(id, ownerID, regionID);
-		Post[] msgs = postingBoard.view();
+		Post[] msgs = postingBoard.viewAll();
 		for(int i = 0; i < msgs.length; i++){
 			System.out.println(msgs[i].getText());
 		}
