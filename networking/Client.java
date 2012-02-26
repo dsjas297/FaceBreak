@@ -1,9 +1,9 @@
-package facebreak.networking;
+package networking;
 
-import facebreak.common.Error;
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Region;
+import common.Error;
+import common.Post;
+import common.Profile;
+import common.Region;
 
 public interface Client {
 

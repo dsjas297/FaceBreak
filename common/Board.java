@@ -1,4 +1,4 @@
-package facebreak.common;
+package common;
 
 import java.util.ArrayList;
 

@@ -1,15 +1,15 @@
-package facebreak.networking;
+package networking;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
-import facebreak.common.Error;
-import facebreak.common.Post;
-import facebreak.common.Profile;
-import facebreak.common.Region;
-import facebreak.common.Title;
-import facebreak.common.Post.RegionType;
+import common.Error;
+import common.Post;
+import common.Profile;
+import common.Region;
+import common.Title;
+import common.Post.RegionType;
+
 
 public class SampleMain {
 	
