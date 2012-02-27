@@ -22,7 +22,7 @@ public class SampleMain {
 			
 			String username = "bossdude";
 			
-			e = myClient.createUser(username, "pwd");
+			e = myClient.login(username, "pwd");
 			
 			System.out.println(e.toString());
 			
@@ -51,23 +51,23 @@ public class SampleMain {
 			post1.setRegionId(0);
 			post1.setText("Yo yo yiggidy yo.");
 			e = myClient.post(post1);
-//			
-//			Post post2 = new Post();
-//			post2.setRegion(RegionType.PUBLIC);
-			post1.setRegionId(0);
-//			post2.setText("ffffuuuuuuuu");
-//			e = myClient.post(post2);
-//			
-//			Region reg = new Region(username);
-//			e = myClient.viewBoard(reg);
-//			System.out.println(e.toString());
-//			
-//			Post[] board = reg.getPosts();
-//			for(int i = 0; i < board.length; i++) {
-//				System.out.println("Poster: " + board[i].getWriterName());
-//				System.out.println("Text: " + board[i].getText());
-//			}
-//			
+			
+			Post post2 = new Post();
+			post2.setRegion(RegionType.PUBLIC);
+			post2.setRegionId(0);
+			post2.setText("ffffuuuuuuuu");
+			e = myClient.post(post2);
+			
+			Region reg = new Region(username, 0);
+			e = myClient.viewBoard(reg);
+			System.out.println(e.toString());
+			
+			Post[] board = reg.getPosts();
+			for(int i = 0; i < board.length; i++) {
+				System.out.println("Poster: " + board[i].getWriterName());
+				System.out.println("Text: " + board[i].getText());
+			}
+			
 			myClient.logout();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not resolve host name");

@@ -11,8 +11,8 @@ public enum FBFile {
 	REGION_INFO(1, "posts"),
 	REGION(0, "regions");
 	
-	public int code;
-	public String name;
+	protected int code;
+	protected String name;
 	
 	private FBFile(int code, String name) {
 		this.name = name;

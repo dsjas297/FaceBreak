@@ -19,7 +19,7 @@ public class FaceBreakRegion {
 	public static final String regionsFolder = "regions";
 	private static final String regionPostsFile = "posts";
 	private static final String regionInfoFile = "regionInfo";
-	private static final int NUM_POSTS_TO_READ = 10;
+//	private static final int NUM_POSTS_TO_READ = 10;
 
 	public FaceBreakRegion(int posterID, int ownerID, int regionID){
 		try{

@@ -64,9 +64,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
-	public FBPage(FBClient client, int userID, int regionID) {
+	public FBPage(FBClient client, int userID, int regionID, String username) {
 		myClient = client;
-
+		myUserName = username;
 		myUserID = userID;
 		curr_profile = userID;
 		curr_region = regionID;
@@ -114,10 +114,14 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// add content to this.
 		this.add(content);
 	}
+	
+	public void setUsername(String username) {
+		myUserName = username;
+	}
 
 	// adds profile picture, information, to user profile.
 	public void populate_userprofile() throws ClassNotFoundException {
-		Profile myProfile = new Profile("godfather");
+		Profile myProfile = new Profile(myUserName);
 		myClient.viewProfile(myProfile);
 
 		// get user picture from ID
@@ -134,9 +138,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		JLabel username = new JLabel(myProfile.getFname() + " "
 				+ myProfile.getLname());
 		username.setAlignmentX((float) 0.0);
+		// set profile user info
 		JTextArea user_info = new JTextArea("Title: "
 				+ myProfile.getTitle().toString() + "\nFamily: "
 				+ myProfile.getFamily());
+		
 		user_info.setAlignmentX((float) 0.0);
 		user_info.setLineWrap(true);
 		user_info.setWrapStyleWord(true);
@@ -165,7 +171,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// wall_posts.getPost();
 		// while there are still posts
 
-		Region board = new Region("godfather");
+		Region board = new Region(myUserName, 0);
 		try {
 			myClient.viewBoard(board);
 		} catch (ClassNotFoundException e) {
@@ -180,7 +186,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			String poster_name = postArray[i].getWriterName();
 			int poster_id = 1;
 			String message = postArray[i].getText();
-			String time = "8:00pm February 18, 2012";
+			String time = postArray[i].getDate();
 
 			// for each post
 			JPanel post = new JPanel();
@@ -355,8 +361,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				post1.setText(comm);
 				try {
 					Error e = myClient.post(post1);
-					if (e == Error.SUCCESS)
+					System.out.println(e.msg);
+					if (e == Error.SUCCESS) {
+						System.out.println("Success!");
 						change_wall(curr_profile, curr_region);
+					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

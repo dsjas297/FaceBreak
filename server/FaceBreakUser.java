@@ -79,6 +79,7 @@ public class FaceBreakUser {
 	}
 	
 	public static int checkIfUserExists(String userName){
+		System.out.println(userName);
 		try{
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
@@ -227,7 +228,14 @@ public class FaceBreakUser {
 		return profile;
 	}
 	
-	public int addFriend(int friendID){
+	public int addFriend(int requestUid, String username) {
+		int id = checkIfUserExists(username);
+		addFriend(requestUid, id);
+		
+		return 0;
+	}
+	
+	public int addFriend(int requestUid, int friendID){
 		try{
 			if(checkIfFriendExists(friendID) || !checkIfUserExists(friendID)){
 				System.err.println("Error: Friend already exists or is an invalid user");
@@ -237,12 +245,12 @@ public class FaceBreakUser {
 			// Append to friends file
 			String newFriend = "\n" + Integer.toString(friendID);
 			BufferedWriter bWriter = new BufferedWriter(
-					new FileWriter(Integer.toString(this.user.getId()) + "\\" + userFriendsFile, true));
+					new FileWriter(Integer.toString(requestUid) + "\\" + userFriendsFile, true));
 			bWriter.write(newFriend);
 			bWriter.close();
 			
 			// Append to friends list
-			this.friends.add(friendID);
+			//this.friends.add(friendID);
 			
 			return 0;
 			

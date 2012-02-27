@@ -5,10 +5,9 @@ import java.util.ArrayList;
 
 import common.Post.RegionType;
 
-
-
 public class Region implements Serializable {
-	private int owner;
+	private int ownerId;
+	private int regionId;
 	private String ownerName;
 	private RegionType regionType;
 	private Post[] allPosts;
@@ -16,8 +15,13 @@ public class Region implements Serializable {
 //	private ArrayList<FBClientUser> permissibleUsers;
 	
 	public Region(int owner, RegionType regionType) {
-		this.owner = owner;
+		this.ownerId = owner;
 		this.regionType = regionType;
+	}
+
+	public Region(int owner, int regionId) {
+		this.ownerId = owner;
+		this.regionId = regionId;
 	}
 	
 	public Region(String ownerName) {
@@ -29,12 +33,28 @@ public class Region implements Serializable {
 		this.regionType = regionType;
 	}
 	
+	public Region(String ownerName, int regionId) {
+		this.ownerName = ownerName;
+		this.regionId = regionId;
+	}
+	
+	public void setRegionId(int regionId) {
+		this.regionId = regionId;
+	}
+	
+	public int getRegionId() {
+		return regionId;
+	}
+	
 	public void setOwnerName(String ownerName) {
 		this.ownerName = ownerName;
 	}
 	
+	public void setOwnerId(int oid) {
+		ownerId = oid;
+	}
 	public int getOwnerId() {
-		return owner;
+		return ownerId;
 	}
 	public String getOwnerName() {
 		return ownerName;

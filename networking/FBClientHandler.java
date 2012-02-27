@@ -1,5 +1,6 @@
 package networking;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,9 +19,6 @@ import common.Profile;
 import common.Region;
 import common.Title;
 import dummyserver.DummyQuery;
-
-
-
 
 public class FBClientHandler extends Thread {
 	private Socket clientSocket;
@@ -109,6 +107,14 @@ public class FBClientHandler extends Thread {
 					myReply = processDeletePost();
 				break;
 			}
+			case ADD_FRIEND: {
+				String username = r.getDetails().getRequestedUser();
+				if(username == null)
+					myReply.setReturnError(Error.MALFORMED_REQUEST);
+				else
+					myReply = processAddFriend(username);
+				break;
+			}
 			default:
 				myReply.setReturnError(Error.MALFORMED_REQUEST);
 				break;
@@ -120,7 +126,7 @@ public class FBClientHandler extends Thread {
 	public Reply processLogin(FBClientUser client) {
 		Reply r = new Reply();
 		
-		int uid = DummyQuery.loginUser(client);
+		int uid = FaceBreakUser.checkIfUserExists(client.getUsername());
 		// if not valid username/passwd combo, return only error
 		if(uid == -1) {
 			r.setReturnError(Error.USERNAME_PWD);
@@ -218,28 +224,33 @@ public class FBClientHandler extends Thread {
 		newPost.setWriterName(authUser.getUsername());
 		
 		newPost.setOwnerId(authUser.getId());
-		ServerBackend.createPost(newPost);
-		/*
-		if(!DummyQuery.newPost(newPost))
-			r.setReturnError(Error.PRIVILEGE);
-		else
+		if(ServerBackend.createPost(newPost))
 			r.setReturnError(Error.SUCCESS);
-		*/
+		else
+			r.setReturnError(Error.PRIVILEGE);
+		
 		return r;
 	}
 
 	public Reply processViewBoard(Region region) {
 		Reply r = new Reply();
 		
-		ArrayList<Post> board = DummyQuery.getBoard();
-		
-		if(board == null)
-			r.setReturnError(Error.PRIVILEGE);
-		
-		region.setPosts(board);
-		r.getContents().setBoard(region);
-		r.setReturnError(Error.SUCCESS);
-		
+		try {
+			ArrayList<Post> board = ServerBackend.viewPosts(authUser.getId(), region);
+			
+			if(board == null)
+				r.setReturnError(Error.PRIVILEGE);
+
+//			System.out.println(board.size());
+			region.setPosts(board);
+			r.getContents().setBoard(region);
+			r.setReturnError(Error.SUCCESS);
+			
+		} catch (FileNotFoundException e) {
+			System.err.println("File not found.");
+			r.getContents().setBoard(null);
+			r.setReturnError(Error.SUCCESS);
+		}
 		return r;
 	}
 	
@@ -247,6 +258,12 @@ public class FBClientHandler extends Thread {
 	 * TODO: not sure how this should be implemented?
 	 */
 	public Reply processDeletePost() {
+		Reply r = new Reply();
+		
+		return r;
+	}
+	
+	public Reply processAddFriend(String username) {
 		Reply r = new Reply();
 		
 		return r;

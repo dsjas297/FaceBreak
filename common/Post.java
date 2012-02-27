@@ -6,7 +6,8 @@ public class Post extends GenericPost implements Serializable {
 	private String ownerName;
 	private String writerName;
 	private RegionType region;
-
+	private String date;
+	
 	public enum RegionType {
 		PUBLIC, PRIVATE, COVERT;
 	}
@@ -44,5 +45,13 @@ public class Post extends GenericPost implements Serializable {
 
 	public void setRegion(RegionType region) {
 		this.region = region;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
 	}
 }

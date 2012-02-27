@@ -14,6 +14,7 @@ import common.Region;
  */
 public class Content implements Serializable {
 	private FBClientUser user;
+	private String requestedUsername;
 	private Profile profile;
 	private Post post;
 	private Region board;
@@ -31,6 +32,14 @@ public class Content implements Serializable {
 
 	public void setUser(FBClientUser user) {
 		this.user = user;
+	}
+	
+	public void setRequestedUser(String requestedUsername) {
+		this.requestedUsername = requestedUsername;
+	}
+	
+	public String getRequestedUser() {
+		return requestedUsername;
 	}
 
 	public Profile getProfile() {

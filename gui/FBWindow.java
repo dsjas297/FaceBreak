@@ -13,6 +13,7 @@ import networking.FBClient;
 import common.FBClientUser;
 import common.Profile;
 import common.Title;
+import common.Error;
 
 public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	// this is defined for JFrame's uses
@@ -70,15 +71,17 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == login.loginButton) {
 			try {
-				client.login(login.usernameEntry.getText(),
-						login.pwdEntry.getText());
+				String username = login.usernameEntry.getText();
+				Error loginErr = client.login(username, login.pwdEntry.getText());
+				if(loginErr != Error.SUCCESS)
+					return;
 				
-
-				Profile myProfile = new Profile("godfather", "Vito", "Corleone");
-				myProfile.setFamily("Notorious BJG");
-				myProfile.setTitle(Title.BOSS);
-
-				client.editProfile(myProfile);
+				
+//				Profile myProfile = new Profile("godfather", "Vito", "Corleone");
+//				myProfile.setFamily("Notorious BJG");
+//				myProfile.setTitle(Title.BOSS);
+//
+//				client.editProfile(myProfile);
 
 				// try{
 				// client = new FBClient();
@@ -101,11 +104,11 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 				// catch (UnknownHostException exp){
 				// System.out.println(exp);
 				// }
-				System.out.println(login.usernameEntry.getText());
+//				System.out.println(login.usernameEntry.getText());
 				logged_in = true;
 				login.setVisible(false);
 				curr_user = 0;
-				fbpage = new FBPage(client, curr_user, curr_region);
+				fbpage = new FBPage(client, curr_user, curr_region, username);
 				setContentPane(fbpage);
 				fbpage.logout.addMouseListener(this);
 			} catch (ClassNotFoundException e1) {
