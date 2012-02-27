@@ -8,7 +8,9 @@ Gaomin:
 [hours]
 Jasdeep:
 [description]
+Developed the FaceBreakRegion and FaceBreakServer code.
 [hours]
+My guess is 18 hours.
 Boiar:
 [description]
 [hours]

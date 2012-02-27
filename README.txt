@@ -39,12 +39,9 @@ CONTENTS
 
 -server
 --FaceBreakRegion
+	- FaceBreakRegion contains the server side code for creating, managing, and interacting with regions (which serve as posting boards)
+	- It creates and manages the files on the server that store the information for a region as well as all posts contained in that region
 --FaceBreakUser
-[file names/description]
-server/FaceBreakUser.java
-- 
-server/FaceBreakRegion.java
-- 
 
 users
 - Include this file in the same directory that the main program is being run
