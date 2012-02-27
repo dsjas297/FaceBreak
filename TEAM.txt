@@ -7,7 +7,7 @@ Gaomin:
 [description]
 Wrote common and networking packages. Integrated code for GUI, server backend, and networking components.
 [hours]
-~12 - 15hrs
+~15hrs
 Jasdeep:
 [description]
 Developed the FaceBreakRegion and FaceBreakServer code. 
