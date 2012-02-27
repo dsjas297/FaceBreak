@@ -3,10 +3,13 @@ package gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,6 +25,8 @@ import networking.FBClient;
 
 import common.Error;
 import common.Post;
+import common.SerializableAvatar;
+import common.Title;
 import common.Post.RegionType;
 import common.Profile;
 import common.Region;
@@ -338,6 +343,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	}
 
 	public void edit_profile() {
+		save_edit.addMouseListener(this);
 		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
@@ -391,8 +397,38 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			edit_profile();
 			wall_scroller.setViewportView(edit);
 			// change wall to edit page
+		} else if (arg0.getSource() == save_edit){
+			//send new profile info to server
+			try {
+				String[] fields = ((ProfileEditor) edit).get_fields();
+				Profile newProfile = new Profile(myUserName, fields[0], fields[1]); 
+				newProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
+				newProfile.setFamily(fields[3]);
+				//Avatar
+				// Get Image
+			    ImageIcon icon = new ImageIcon(fields[4]);
+			    Image image = icon.getImage();
+			    // Create empty BufferedImage, sized to Image
+			    BufferedImage bi = 
+			      new BufferedImage(
+			          image.getWidth(null), 
+			          image.getHeight(null), 
+			          BufferedImage.TYPE_INT_ARGB);
+			    // Draw Image into BufferedImage
+			    Graphics g = bi.getGraphics();
+			    g.drawImage(image, 0, 0, null);
+				newProfile.setAvatar(SerializableAvatar.bufImageToSerialAvatar(bi));
 
+				//tell client to edit profile
+				Error e = myClient.editProfile(newProfile);
+				if (e == Error.SUCCESS)
+					change_profile(myUserID);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
 	}
 
 	@Override

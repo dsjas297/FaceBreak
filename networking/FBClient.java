@@ -85,19 +85,16 @@ public class FBClient implements Client {
 
 			// create request object
 			Request login = new Request(RequestType.LOGIN);
-			FBClientUser tmpUser = new FBClientUser(username, pwd);
-			login.getDetails().setUser(tmpUser);
+			login.getDetails().setUser(user);
 			login.setTimestamp(System.currentTimeMillis());
-			
+
 			outStream.writeObject(login);
 
 			Reply serverReply = (Reply) inStream.readObject();
 			Error e = serverReply.getReturnError();
 
-			if (e == Error.SUCCESS) {
-				user = new FBClientUser(username, pwd);
+			if (e == Error.SUCCESS)
 				user.setId(serverReply.getContents().getUser().getId());
-			}
 			else
 				closeConnection();
 			return e;

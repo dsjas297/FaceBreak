@@ -5,10 +5,10 @@ import java.net.UnknownHostException;
 
 import common.Error;
 import common.Post;
-import common.Post.RegionType;
 import common.Profile;
 import common.Region;
 import common.Title;
+import common.Post.RegionType;
 
 
 
