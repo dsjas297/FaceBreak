@@ -17,19 +17,20 @@ public class FaceBreakUser {
 	private ArrayList<Integer> friends;
 	private HashMap<Integer,ArrayList<String>> untrustworthy;
 	
-	public static final String usersListFile = "users";
-	private static final String userInfoFile = "info";
-	private static final String userFriendsFile = "friends";
-	private static final String userUntrustworthyFile = "untrustworthy";
-	private static final String userIDFile = "userID";
-	private static final String imageFile = "avatar.jpg";
+	public static final String usersListFile = ServerBackend.globalUsers;
+	private static final String userIDFile = ServerBackend.globalUidCounter;
+	
+	private static final String userInfoFile = ServerBackend.userInfoFile;
+	private static final String userFriendsFile = ServerBackend.userFriendsFile;
+	private static final String userUntrustworthyFile = ServerBackend.userUntrustworthyFile;
+	private static final String imageFile = ServerBackend.imageFile;
 	
 	public static int addUser(String userName, Title title, String family, String fname, String lname){
 		
 		try{
-			if(checkIfUserExists(userName)){
+			if(checkIfUserExists(userName) > 0){
 				System.err.println("Error: User already exists");
-				return 1;
+				return -1;
 			}
 			
 			int newUserID = getNewUserID();
@@ -70,34 +71,35 @@ public class FaceBreakUser {
 			FaceBreakRegion.addRegion(newUserID, RegionType.PUBLIC);
 			FaceBreakRegion.addRegion(newUserID, RegionType.PRIVATE);
 			
-			return 0;
+			return newUserID;
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
-			return 1;
+			return -1;
 		}
 	}
 	
-	public static boolean checkIfUserExists(String userName){
+	public static int checkIfUserExists(String userName){
 		try{
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
-			while( (temp = inputReader.readLine()) != null){
+			while((temp = inputReader.readLine()) != null){
 				String [] linesplit = temp.split(":");
 				if(linesplit.length > 1){
 					String existingName = linesplit[1].trim();
+					int uid = Integer.parseInt(linesplit[0]);
 					if(existingName.equals(userName)){
 						inputReader.close();
-						return true;
+						return uid;
 					}
 				}
 			}
 			
 			inputReader.close();
-			return false;
+			return -1;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
-			return false;
+			return -2;
 		}
 	}
 	
@@ -165,6 +167,8 @@ public class FaceBreakUser {
 					this.title = Title.ASSOC;
 					break;
 			}
+			
+			this.profile.setTitle(this.title);
 			
 			inputReader.close();
 			

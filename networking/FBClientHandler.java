@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import server.FaceBreakUser;
+import server.ServerBackend;
+
 import networking.Request.RequestType;
 
 import common.Error;
@@ -13,6 +16,7 @@ import common.FBClientUser;
 import common.Post;
 import common.Profile;
 import common.Region;
+import common.Title;
 import dummyserver.DummyQuery;
 
 
@@ -145,7 +149,10 @@ public class FBClientHandler extends Thread {
 	public Reply processCreateUser(FBClientUser client) {
 		Reply r = new Reply();
 		
-		int uid = DummyQuery.createUser(client);
+//		int uid = DummyQuery.createUser(client);
+
+		int uid = FaceBreakUser.addUser(client.getUsername(), Title.BOSS, "BJG", "Vito", "Corleone");
+		
 		// if username already exists
 		if(uid == -1) {
 			r.setReturnError(Error.DUPLICATE_USER);
@@ -210,11 +217,14 @@ public class FBClientHandler extends Thread {
 		newPost.setWriterId(authUser.getId());
 		newPost.setWriterName(authUser.getUsername());
 		
+		newPost.setOwnerId(authUser.getId());
+		ServerBackend.createPost(newPost);
+		/*
 		if(!DummyQuery.newPost(newPost))
 			r.setReturnError(Error.PRIVILEGE);
 		else
 			r.setReturnError(Error.SUCCESS);
-		
+		*/
 		return r;
 	}
 

@@ -8,19 +8,19 @@ import common.Post;
 import common.Region;
 
 public class FaceBreakRegion {
-	
+
 	private Region region;
-	
+
 	private ArrayList<Post> posts;
-	
+
 	private int regionID;
 	private int viewerID;
-	
+
 	public static final String regionsFolder = "regions";
 	private static final String regionPostsFile = "posts";
 	private static final String regionInfoFile = "regionInfo";
 	private static final int NUM_POSTS_TO_READ = 10;
-	
+
 	public FaceBreakRegion(int posterID, int ownerID, int regionID){
 		try{
 			if (FaceBreakUser.checkIfUserExists(ownerID) &&
@@ -28,7 +28,7 @@ public class FaceBreakRegion {
 					FaceBreakUser.checkIfUserExists(posterID)){
 				viewerID = posterID;
 				this.regionID = regionID;
-				
+
 				RegionType type;
 				switch(regionID){
 				case 0:
@@ -41,9 +41,9 @@ public class FaceBreakRegion {
 					type = Post.RegionType.COVERT;
 					break;
 				}
-				
+
 				this.region = new Region(ownerID, type);
-				
+
 				// Get users that are allowed to read the file
 				FileReader fReader = new FileReader(Integer.toString(ownerID) +
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
@@ -56,7 +56,7 @@ public class FaceBreakRegion {
 					FaceBreakUser fbuser = new FaceBreakUser(allowedID);
 					//this.region.getPermissibleUsers().add(fbuser.getUser());
 				}
-				
+
 				// Get posts in array
 				fReader = new FileReader(Integer.toString(ownerID) +
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) +
@@ -77,7 +77,7 @@ public class FaceBreakRegion {
 					}
 				}
 				this.region.setPosts(this.posts);
-				
+
 				//this.view();
 			}
 			else {
@@ -88,7 +88,7 @@ public class FaceBreakRegion {
 			region = null;
 		}
 	}
-	
+
 	public static int addRegion(int ownerID, RegionType regionType){
 		// posts file indicates name of posts file, not folder
 		// posts are stored in single file
@@ -114,13 +114,13 @@ public class FaceBreakRegion {
 					return 1;
 				}
 			}
-			
+
 			String path = ownerIDstr + "\\" + regionsFolder + "\\" +
 					Integer.toString(regionID) + "\\" + regionPostsFile;
 			File postsFile = new File(path);
 			postsFile.getParentFile().mkdirs();
 			postsFile.createNewFile();
-			
+
 			// Fill in info for user
 			// For now this file only contains allowed viewers of the board
 			String info = ownerIDstr;
@@ -128,15 +128,15 @@ public class FaceBreakRegion {
 					Integer.toString(regionID) + "\\" + regionInfoFile, false));
 			bWriter.write(info);
 			bWriter.close();
-			
+
 			return 0;
-			
+
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return 1;
 		}
 	}
-	
+
 	private static boolean checkIfRegionExists(int ownerID, int regionID){
 		try{
 			String ownerIDstr = Integer.toString(ownerID);
@@ -144,27 +144,27 @@ public class FaceBreakRegion {
 			File regionFolder = new File(ownerIDstr + "\\" + regionsFolder + 
 					"\\" + regionIDstr);
 			return regionFolder.exists();
-					
+
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return false;
 		}
 	}
-	
+
 	public int addToViewable(int friendID){
 		try{
 			if(checkViewable(friendID) || !FaceBreakUser.checkIfUserExists(friendID)){
 				System.err.println("Error: User either doesn't exist or can already view board");
 				return 1;
 			}
-			
+
 			String ownerIDstr = Integer.toString(this.region.getOwnerId());
 			String regionIDstr = Integer.toString(this.regionID);
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
 					regionIDstr + "\\" + regionInfoFile, true));
 			bWriter.write("\n" + Integer.toString(friendID));
 			bWriter.close();
-			
+
 			FaceBreakUser fbuser = new FaceBreakUser(friendID);
 			//this.region.getPermissibleUsers().add(fbuser.getUser());
 			return 0;
@@ -173,7 +173,7 @@ public class FaceBreakRegion {
 			return 0;
 		}
 	}
-	
+
 	private boolean checkViewable(int friendID){
 		try{
 			FileReader fReader = new FileReader(Integer.toString(this.region.getOwnerId()) +
@@ -186,7 +186,7 @@ public class FaceBreakRegion {
 					return true;
 				}
 			}
-			
+
 			inputReader.close();
 			return false;
 		} catch(Exception e){
@@ -194,7 +194,7 @@ public class FaceBreakRegion {
 			return false;
 		}
 	}
-	
+
 	public void post(int posterID, String msg){
 		try{
 			String newPost = "\n" + Long.toString((new Date()).getTime())
@@ -205,9 +205,9 @@ public class FaceBreakRegion {
 							"\\" + regionPostsFile, true));
 			bWriter.write(newPost);
 			bWriter.close();
-			
+
 			FaceBreakUser poster = new FaceBreakUser(posterID);
-			
+
 			RegionType type;
 			switch(regionID){
 				case 0:
@@ -226,12 +226,12 @@ public class FaceBreakRegion {
 			post.setWriterName(poster.getUser().getUsername());
 			post.setWriterId(poster.getUser().getId());
 			post.setText(msg);
-			
+
 			// Make sure to add this to the list of the region's posts
 			this.posts.add(post);
-			
+
 			this.region.setPosts(this.posts);
-			
+
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
 		}
@@ -266,7 +266,7 @@ public class FaceBreakRegion {
 		}
 	}
 	*/
-	
+
 	public Post[] viewAll(){
 		try{
 			return this.region.getPosts();
@@ -275,6 +275,6 @@ public class FaceBreakRegion {
 			return null;
 		}
 	}
-	
-	
+
+
 }

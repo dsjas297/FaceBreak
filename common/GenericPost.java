@@ -23,6 +23,13 @@ public class GenericPost implements Serializable {
 		this.timestamp = timestamp;
 	}
 	
+	public GenericPost(int oid, int rid, int wid, String text) {
+		this.oid = oid;
+		this.rid = rid;
+		this.wid = wid;
+		this.text = text;
+	}
+	
 	public int getPostId() {
 		return pid;
 	}

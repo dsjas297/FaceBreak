@@ -16,22 +16,26 @@ public class SampleMain {
 	
 	public static void main(String args[]) throws IOException, ClassNotFoundException{
 		try {
+			Error e;
 			System.out.println("Creating client socket.");
 			FBClient myClient = new FBClient();
 			
-			String username = "godfather";
+			String username = "bossdude";
 			
-			myClient.createUser(username, "pwd");
-			myClient.changePassword("pwd2");
+			e = myClient.createUser(username, "pwd");
 			
-			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
-			myProfile.setFamily("Notorious BJG");
-			myProfile.setTitle(Title.BOSS);	
+			System.out.println(e.toString());
 			
-			Error e = myClient.editProfile(myProfile);
-			
-			Profile requestedProfile = new Profile("godfather");
-			e = myClient.viewProfile(requestedProfile);
+//			myClient.changePassword("pwd2");
+//			
+//			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
+//			myProfile.setFamily("Notorious BJG");
+//			myProfile.setTitle(Title.BOSS);	
+//			
+//			e = myClient.editProfile(myProfile);
+//			
+//			Profile requestedProfile = new Profile("bossdude");
+//			e = myClient.viewProfile(requestedProfile);
 //			System.out.println(e.toString());
 //			if (e == Error.SUCCESS) {
 //				System.out.println("Username: "
@@ -44,25 +48,26 @@ public class SampleMain {
 //			}
 			
 			Post post1 = new Post();
-			post1.setRegion(RegionType.PUBLIC);
+			post1.setRegionId(0);
 			post1.setText("Yo yo yiggidy yo.");
 			e = myClient.post(post1);
-			
-			Post post2 = new Post();
-			post2.setRegion(RegionType.PUBLIC);
-			post2.setText("ffffuuuuuuuu");
-			e = myClient.post(post2);
-			
-			Region reg = new Region(username);
-			e = myClient.viewBoard(reg);
-			System.out.println(e.toString());
-			
-			Post[] board = reg.getPosts();
-			for(int i = 0; i < board.length; i++) {
-				System.out.println("Poster: " + board[i].getWriterName());
-				System.out.println("Text: " + board[i].getText());
-			}
-			
+//			
+//			Post post2 = new Post();
+//			post2.setRegion(RegionType.PUBLIC);
+			post1.setRegionId(0);
+//			post2.setText("ffffuuuuuuuu");
+//			e = myClient.post(post2);
+//			
+//			Region reg = new Region(username);
+//			e = myClient.viewBoard(reg);
+//			System.out.println(e.toString());
+//			
+//			Post[] board = reg.getPosts();
+//			for(int i = 0; i < board.length; i++) {
+//				System.out.println("Poster: " + board[i].getWriterName());
+//				System.out.println("Text: " + board[i].getText());
+//			}
+//			
 			myClient.logout();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not resolve host name");
