@@ -11,6 +11,8 @@ There are 3 main packages that correspond to the three components of our system:
 
 Additional package common contains some classes shared among the aforementioned three.
 
+********************************************************************************************
+
 CONTENTS
 -common
 --Board
@@ -48,7 +50,11 @@ CONTENTS
 --Request
 --SampleMain
 
-* NETWORKING
+
+********************************************************************************************
+
+----NETWORKING----
+
 This layer takes care of 
 (1) creating messages that correspond to different users' actions, 
 (2) serializing messages,and sending them over the network to the server 
@@ -79,7 +85,10 @@ FBClientHandler
 Some additional helper classes
 
 
--server
+********************************************************************************************
+
+----SERVER----
+
 --FaceBreakRegion
 	- FaceBreakRegion contains the server side code for creating, managing, and interacting with regions (which serve as posting boards)
 	- It creates and manages the files on the server that store the information for a region as well as all posts contained in that region
