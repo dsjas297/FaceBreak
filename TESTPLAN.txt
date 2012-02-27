@@ -1,0 +1,3 @@
+TESTPLAN
+
+explains the process you employed to test the system you implemented and submitted for this phase. TESTPLAN.txt should contain details about the kinds of test-cases you used (or perhaps enumerate those test-cases) and it should discuss the results of running those test-cases. 
