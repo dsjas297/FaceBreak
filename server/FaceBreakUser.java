@@ -55,7 +55,7 @@ public class FaceBreakUser {
 			
 			// Give the user their first friend (himself!)
 			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userFriendsFile, false));
-			bWriter.write(newUserIDstr);
+			bWriter.write(newUserIDstr + "\n");
 			bWriter.close();
 			
 			// Initialize untrustworthy file
@@ -79,7 +79,6 @@ public class FaceBreakUser {
 	}
 	
 	public static int checkIfUserExists(String userName){
-		System.out.println(userName);
 		try{
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);

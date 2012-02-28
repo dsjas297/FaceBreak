@@ -68,6 +68,11 @@ public class SampleMain {
 				System.out.println("Text: " + board[i].getText());
 			}
 			
+//			e = myClient.addFriend("godfather");
+//			System.out.println(e.toString());
+			
+			e = myClient.deleteFriend("godfather");
+			System.out.println(e.toString());
 			myClient.logout();
 		} catch (UnknownHostException e) {
 			System.out.println("Could not resolve host name");

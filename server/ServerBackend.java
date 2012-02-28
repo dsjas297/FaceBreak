@@ -110,7 +110,6 @@ public class ServerBackend {
 					String date = new Date(Long.parseLong(linesplit[0])).toString();
 					thisPost.setDate(date);
 					thisPost.setWriterName(linesplit[1]);
-//					 thisPost.setriterId();
 					thisPost.setText(linesplit[2]);
 					allPosts.add(thisPost);
 				}
@@ -124,7 +123,70 @@ public class ServerBackend {
 		}
 	}
 	
-	public static void addFriend(int requestUid, String friendName) {
-		
+	public static int addFriend(int requestUid, String friendName) {
+		try{
+			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+			if(friendUid == -1) {
+				// do stuff here
+			}
+			
+			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+			FileReader fReader = new FileReader(friendsFileName);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			
+			String tmp;
+			boolean exists = false;
+			while((tmp = inputReader.readLine()) != null) {
+				if(tmp.equals(Integer.toString(friendUid))) {
+					exists = true;
+					inputReader.close();
+				}
+			}
+			
+			if(!exists) {
+				BufferedWriter bWriter = new BufferedWriter(new FileWriter(friendsFileName, true));
+				bWriter.write(Integer.toString(friendUid) + "\n");
+				bWriter.close();
+			}
+			return 0;
+			
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
+	public static int deleteFriend(int requestUid, String friendName) {
+		try{
+			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+			if(friendUid == -1) {
+				// do stuff here
+			}
+			
+			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+			FileReader fReader = new FileReader(friendsFileName);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			
+			String tmp;
+			ArrayList<String> friendList = new ArrayList<String>();
+			while((tmp = inputReader.readLine()) != null) {
+				if(!(tmp.equals(Integer.toString(friendUid)))) {
+					friendList.add(tmp);
+				}
+			}
+			inputReader.close();
+			
+			FileWriter fWriter = new FileWriter(friendsFileName);
+			BufferedWriter writer = new BufferedWriter(fWriter);
+			for(int i = 0; i < friendList.size(); i++){
+				writer.write(friendList.get(i) + "\n");
+			}
+			writer.close();
+			
+			return 0;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
 	}
 }

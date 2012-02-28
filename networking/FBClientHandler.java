@@ -108,11 +108,19 @@ public class FBClientHandler extends Thread {
 				break;
 			}
 			case ADD_FRIEND: {
-				String username = r.getDetails().getRequestedUser();
-				if(username == null)
+				String friendName = r.getDetails().getRequestedUser();
+				if(friendName == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
-					myReply = processAddFriend(username);
+					myReply = processAddFriend(friendName);
+				break;
+			}
+			case DELETE_FRIEND: {
+				String friendName = r.getDetails().getRequestedUser();
+				if(friendName == null)
+					myReply.setReturnError(Error.MALFORMED_REQUEST);
+				else
+					myReply = processDeleteFriend(friendName);
 				break;
 			}
 			default:
@@ -263,8 +271,27 @@ public class FBClientHandler extends Thread {
 		return r;
 	}
 	
-	public Reply processAddFriend(String username) {
+	public Reply processAddFriend(String friendName) {
 		Reply r = new Reply();
+		
+		int err = ServerBackend.addFriend(authUser.getId(), friendName);
+		if(err == -1)
+			r.setReturnError(Error.UNKNOWN_ERROR);
+		else if(err == 0)
+			r.setReturnError(Error.SUCCESS);
+		
+		return r;
+	}
+
+	
+	public Reply processDeleteFriend(String friendName) {
+		Reply r = new Reply();
+		
+		int err = ServerBackend.deleteFriend(authUser.getId(), friendName);
+		if(err == -1)
+			r.setReturnError(Error.UNKNOWN_ERROR);
+		else if(err == 0)
+			r.setReturnError(Error.SUCCESS);
 		
 		return r;
 	}

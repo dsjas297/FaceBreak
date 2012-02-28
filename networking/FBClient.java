@@ -321,6 +321,9 @@ public class FBClient implements Client {
 		return Error.SUCCESS;
 	}
 	
+	/*
+	 * This user adds a friend of username
+	 */
 	public Error addFriend(String username) throws ClassNotFoundException {
 		// sanity check
 		if (socket == null || user == null)
@@ -334,6 +337,28 @@ public class FBClient implements Client {
 			outStream.writeObject(addFriend);
 			Reply serverReply = (Reply) inStream.readObject();
 
+			return serverReply.getReturnError();
+		} catch (IOException ioe) {
+			return Error.CONNECTION;
+		}
+	}
+	
+	/*
+	 * This user deletes a friend of username
+	 */
+	public Error deleteFriend(String username) throws ClassNotFoundException {
+		// sanity check
+		if (socket == null || user == null)
+			return Error.LOGIN;
+
+		Request addFriend = new Request(user.getId(), RequestType.DELETE_FRIEND);
+		addFriend.getDetails().setRequestedUser(username);
+		addFriend.setTimestamp(System.currentTimeMillis());
+
+		try {
+			outStream.writeObject(addFriend);
+			Reply serverReply = (Reply) inStream.readObject();
+			
 			return serverReply.getReturnError();
 		} catch (IOException ioe) {
 			return Error.CONNECTION;

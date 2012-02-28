@@ -62,6 +62,7 @@ public class Request implements Serializable {
 		VIEW_BOARD,
 		POST,
 		DELETE_POST,
-		ADD_FRIEND;
+		ADD_FRIEND,
+		DELETE_FRIEND;
 	}
 }
