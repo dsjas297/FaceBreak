@@ -227,7 +227,16 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 						BorderFactory.createLineBorder(new Color(130, 0, 0)),
 						post.getBorder()));
 				// poster name
-				Userlink poster = new Userlink("Username", poster_name, poster_id);
+				Profile posterProf = new Profile(poster_name);
+				//get user's name
+				try {
+					myClient.viewProfile(posterProf);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				
+				
+				Userlink poster = new Userlink(posterProf.getFname() + " " + posterProf.getLname(), poster_name, poster_id);
 				poster.addMouseListener(this);
 				poster.setAlignmentX((float) 0.0);
 				// post+timestamp
