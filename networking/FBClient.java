@@ -299,7 +299,11 @@ public class FBClient implements Client {
 			outStream.writeObject(viewBoard);
 			Reply serverReply = (Reply)inStream.readObject();
 			Region tmp = serverReply.getContents().getBoard();
-			board.setPosts(tmp.getPosts());
+			
+			if(tmp == null || tmp.getPosts().length < 1)
+				board = null;
+			else
+				board.setPosts(tmp.getPosts());
 			
 			return serverReply.getReturnError();
 		} catch (IOException ioe) {

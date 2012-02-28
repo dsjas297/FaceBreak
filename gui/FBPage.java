@@ -173,15 +173,17 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 		Region board = new Region(myUserName, 0);
 		try {
-			myClient.viewBoard(board);
+			Error e = myClient.viewBoard(board);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		Post[] postArray = board.getPosts();
-
-		for (int i = postArray.length - 1; i >= 0; i--) {
+		
+		if(postArray == null || postArray.length < 1)
+			return;
+		
+		for(int i = postArray.length - 1; i >= 0; i--) {
 			// for each post, get:
 			String poster_name = postArray[i].getWriterName();
 			int poster_id = 1;

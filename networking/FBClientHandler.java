@@ -245,12 +245,10 @@ public class FBClientHandler extends Thread {
 		
 		try {
 			ArrayList<Post> board = ServerBackend.viewPosts(authUser.getId(), region);
-			
-			if(board == null)
-				r.setReturnError(Error.PRIVILEGE);
 
-//			System.out.println(board.size());
 			region.setPosts(board);
+			r.getContents().setBoard(region);
+
 			r.getContents().setBoard(region);
 			r.setReturnError(Error.SUCCESS);
 			

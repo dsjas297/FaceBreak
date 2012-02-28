@@ -99,9 +99,6 @@ public class ServerBackend {
 		ArrayList<Post> allPosts = new ArrayList<Post>();
 
 		try {
-			if(br.readLine() == null)
-				return null;
-
 			String tmp;
 			while((tmp = br.readLine()) != null) {
 				String[] linesplit = tmp.split(":");
