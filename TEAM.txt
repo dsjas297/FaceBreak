@@ -5,7 +5,9 @@ Boiar Qin (bq27)
 
 Gaomin:
 [description]
+Wrote common and networking packages. Integrated code for GUI, server backend, and networking components.
 [hours]
+~15hrs
 Jasdeep:
 [description]
 Developed the FaceBreakRegion and FaceBreakServer code. 
