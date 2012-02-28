@@ -211,40 +211,41 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 
 		Post[] postArray = region.getPosts();
-
-		for (int i = postArray.length - 1; i >= 0; i--) {
-			// for each post, get:
-			String poster_name = postArray[i].getWriterName();
-			int poster_id = 1;
-			String message = postArray[i].getText();
-			String time = "8:00pm February 18, 2012";
-
-			// for each post
-			JPanel post = new JPanel();
-			post.setLayout(new BoxLayout(post, BoxLayout.PAGE_AXIS));
-			post.setBackground(Color.white);
-			post.setBorder(BorderFactory.createCompoundBorder(
-					BorderFactory.createLineBorder(new Color(130, 0, 0)),
-					post.getBorder()));
-			// poster name
-			Userlink poster = new Userlink("Username", poster_name, poster_id);
-			poster.addMouseListener(this);
-			poster.setAlignmentX((float) 0.0);
-			// post+timestamp
-			JTextArea msg = new JTextArea(message + "\n" + time);
-			msg.setEditable(false);
-			msg.setAlignmentX((float) 0.0);
-			msg.setColumns(10);
-			msg.setLineWrap(true);
-			msg.setWrapStyleWord(true);
-
-			// post content
-			// JPanel post_content = view_post(userID, regionID);
-			post.add(poster);
-			post.add(msg);
-
-			wall.add(post);
-			wall.add(Box.createRigidArea(new Dimension(0, 5)));
+		if (postArray.length != 0){
+			for (int i = postArray.length - 1; i >= 0; i--) {
+				// for each post, get:
+				String poster_name = postArray[i].getWriterName();
+				int poster_id = 1;
+				String message = postArray[i].getText();
+				String time = "8:00pm February 18, 2012";
+	
+				// for each post
+				JPanel post = new JPanel();
+				post.setLayout(new BoxLayout(post, BoxLayout.PAGE_AXIS));
+				post.setBackground(Color.white);
+				post.setBorder(BorderFactory.createCompoundBorder(
+						BorderFactory.createLineBorder(new Color(130, 0, 0)),
+						post.getBorder()));
+				// poster name
+				Userlink poster = new Userlink("Username", poster_name, poster_id);
+				poster.addMouseListener(this);
+				poster.setAlignmentX((float) 0.0);
+				// post+timestamp
+				JTextArea msg = new JTextArea(message + "\n" + time);
+				msg.setEditable(false);
+				msg.setAlignmentX((float) 0.0);
+				msg.setColumns(10);
+				msg.setLineWrap(true);
+				msg.setWrapStyleWord(true);
+	
+				// post content
+				// JPanel post_content = view_post(userID, regionID);
+				post.add(poster);
+				post.add(msg);
+	
+				wall.add(post);
+				wall.add(Box.createRigidArea(new Dimension(0, 5)));
+			}
 		}
 	}
 
