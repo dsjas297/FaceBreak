@@ -77,7 +77,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	// create USER page
 	public FBPage(FBClient client, int userID, String curr_username, int regionID) {
 		myClient = client;
-
+		myUserName = curr_username;
 		myUserID = userID;
 		curr_profile = userID;
 		curr_region = regionID;
@@ -129,7 +129,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	// adds profile picture, information, to user profile.
 	public void populate_userprofile() throws ClassNotFoundException {
 		//Profile myProfile = new Profile("godfather");
-		Profile myProfile = new Profile(curr_username);
+		Profile myProfile = new Profile(myUserName);
 		myClient.viewProfile(myProfile);
 
 		// get user picture from ID
@@ -203,7 +203,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	public void populate_wall() {
 		// TODO: given ownerID, regionID, get all posts for this region, with
 		
-		Region region = new Region(curr_username, curr_region);
+		Region region = new Region(myUserName, curr_region);
 		try {
 			myClient.viewBoard(region);
 		} catch (ClassNotFoundException e) {
