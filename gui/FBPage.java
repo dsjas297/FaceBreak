@@ -75,12 +75,14 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
-	public FBPage(FBClient client, int userID, String curr_username, int regionID) {
+	public FBPage(FBClient client, String curr_username) {
 		myClient = client;
 
-		myUserID = userID;
-		curr_profile = userID;
-		curr_region = regionID;
+		//myUserID = userID;
+		myUserName = curr_username;
+		this.curr_username = curr_username;
+		//curr_profile = userID;
+		curr_region = 0;
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		// create and add topnav
 		width = 900;
@@ -211,7 +213,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 
 		Post[] postArray = region.getPosts();
-		if (postArray.length != 0){
+		if (postArray != null){
 			for (int i = postArray.length - 1; i >= 0; i--) {
 				// for each post, get:
 				String poster_name = postArray[i].getWriterName();
@@ -424,9 +426,14 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			String stripped_comment = comm.replaceAll("\\s+", "");
 
 			if (!stripped_comment.equals("")) {
-
 				Post post1 = new Post();
-				post1.setRegion(RegionType.PUBLIC);
+//				if (curr_region == 0){
+//					post1.setRegion(RegionType.PUBLIC);
+//				} else if (curr_region == 1){
+//					post1.setRegion(RegionType.PRIVATE);
+//				}
+				post1.setRegionId(curr_region);
+				post1.setOwnerName(curr_username);
 				post1.setText(comm);
 				try {
 					Error e = myClient.post(post1);
@@ -490,6 +497,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//add a friend
 		else if (arg0.getSource()==add_friend){
+			try{
+				myClient.addFriend(curr_username);			
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			
 		}
 	}

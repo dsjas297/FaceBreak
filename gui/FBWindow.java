@@ -24,9 +24,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	//private boolean logged_in = false;
 	FBPage fbpage;
 
-	int curr_user; // profile you are looking at
-	int curr_region = 0; // region you are looking at
-
 	/**
 	 * @param args
 	 */
@@ -70,17 +67,16 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			client.login(login.usernameEntry.getText(),
 					login.pwdEntry.getText());
 			
-
-			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
-			myProfile.setFamily("Notorious BJG");
-			myProfile.setTitle(Title.BOSS);
-			client.editProfile(myProfile);
+//
+//			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
+//			myProfile.setFamily("Notorious BJG");
+//			myProfile.setTitle(Title.BOSS);
+//			client.editProfile(myProfile);
 
 			System.out.println(login.usernameEntry.getText());
 			//logged_in = true;
 			login.setVisible(false);
-			curr_user = 0;
-			fbpage = new FBPage(client, curr_user, login.usernameEntry.getText(), curr_region);
+			fbpage = new FBPage(client, login.usernameEntry.getText());
 			setContentPane(fbpage);
 			fbpage.logout.addMouseListener(this);
 		} catch (ClassNotFoundException e1) {
@@ -91,12 +87,15 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == login.loginButton) {
+			client.setCurrentUser(login.usernameEntry.getText(),
+					login.pwdEntry.getText());
 			login_protocol();
 		} else if (e.getSource() == login.signupButton) {
 			try {
 				client.createUser(login.usernameEntry.getText(),
 						login.pwdEntry.getText());
-			} catch (ClassNotFoundException e1) {
+				client.getSocket().close();
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 			//auto-login

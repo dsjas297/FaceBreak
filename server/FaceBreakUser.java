@@ -213,7 +213,7 @@ public class FaceBreakUser {
 			
 			// Fill in info for user
 			String userInfo = Integer.toString(this.user.getId()) + "\n" + user.getUsername() + "\n" + 
-					Integer.toString(title.rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+					Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 					prof.getLname();
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(Integer.toString(this.user.getId()) + "\\" + userInfoFile, false));
 			bWriter.write(userInfo);

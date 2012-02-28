@@ -50,6 +50,10 @@ public class FBClient implements Client {
 		user = new FBClientUser(username, pwd);
 	}
 
+	public Socket getSocket(){
+		return socket;
+	}
+	
 	/*
 	 * Closes socket and object streams; sets all fields to null in preparation for new user
 	 */
@@ -72,8 +76,10 @@ public class FBClient implements Client {
 	 */
 	public Error login(String username, String pwd) throws ClassNotFoundException {
 		// cannot login while there's another user logged in
+		/*
 		if(user != null)
 			return Error.MALFORMED_REQUEST;
+			*/
 		
 		try {
 			socket = new Socket(serverAddr, port);

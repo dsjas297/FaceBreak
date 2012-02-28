@@ -18,7 +18,6 @@ import common.Post;
 import common.Profile;
 import common.Region;
 import common.Title;
-import dummyserver.DummyQuery;
 
 public class FBClientHandler extends Thread {
 	private Socket clientSocket;
@@ -162,10 +161,8 @@ public class FBClientHandler extends Thread {
 
 	public Reply processCreateUser(FBClientUser client) {
 		Reply r = new Reply();
-		
-//		int uid = DummyQuery.createUser(client);
 
-		int uid = FaceBreakUser.addUser(client.getUsername(), Title.BOSS, "BJG", "Vito", "Corleone");
+		int uid = FaceBreakUser.addUser(client.getUsername(), Title.ASSOC, "Family", "fname", "lname");
 		
 		// if username already exists
 		if(uid == -1) {
@@ -191,7 +188,7 @@ public class FBClientHandler extends Thread {
 	public Reply processChangePwd(FBClientUser client) {
 		Reply r = new Reply();
 		
-		DummyQuery.changePassword(client);
+		//DummyQuery.changePassword(client);
 		r.setReturnError(Error.SUCCESS);
 
 		return r;
@@ -200,7 +197,10 @@ public class FBClientHandler extends Thread {
 	public Reply processViewProfile(Profile requestedProf) {
 		Reply r = new Reply();
 		
-		requestedProf = DummyQuery.getProfile(authUser.getId(), requestedProf);
+		//requestedProf = DummyQuery.getProfile(authUser.getId(), requestedProf);
+		int uid = FaceBreakUser.checkIfUserExists(requestedProf.getUsername());
+		FaceBreakUser user = new FaceBreakUser(uid);
+		requestedProf = user.getProfile();
 		if(requestedProf == null)
 			r.setReturnError(Error.NO_USER);
 		else {
@@ -220,7 +220,9 @@ public class FBClientHandler extends Thread {
 			return r;
 		}
 		
-		DummyQuery.editProfile(authUser.getId(), newProfile);
+		//DummyQuery.editProfile(authUser.getId(), newProfile);
+		FaceBreakUser user = new FaceBreakUser(authUser.getId());
+		user.setProfile(newProfile);
 		r.setReturnError(Error.SUCCESS);
 		
 		return r;
@@ -231,7 +233,7 @@ public class FBClientHandler extends Thread {
 		newPost.setWriterId(authUser.getId());
 		newPost.setWriterName(authUser.getUsername());
 		
-		newPost.setOwnerId(authUser.getId());
+		newPost.setOwnerId(FaceBreakUser.checkIfUserExists(newPost.getOwnerName()));
 		if(ServerBackend.createPost(newPost))
 			r.setReturnError(Error.SUCCESS);
 		else
