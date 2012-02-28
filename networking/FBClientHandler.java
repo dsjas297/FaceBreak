@@ -162,7 +162,7 @@ public class FBClientHandler extends Thread {
 	public Reply processCreateUser(FBClientUser client) {
 		Reply r = new Reply();
 
-		int uid = FaceBreakUser.addUser(client.getUsername(), Title.ASSOC, "Family", "fname", "lname");
+		//int uid = FaceBreakUser.addUser(client.getUsername(), Title.ASSOC, "Family", "fname", "lname");
 		
 		// if username already exists
 		if(uid == -1) {
