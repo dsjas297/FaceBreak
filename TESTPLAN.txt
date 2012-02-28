@@ -1,12 +1,26 @@
 TESTPLAN
 
-explains the process you employed to test the system you implemented and submitted for this phase. TESTPLAN.txt should contain details about the kinds of test-cases you used (or perhaps enumerate those test-cases) and it should discuss the results of running those test-cases. 
+Assumptions:
+We really do assume that the user does not attempt to initiate any actions that are disallowed. For example, there is no code for authorizing postings within regions, and attempting to signup twice will not fail cleanly.
 
-1. Create a new user
-2. Edit user information
-3. Post to walls
-4. Logout
-5. Create a new user
-6. Search for another user
-7. Friend a user
-8. Post to a different user's walls
+Manual test cases for functionality:
+1) Create a new user (user 1); this automatically displays that user’s temporary profile and posts.
+2) User 1 edits own profile. Profile changes are automatically displayed.
+3) User 1 posts to own regions. New posts are automatically pulled and displayed.
+4) User 1 logs out. Login panel is displayed again.
+5) Create a second user (user 2). Follow the above steps 2 and 3.
+6) User 2 searches for User 1.
+7) User 2 adds User 1 as a friend. (Can add them multiple times as a friend.)
+8) User 2 posts to User 1’s regions.
+9) User 2 logs out.
+10) Navigate to root directory. Look at uid counter file, which contains a global counter of new user ids; look for users file, which contains user ids and user names.
+11) Navigate to directory of the second user created (2) and check their friends file. Should contain user 2’s uid and user 1’s uid. Can also check user info and regions directories for the posts they made.
+12) Log back in as user 1. Should contain all the posts user 1 made to their board from previous session, as well as any profile changes.
+13) Navigate to user 2’s page and post to their board. This will automatically update their board.
+
+Things to do (things we currently don’t support):
+1) Password authentication
+2) User privileges (posting on other people’s regions, reading other people’s regions, viewing sensitive profile information, etc.)
+3) Error message checking (creating duplicate users, adding duplicate friends, logging in as a nonexistent user, etc.)
+4) Timeouts for inactivity
+5) Failing gracefully in case of connection/network issues
