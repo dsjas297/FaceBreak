@@ -181,7 +181,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		
 		// need a new label for each region
 		// TODO: get list of regions that myUser is allowed to view
-		for (int i = 0; i < 25; i++) {
+		for (int i = 0; i < 27; i++) {
 			Regionlink region;
 			if (i==0){
 				region = new Regionlink("Public", i, curr_username,

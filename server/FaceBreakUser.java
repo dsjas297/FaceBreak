@@ -71,6 +71,10 @@ public class FaceBreakUser {
 			FaceBreakRegion.addRegion(newUserID, RegionType.PUBLIC);
 			FaceBreakRegion.addRegion(newUserID, RegionType.PRIVATE);
 			
+			for(int j = 0; j < 25; j++){
+				FaceBreakRegion.addRegion(newUserID, RegionType.COVERT);
+			}
+			
 			return newUserID;
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
