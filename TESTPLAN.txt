@@ -1,3 +1,12 @@
 TESTPLAN
 
 explains the process you employed to test the system you implemented and submitted for this phase. TESTPLAN.txt should contain details about the kinds of test-cases you used (or perhaps enumerate those test-cases) and it should discuss the results of running those test-cases. 
+
+1. Create a new user
+2. Edit user information
+3. Post to walls
+4. Logout
+5. Create a new user
+6. Search for another user
+7. Friend a user
+8. Post to a different user's walls
