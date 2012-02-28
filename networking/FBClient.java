@@ -15,9 +15,6 @@ import common.Post;
 import common.Profile;
 import common.Region;
 
-
-
-
 public class FBClient implements Client {
 	private Socket socket;
 	private InetAddress serverAddr;
@@ -275,7 +272,7 @@ public class FBClient implements Client {
 		try {
 			outStream.writeObject(postRequest);
 			Reply serverReply = (Reply)inStream.readObject();
-			
+			System.out.println(serverReply.getReturnError().toString());
 			return serverReply.getReturnError();
 		} catch (IOException ioe) {
 			return Error.CONNECTION;
@@ -319,5 +316,49 @@ public class FBClient implements Client {
 		delete.getDetails().setPost(new Post());
 
 		return Error.SUCCESS;
+	}
+	
+	/*
+	 * This user adds a friend of username
+	 */
+	public Error addFriend(String username) throws ClassNotFoundException {
+		// sanity check
+		if (socket == null || user == null)
+			return Error.LOGIN;
+
+		Request addFriend = new Request(user.getId(), RequestType.ADD_FRIEND);
+		addFriend.getDetails().setRequestedUser(username);
+		addFriend.setTimestamp(System.currentTimeMillis());
+
+		try {
+			outStream.writeObject(addFriend);
+			Reply serverReply = (Reply) inStream.readObject();
+
+			return serverReply.getReturnError();
+		} catch (IOException ioe) {
+			return Error.CONNECTION;
+		}
+	}
+	
+	/*
+	 * This user deletes a friend of username
+	 */
+	public Error deleteFriend(String username) throws ClassNotFoundException {
+		// sanity check
+		if (socket == null || user == null)
+			return Error.LOGIN;
+
+		Request addFriend = new Request(user.getId(), RequestType.DELETE_FRIEND);
+		addFriend.getDetails().setRequestedUser(username);
+		addFriend.setTimestamp(System.currentTimeMillis());
+
+		try {
+			outStream.writeObject(addFriend);
+			Reply serverReply = (Reply) inStream.readObject();
+			
+			return serverReply.getReturnError();
+		} catch (IOException ioe) {
+			return Error.CONNECTION;
+		}
 	}
 }

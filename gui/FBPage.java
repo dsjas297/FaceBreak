@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import networking.FBClient;
 
@@ -45,13 +46,18 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JPanel wall;
 	private JTextArea comment_box;
 	private JButton comment_button;
+	private JTextField search_box;
+	private JButton search_button;
 	private JPanel edit;
 	private JButton save_edit = new JButton("Save profile");
+	private JButton add_friend = new JButton("Add friend");
+	private JButton rem_friend = new JButton("Remove friend");
 
 	// IDs
 	private int myUserID; // user who is logged in
 	private String myUserName;
 	private int curr_profile; // user whose profile is being looked at
+	private String curr_username; // user whose profile is being looked at
 	private int curr_region; // region of profile being looked at
 
 	// sizing
@@ -69,7 +75,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
-	public FBPage(FBClient client, int userID, int regionID) {
+	public FBPage(FBClient client, int userID, String curr_username, int regionID) {
 		myClient = client;
 
 		myUserID = userID;
@@ -122,20 +128,26 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	// adds profile picture, information, to user profile.
 	public void populate_userprofile() throws ClassNotFoundException {
-		Profile myProfile = new Profile("godfather");
+		//Profile myProfile = new Profile("godfather");
+		Profile myProfile = new Profile(curr_username);
 		myClient.viewProfile(myProfile);
 
 		// get user picture from ID
-		String prof_pic;
-		if (curr_profile == 0) {
-			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/mc.jpg";
-		} else {
-			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/gangsters.jpg";
+//		String prof_pic;
+//		if (curr_profile == 0) {
+//			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/mc.jpg";
+//		} else {
+//			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/gangsters.jpg";
+//		}
+		if (myProfile.getAvatar()!=null){
+			BufferedImage prof_pic = SerializableAvatar.serialAvatarToBufImage(myProfile.getAvatar());
+			
+			// System.out.println(prof_pic);
+			JLabel prof_pic_label = new JLabel(new ImageIcon(prof_pic));
+			prof_pic_label.setHorizontalAlignment(JLabel.CENTER);
+			profile.add(prof_pic_label);
 		}
-		// System.out.println(prof_pic);
-		JLabel prof_pic_label = new JLabel(new ImageIcon(prof_pic));
-		prof_pic_label.setHorizontalAlignment(JLabel.CENTER);
-		// TODO: get user info
+		//get user info
 		JLabel username = new JLabel(myProfile.getFname() + " "
 				+ myProfile.getLname());
 		username.setAlignmentX((float) 0.0);
@@ -147,15 +159,40 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		user_info.setWrapStyleWord(true);
 
 		// add to profile
-		profile.add(prof_pic_label);
 		profile.add(username);
 		profile.add(user_info);
 
+		//add friend
+		if (curr_username != myUserName){
+			add_friend.addActionListener(this);
+			profile.add(add_friend);
+		}
+		//remove friend
+		//rem_friend.addActionListener(this);
+		//TODO: if curr_profile is not friends with myUser {
+			//profile.add(add_friend);
+//		}
+//		else{ 
+//			// if curr_profile is friends with myUser
+//			profile.add(rem_friend);
+//		}
+		
 		// need a new label for each region
-		// TODO: get user's regions
+		// TODO: get list of regions that myUser is allowed to view
 		for (int i = 0; i < 25; i++) {
-			Regionlink region = new Regionlink("Region " + i, i, "Username",
-					curr_profile);
+			Regionlink region;
+			if (i==0){
+				region = new Regionlink("Public", i, curr_username,
+						curr_profile);
+			}
+			else if (i==1){
+				region = new Regionlink("Private", i, curr_username,
+						curr_profile);
+			}
+			else {
+				region = new Regionlink("Covert " + (i-2), i, curr_username,
+						curr_profile);
+			}
 			region.addMouseListener(this);
 			region.setAlignmentX((float) 0.0);
 			profile.add(region);
@@ -165,20 +202,15 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	// adds posts to user wall.
 	public void populate_wall() {
 		// TODO: given ownerID, regionID, get all posts for this region, with
-		// name, post, timestamp
-		// Content wall_posts = new Content();
-		// wall_posts.getPost();
-		// while there are still posts
-
-		Region board = new Region("godfather");
+		
+		Region region = new Region(curr_username, curr_region);
 		try {
-			myClient.viewBoard(board);
+			myClient.viewBoard(region);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		Post[] postArray = board.getPosts();
+		Post[] postArray = region.getPosts();
 
 		for (int i = postArray.length - 1; i >= 0; i--) {
 			// for each post, get:
@@ -195,7 +227,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 					BorderFactory.createLineBorder(new Color(130, 0, 0)),
 					post.getBorder()));
 			// poster name
-			Userlink poster = new Userlink(poster_name, poster_id);
+			Userlink poster = new Userlink("Username", poster_name, poster_id);
 			poster.addMouseListener(this);
 			poster.setAlignmentX((float) 0.0);
 			// post+timestamp
@@ -234,8 +266,19 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		logo.setPreferredSize(new Dimension(prof_width, 50));
 		logo.setMaximumSize(new Dimension(prof_width, 50));
 
-		// TODO: add search bar
-		JLabel searchbar = new JLabel("[searchbar]");
+		// add search bar
+		search_box = new JTextField(20);
+		search_box.setMinimumSize(new Dimension(200, 40));
+		search_box.setPreferredSize(new Dimension(200, 40));
+		search_box.setMaximumSize(new Dimension(200, 40));
+		search_button = new JButton("Search");
+		search_button.setMinimumSize(new Dimension(75, 40));
+		search_button.setPreferredSize(new Dimension(75, 40));
+		search_button.setMaximumSize(new Dimension(75, 40));
+		search_button.addActionListener(this);
+		topnav.add(search_box);
+		topnav.add(search_button);
+		
 		// add edit button
 		edit_button.setForeground(Color.white);
 		edit_button.addMouseListener(this);
@@ -243,7 +286,8 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		logout.setForeground(Color.white);
 
 		topnav.add(logo);
-		topnav.add(searchbar);
+		topnav.add(search_box);
+		topnav.add(search_button);
 		topnav.add(Box.createHorizontalGlue());
 		topnav.add(edit_button);
 		topnav.add(logout);
@@ -259,7 +303,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		try {
 			populate_userprofile();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -333,6 +376,14 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		prof_scroller.revalidate();
 		change_wall(userID, 0);
 	}
+	public void change_profile(String username) {
+		curr_username = username;
+		curr_region = 0;
+		create_profile();
+		prof_scroller.setViewportView(profile);
+		prof_scroller.revalidate();
+		change_wall(username, 0);
+	}
 
 	public void change_wall(int userID, int regionID) {
 		curr_profile = userID;
@@ -341,14 +392,22 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		wall_scroller.setViewportView(wall);
 		wall_scroller.revalidate();
 	}
+	public void change_wall(String username, int regionID) {
+		curr_username = username;
+		curr_region = regionID;
+		create_wall();
+		wall_scroller.setViewportView(wall);
+		wall_scroller.revalidate();
+	}
 
 	public void edit_profile() {
-		save_edit.addMouseListener(this);
+		save_edit.addActionListener(this);
 		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		//LEAVE A COMMENT
 		if (arg0.getSource() == comment_button) {
 			// if post is not all whitespace
 			String comm = comment_box.getText();
@@ -364,40 +423,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 					if (e == Error.SUCCESS)
 						change_wall(curr_profile, curr_region);
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-		}
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		if (arg0.getSource() == logo) {
-			System.out.println(arg0.getSource().getClass().getName());
-			// change wall to user's own wall.
-			change_profile(myUserID);
-			repaint();
-		}
-		// else if link clicked is of type username:
-		else if (arg0.getSource() instanceof Userlink) {
-			// System.out.println(((Userlink)arg0.getSource()).get_username());
-			int new_user = ((Userlink) arg0.getSource()).get_userid();
-			change_profile(new_user);
-		}
-		// else if link clicked is of type region:
-		else if (arg0.getSource() instanceof Regionlink) {
-			// System.out.println(((Regionlink)arg0.getSource()).get_regionname());
-			int new_region = ((Regionlink) arg0.getSource()).get_regionid();
-			int same_user = ((Regionlink) arg0.getSource()).get_userid();
-			change_wall(same_user, new_region);
-		} else if (arg0.getSource() == edit_button) {
-			// change profile to user's own
-			change_profile(myUserID);
-			edit_profile();
-			wall_scroller.setViewportView(edit);
-			// change wall to edit page
+		//EDIT PROFILE
 		} else if (arg0.getSource() == save_edit){
+			System.out.println("saving");
 			//send new profile info to server
 			try {
 				String[] fields = ((ProfileEditor) edit).get_fields();
@@ -406,27 +437,78 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				newProfile.setFamily(fields[3]);
 				//Avatar
 				// Get Image
-			    ImageIcon icon = new ImageIcon(fields[4]);
-			    Image image = icon.getImage();
-			    // Create empty BufferedImage, sized to Image
-			    BufferedImage bi = 
-			      new BufferedImage(
-			          image.getWidth(null), 
-			          image.getHeight(null), 
-			          BufferedImage.TYPE_INT_ARGB);
-			    // Draw Image into BufferedImage
-			    Graphics g = bi.getGraphics();
-			    g.drawImage(image, 0, 0, null);
-				newProfile.setAvatar(SerializableAvatar.bufImageToSerialAvatar(bi));
-
+				if (!fields[4].equals("")){
+				    ImageIcon icon = new ImageIcon(fields[4]);
+				    Image image = icon.getImage();
+				    // Create empty BufferedImage, sized to Image
+				    BufferedImage bi = 
+				      new BufferedImage(
+				          image.getWidth(null), 
+				          image.getHeight(null), 
+				          BufferedImage.TYPE_INT_ARGB);
+				    // Draw Image into BufferedImage
+				    Graphics g = bi.getGraphics();
+				    g.drawImage(image, 0, 0, null);
+					newProfile.setAvatar(SerializableAvatar.bufImageToSerialAvatar(bi));
+				}
 				//tell client to edit profile
 				Error e = myClient.editProfile(newProfile);
 				if (e == Error.SUCCESS)
-					change_profile(myUserID);
+					change_profile(myUserName);
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		//SEARCH
+		else if (arg0.getSource()==search_button){
+			//make sure search bar isn't empty
+			String query = search_box.getText();
+			String stripped_query = query.replaceAll("\\s+", "");
+			if (!stripped_query.equals("")) {
+				//get profile of user
+				Profile searchProfile = new Profile(stripped_query);
+				try {
+					myClient.viewProfile(searchProfile);
+					//display profile
+					change_profile(stripped_query);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				
+			}
+
+		}
+		//add a friend
+		else if (arg0.getSource()==add_friend){
+			
+		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		if (arg0.getSource() == logo) {
+			System.out.println(arg0.getSource().getClass().getName());
+			// change wall to user's own wall.
+			change_profile(myUserName);
+		}
+		// else if link clicked is of type username:
+		else if (arg0.getSource() instanceof Userlink) {
+			// System.out.println(((Userlink)arg0.getSource()).get_username());
+			String new_user = ((Userlink) arg0.getSource()).get_username();
+			change_profile(new_user);
+		}
+		// else if link clicked is of type region:
+		else if (arg0.getSource() instanceof Regionlink) {
+			// System.out.println(((Regionlink)arg0.getSource()).get_regionname());
+			int new_region = ((Regionlink) arg0.getSource()).get_regionid();
+			String same_user = ((Regionlink) arg0.getSource()).get_username();
+			change_wall(same_user, new_region);
+		} else if (arg0.getSource() == edit_button) {
+			// change profile to user's own
+			change_profile(myUserName);
+			edit_profile();
+			wall_scroller.setViewportView(edit);
+			// change wall to edit page
 		}
 		
 	}

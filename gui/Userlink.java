@@ -10,8 +10,8 @@ public class Userlink extends JLabel{
 	int userID; //associated userID
 	String username;
 	
-	public Userlink(String user, int uid){
-		super(user);
+	public Userlink(String name, String user, int uid){
+		super(name);
 		userID = uid;
 		username = user;
 	}

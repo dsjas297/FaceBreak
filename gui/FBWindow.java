@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 
 import networking.FBClient;
 
-import common.Error;
 import common.FBClientUser;
 import common.Profile;
 import common.Title;
@@ -22,7 +21,7 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	FBClient client;
 	FBClientUser myuser;
 	Login login = new Login();
-	private boolean logged_in = false;
+	//private boolean logged_in = false;
 	FBPage fbpage;
 
 	int curr_user; // profile you are looking at
@@ -47,7 +46,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			client = new FBClient();
 			System.out.println("Created client socket");
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -79,14 +77,13 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			client.editProfile(myProfile);
 
 			System.out.println(login.usernameEntry.getText());
-			logged_in = true;
+			//logged_in = true;
 			login.setVisible(false);
 			curr_user = 0;
-			fbpage = new FBPage(client, curr_user, curr_region);
+			fbpage = new FBPage(client, curr_user, login.usernameEntry.getText(), curr_region);
 			setContentPane(fbpage);
 			fbpage.logout.addMouseListener(this);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -96,12 +93,10 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		if (e.getSource() == login.loginButton) {
 			login_protocol();
 		} else if (e.getSource() == login.signupButton) {
-			// TODO: signup protocol
 			try {
 				client.createUser(login.usernameEntry.getText(),
 						login.pwdEntry.getText());
 			} catch (ClassNotFoundException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			//auto-login
@@ -112,10 +107,8 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if (arg0.getSource() == fbpage.logout) {
-			// TODO: client.logout(user)
-
 			// logging out!
-			logged_in = false;
+			//logged_in = false;
 			getContentPane().remove(fbpage);
 			login.setVisible(true);
 
@@ -125,7 +118,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 				login.loggedOut.setVisible(true);
 				repaint();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

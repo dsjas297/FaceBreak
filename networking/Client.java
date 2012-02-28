@@ -61,4 +61,14 @@ public interface Client {
 	 */
 	public Error deletePost(int badPostId) throws ClassNotFoundException;
 
+
+	/*
+	 * This user adds a friend of username
+	 */
+	public Error addFriend(String username) throws ClassNotFoundException;
+
+	/*
+	 * This user deletes a friend of username
+	 */
+	public Error deleteFriend(String username) throws ClassNotFoundException;
 }

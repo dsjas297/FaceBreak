@@ -2,6 +2,8 @@ package dummyserver;
 
 import java.util.ArrayList;
 
+import server.FaceBreakUser;
+
 import common.FBClientUser;
 import common.Post;
 import common.Profile;
@@ -116,7 +118,9 @@ public class DummyQuery {
 //		if(!userExists(profile.getUsername()))
 //			return false;
 		// else, set fields in Profile
-		return tmpProfile;
+		int uid = FaceBreakUser.checkIfUserExists(profile.getUsername());
+		FaceBreakUser user = new FaceBreakUser(uid);
+		return user.getProfile();
 	}
 	
 	/*
