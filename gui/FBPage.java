@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -219,7 +220,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				String poster_name = postArray[i].getWriterName();
 				int poster_id = 1;
 				String message = postArray[i].getText();
-				String time = "8:00pm February 18, 2012";
+				String time = postArray[i].getDate();
 	
 				// for each post
 				JPanel post = new JPanel();
