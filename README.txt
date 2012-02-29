@@ -132,15 +132,19 @@ The Server package
     - Function initDirTree() initializes the directory structure by creating an empty users file if one does not exist, and creating the userID file which we
     - Other functions are createPost, viewPosts, addFriend, and deleteFriend
     - This does repeat some functionality in the other files and will have to be refactored
-INSTALLATION
-[<10 min]
 
-- Copy the
+INSTALLATION
+1. Unzip the files. You will see a folder titled “FaceBreak”
+2. Open Eclipse (download at http://www.eclipse.org/downloads/moreinfo/java.php)
+3. Create a new project named FaceBreak from the “FaceBreak” folder you just unzipped.
 
 COMPILING
+4. File > Export: Select Java > JAR file
+5. Under Resources to Export, select FaceBreak (left pane), .classpath and .project (right pane). Set the export destination to [current working directory]/FaceBreak.jar
 
-RUNNING/TUTORIAL
-To run the server and client:
+RUNNING
+6. Run FaceBreakServer.bat
+7. Run FaceBreakGui.bat
 
 TUTORIAL
 [Log in screen]
