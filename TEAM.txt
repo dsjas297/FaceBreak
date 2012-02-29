@@ -7,4 +7,4 @@ Gaomin: Wrote Networking and Common packages. Integrated code. [~20hrs]
 
 Jasdeep: Developed the Server packages and designed the persistent storage structure. Spent a good amount of time debugging overall system. [~18 hours]
 
-Boiar: Wrote user interface. Tested and extensively debugged end-to-end system. Project manager for phase 2. [~18 hours]
+Boiar: Wrote user interface (gui package) and integrated it with networking and common. Tested and extensively debugged end-to-end system. Project manager for phase 2. [~18 hours]
