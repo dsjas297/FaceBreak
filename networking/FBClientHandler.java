@@ -24,11 +24,13 @@ public class FBClientHandler extends Thread {
 	private AuthenticatedUser authUser;
 	private ObjectOutputStream outStream;
 	private ObjectInputStream inStream;
+	private boolean keepAlive;
 	
 	public FBClientHandler(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		outStream = null;
 		inStream = null;
+		keepAlive = true;
 	}
 
 	public Reply parseRequest(Request r) {
