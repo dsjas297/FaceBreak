@@ -486,9 +486,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//get profile of user
 				Profile searchProfile = new Profile(stripped_query);
 				try {
-					myClient.viewProfile(searchProfile);
-					//display profile
-					change_profile(stripped_query);
+					common.Error search_error = myClient.viewProfile(searchProfile);
+					if (search_error == common.Error.SUCCESS){
+						//display profile
+						change_profile(stripped_query);
+					}
+					//else: do nothing
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

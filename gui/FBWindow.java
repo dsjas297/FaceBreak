@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
+import javax.swing.JPasswordField;
 
 import networking.FBClient;
 
@@ -64,16 +65,12 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 
 	public void login_protocol(){
 		try {
-			client.login(login.usernameEntry.getText(),
-					login.pwdEntry.getText());
+			common.Error login_error = client.login(login.usernameEntry.getText(), new String(login.pwdEntry.getPassword()));
+			//reset password field
+			login.clearPwd();
 			
-//
-//			Profile myProfile = new Profile("godfather", "Vito", "Corleone");
-//			myProfile.setFamily("Notorious BJG");
-//			myProfile.setTitle(Title.BOSS);
-//			client.editProfile(myProfile);
-
 			System.out.println(login.usernameEntry.getText());
+			System.out.println(new String(login.pwdEntry.getPassword()));
 			//logged_in = true;
 			login.setVisible(false);
 			fbpage = new FBPage(client, login.usernameEntry.getText());
@@ -86,20 +83,37 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		login.loginFailed.setVisible(false);
+		login.duplicateUser.setVisible(false);
 		if (e.getSource() == login.loginButton) {
-			client.setCurrentUser(login.usernameEntry.getText(),
-					login.pwdEntry.getText());
-			login_protocol();
-		} else if (e.getSource() == login.signupButton) {
-			try {
-				client.createUser(login.usernameEntry.getText(),
-						login.pwdEntry.getText());
-				client.getSocket().close();
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			//make sure both fields are filled in
+			login.strip_whitespace();			
+			if (!login.usernameEntry.getText().equals("")&&!(new String(login.pwdEntry.getPassword())).equals("")){
+				client.setCurrentUser(login.usernameEntry.getText(),
+						new String(login.pwdEntry.getPassword()));
+				login_protocol();	
 			}
-			//auto-login
-			login_protocol();
+		} else if (e.getSource() == login.signupButton) {
+			//make sure both fields are filled in
+			login.strip_whitespace();
+			if (!login.usernameEntry.getText().equals("")&&!(new String(login.pwdEntry.getPassword())).equals("")){
+				try {
+					common.Error signup_error = client.createUser(login.usernameEntry.getText(),
+							new String(login.pwdEntry.getPassword()));
+					//client.getSocket().close();
+					if (signup_error==common.Error.DUPLICATE_USER){
+						//display an error
+						login.duplicateUser.setVisible(true);
+					}
+					else{
+						//auto-login
+						login_protocol();		
+					}
+						
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 

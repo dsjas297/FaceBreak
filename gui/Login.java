@@ -3,17 +3,16 @@ package gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 public class Login extends JPanel implements ActionListener{
@@ -27,20 +26,17 @@ public class Login extends JPanel implements ActionListener{
 	private JLabel usernamePrompt = new JLabel("User ID: ");
 	JTextField usernameEntry= new JTextField(8);
 	private JLabel pwdPrompt = new JLabel("Password: ");
-	protected JTextField pwdEntry= new JTextField(8);
+	protected JPasswordField pwdEntry = new JPasswordField(8);
 	JButton loginButton = new JButton("Log in");
 	JButton signupButton = new JButton("Sign up!");
 	JLabel loginFailed = new JLabel("Login failed");
+	JLabel duplicateUser = new JLabel("This user already exists. Please sign up under a different username.");
 	JLabel loggedOut = new JLabel("Thank you for using FaceBreak");
 
 	public Login(){
 		// Create welcome panel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		//this.setBackground(Color.white);
-	//	this.setOpaque(false);
-		//this.setBackground(new Color(0,0,0, 64) );
-		//this = new ImagePanel("gangsters.jpg");
-		//ImagePanel bgPanel = new ImagePanel("gangsters.jpg");
+		this.setBackground(Color.white);
 
 		//welcome text
 		JLabel facebreak = new JLabel("FaceBreak", JLabel.CENTER);
@@ -52,7 +48,6 @@ public class Login extends JPanel implements ActionListener{
 		Font welcomeFont = welcome.getFont();
 		welcome.setFont(new Font(welcomeFont.getFontName(), welcomeFont.getStyle(), 22));
 		welcome.setAlignmentX((float) 0.5);
-		//welcome.setSize(new Dimension(200,100));
 		
 		//login panel
 		JPanel loginPanel = new JPanel();
@@ -116,6 +111,9 @@ public class Login extends JPanel implements ActionListener{
 		this.add(loginFailed);
 		loginFailed.setAlignmentX((float) 0.5);
 		loginFailed.setVisible(false);
+		this.add(duplicateUser);
+		duplicateUser.setAlignmentX((float) 0.5);
+		duplicateUser.setVisible(false);
 		this.add(loggedOut);
 		loggedOut.setAlignmentX((float) 0.5);
 		loggedOut.setVisible(false);
@@ -131,9 +129,13 @@ public class Login extends JPanel implements ActionListener{
 		//blank		
 	}
 	
-	public void paintComponent(Graphics g) {
-	super.paintComponent(g);
-	g.drawImage(new ImageIcon("gangsters.jpg").getImage(), 0, 0, this);
+	public void clearPwd(){
+		pwdEntry.setText("");
+	}
+	
+	public void strip_whitespace(){
+		usernameEntry.setText(usernameEntry.getText().replaceAll("\\s+", ""));
+		pwdEntry.setText((new String(pwdEntry.getPassword())).replaceAll("\\s+", ""));
 	}
 			
 }
