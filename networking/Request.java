@@ -3,29 +3,11 @@ package networking;
 import java.io.Serializable;
 
 public class Request implements Serializable {
-	private int uid;
 	private long timestamp;
 	private RequestType type;
-	private Content details;
 	
 	public Request(RequestType type) {
 		this.type = type;
-		details = new Content();
-	}
-	
-	public Request(int uid) {
-		this.uid = uid;
-		details = new Content();
-	}
-
-	public Request(int uid, RequestType type) {
-		this.uid = uid;
-		this.type = type;
-		details = new Content();
-	}
-	
-	public int getUserId() {
-		return uid;
 	}
 	
 	public long getTimestamp() {
@@ -42,14 +24,6 @@ public class Request implements Serializable {
 	
 	public void setRequestType(RequestType type) {
 		this.type = type;
-	}
-	
-	public void setDetails(Content details) {
-		this.details = details;
-	}
-	
-	public Content getDetails() {
-		return details;
 	}
 	
 	public enum RequestType {

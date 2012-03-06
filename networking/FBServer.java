@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import server.ServerBackend;
+import server.FileSystem;
 
 public class FBServer {
 	private ServerSocket listener;
@@ -12,7 +12,7 @@ public class FBServer {
 	private static final int port = 4444;
 
 	public FBServer() {
-		ServerBackend.initDirTree();
+		FileSystem.initDirTree();
 		
 		System.out.println("Starting up server...");
 

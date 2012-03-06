@@ -2,7 +2,6 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,47 +15,13 @@ import common.Region;
 public class ServerBackend {
 
 	// Folder names
-	public static final String globalUidCounter = FBFile.GLOBAL_UID.name;
-	public static final String globalUsers = FBFile.GLOBAL_ALLUSERS.name;
-	public static final String userInfoFile = "info";
-	public static final String userFriendsFile = "friends";
-	public static final String userUntrustworthyFile = "untrustworthy";
-	public static final String imageFile = "avatar.jpg";
+	private static String userInfoFile = FileSystem.user_info_file;
+	private static String friendsFile = FileSystem.user_friends_file;
+	private static String untrustworthyUsers = FileSystem.user_untrustworthy_file;
 
-	public static final String regionsFolder = "regions";
-	public static final String regionPostsFile = "posts";
-	public static final String regionInfoFile = "regionInfo";
-
-	public static void initDirTree() {
-		File uidFile = new File(globalUidCounter);
-		File usersFile = new File(globalUsers);
-
-		if (!usersFile.exists()) {
-			try {
-				BufferedWriter bWriter = new BufferedWriter(new FileWriter(
-						globalUsers, true));
-				bWriter.write("");
-				bWriter.close();
-			} catch (IOException e) {
-				System.err
-						.println("OH NOES!! Cannot initialize file for users.");
-				e.printStackTrace();
-			}
-		}
-
-		if (!uidFile.exists()) {
-			try {
-				BufferedWriter bWriter = new BufferedWriter(new FileWriter(
-						globalUidCounter, true));
-				bWriter.write("1\n");
-				bWriter.close();
-			} catch (IOException ioe) {
-				System.err
-						.println("OH NOES!! Cannot initialize file for user ID counter.");
-				ioe.printStackTrace();
-			}
-		}
-	}
+	private static String regionsDir = FileSystem.region_dir;
+	private static String regionPosts = FileSystem.region_posts_file;
+	private static String regionInfo = FileSystem.region_info_file;
 
 	public static boolean createPost(Post myPost) {
 		int oid = myPost.getOwnerId();
@@ -65,8 +30,8 @@ public class ServerBackend {
 
 		try {
 			String path = Integer.toString(oid) + "\\"
-					+ regionsFolder + "\\" + Integer.toString(rid) + "\\"
-					+ regionPostsFile;
+					+ regionsDir + "\\" + Integer.toString(rid) + "\\"
+					+ regionPosts;
 			FileWriter fWriter = new FileWriter(path, true);
 
 			BufferedWriter bw = new BufferedWriter(fWriter);
@@ -90,9 +55,9 @@ public class ServerBackend {
 		
 		// Get posts in array
 		String path = Integer.toString(oid) + 
-				"\\" + regionsFolder + 
+				"\\" + regionsDir + 
 				"\\" + Integer.toString(rid) + 
-				"\\" + regionPostsFile;
+				"\\" + regionPosts;
 		FileReader fReader = new FileReader(path);
 		BufferedReader br = new BufferedReader(fReader);
 		
@@ -127,8 +92,8 @@ public class ServerBackend {
 				// do stuff here
 			}
 			
-			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
-			FileReader fReader = new FileReader(friendsFileName);
+			String path = Integer.toString(requestUid) + "\\" + friendsFile;
+			FileReader fReader = new FileReader(path);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			
 			String tmp;
@@ -141,7 +106,7 @@ public class ServerBackend {
 			}
 			
 			if(!exists) {
-				BufferedWriter bWriter = new BufferedWriter(new FileWriter(friendsFileName, true));
+				BufferedWriter bWriter = new BufferedWriter(new FileWriter(path, true));
 				bWriter.write(Integer.toString(friendUid) + "\n");
 				bWriter.close();
 			}
@@ -160,8 +125,8 @@ public class ServerBackend {
 				// do stuff here
 			}
 			
-			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
-			FileReader fReader = new FileReader(friendsFileName);
+			String path = Integer.toString(requestUid) + "\\" + friendsFile;
+			FileReader fReader = new FileReader(path);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			
 			String tmp;
@@ -173,7 +138,7 @@ public class ServerBackend {
 			}
 			inputReader.close();
 			
-			FileWriter fWriter = new FileWriter(friendsFileName);
+			FileWriter fWriter = new FileWriter(path);
 			BufferedWriter writer = new BufferedWriter(fWriter);
 			for(int i = 0; i < friendList.size(); i++){
 				writer.write(friendList.get(i) + "\n");

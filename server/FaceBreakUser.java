@@ -17,13 +17,13 @@ public class FaceBreakUser {
 	private ArrayList<Integer> friends;
 	private HashMap<Integer,ArrayList<String>> untrustworthy;
 	
-	public static final String usersListFile = ServerBackend.globalUsers;
-	private static final String userIDFile = ServerBackend.globalUidCounter;
+	public static final String usersListFile = FileSystem.global_users_file;
+	private static final String userIDFile = FileSystem.global_uid_counter_file;
 	
-	private static final String userInfoFile = ServerBackend.userInfoFile;
-	private static final String userFriendsFile = ServerBackend.userFriendsFile;
-	private static final String userUntrustworthyFile = ServerBackend.userUntrustworthyFile;
-	private static final String imageFile = ServerBackend.imageFile;
+	private static final String userInfoFile = FileSystem.user_info_file;
+	private static final String userFriendsFile = FileSystem.user_friends_file;
+	private static final String userUntrustworthyFile = FileSystem.user_untrustworthy_file;
+	private static final String imageFile = FileSystem.user_avatar_file;
 	
 	public static int addUser(String userName, Title title, String family, String fname, String lname){
 		

@@ -1,20 +1,14 @@
 package networking;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import common.Error;
 
-
-
 public class Reply implements Serializable {
-	
 	private long timestamp;
 	private Error error;
-	private Content contents;
 	
 	public Reply() {
-		contents = new Content();
 	}
 	
 	public long getTimestamp() {
@@ -31,13 +25,5 @@ public class Reply implements Serializable {
 	
 	public void setReturnError(Error error) {
 		this.error = error;
-	}
-	
-	public Content getContents() {
-		return contents;
-	}
-	
-	public void setContents(Content contents) {
-		this.contents = contents;
 	}
 }

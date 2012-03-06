@@ -16,9 +16,9 @@ public class FaceBreakRegion {
 	private int regionID;
 	private int viewerID;
 
-	public static final String regionsFolder = "regions";
-	private static final String regionPostsFile = "posts";
-	private static final String regionInfoFile = "regionInfo";
+	protected static final String regionsFolder = FileSystem.region_dir;
+	private static final String regionPostsFile = FileSystem.region_posts_file;
+	private static final String regionInfoFile = FileSystem.region_info_file;
 //	private static final int NUM_POSTS_TO_READ = 10;
 
 	public FaceBreakRegion(int posterID, int ownerID, int regionID){

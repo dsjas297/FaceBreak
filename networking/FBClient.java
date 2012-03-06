@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
 import networking.Request.RequestType;
 
 import common.Error;
@@ -18,9 +20,9 @@ import common.Region;
 public class FBClient implements Client {
 	private Socket socket;
 	private InetAddress serverAddr;
-	private FBClientUser user;
 	private ObjectOutputStream outStream;
 	private ObjectInputStream inStream;
+	private FBClientUser user;
 
 	private static final int port = 4444;
 
@@ -44,10 +46,6 @@ public class FBClient implements Client {
 		socket = null;
 		outStream = null;
 		inStream = null;
-	}
-
-	public void setCurrentUser(String username, String pwd) {
-		user = new FBClientUser(username, pwd);
 	}
 
 	public Socket getSocket(){
@@ -76,10 +74,9 @@ public class FBClient implements Client {
 	 */
 	public Error login(String username, String pwd) throws ClassNotFoundException {
 		// cannot login while there's another user logged in
-		/*
+		
 		if(user != null)
 			return Error.MALFORMED_REQUEST;
-			*/
 		
 		try {
 			socket = new Socket(serverAddr, port);
@@ -88,7 +85,6 @@ public class FBClient implements Client {
 
 			// create request object
 			Request login = new Request(RequestType.LOGIN);
-			login.getDetails().setUser(user);
 			login.setTimestamp(System.currentTimeMillis());
 
 			outStream.writeObject(login);
@@ -96,10 +92,11 @@ public class FBClient implements Client {
 			Reply serverReply = (Reply) inStream.readObject();
 			Error e = serverReply.getReturnError();
 
-			if (e == Error.SUCCESS)
-				user.setId(serverReply.getContents().getUser().getId());
-			else
-				closeConnection();
+			if(e == Error.SUCCESS)
+				user = new FBClientUser(username, pwd);
+			else 
+				user = null;
+			
 			return e;
 		} catch (IOException ioe) {
 			return Error.CONNECTION;
@@ -114,7 +111,7 @@ public class FBClient implements Client {
 		if(socket == null || user == null)
 			return Error.LOGIN;
 
-		Request logout = new Request(user.getId(), RequestType.LOGOUT);
+		Request logout = new Request(RequestType.LOGOUT);
 		logout.setTimestamp(System.currentTimeMillis());
 		
 		try {
@@ -181,7 +178,7 @@ public class FBClient implements Client {
 
 		FBClientUser tmpUser = user;
 		tmpUser.setPassword(pwd);
-		Request changePwd = new Request(user.getId(), RequestType.CHANGE_PWD);
+		Request changePwd = new Request(RequestType.CHANGE_PWD);
 		changePwd.getDetails().setUser(tmpUser);
 		changePwd.setTimestamp(System.currentTimeMillis());
 		
@@ -241,7 +238,7 @@ public class FBClient implements Client {
 		if (socket == null || user == null)
 			return Error.LOGIN;
 
-		Request editProfile = new Request(user.getId(),	RequestType.EDIT_PROFILE);
+		Request editProfile = new Request(RequestType.EDIT_PROFILE);
 		editProfile.getDetails().setProfile(myProfile);
 		editProfile.setTimestamp(System.currentTimeMillis());
 		
@@ -271,7 +268,7 @@ public class FBClient implements Client {
 
 		newPost.setWriterId(user.getId());
 		newPost.setWriterName(user.getUsername());
-		Request postRequest = new Request(user.getId(), RequestType.POST);
+		Request postRequest = new Request(RequestType.POST);
 		postRequest.getDetails().setPost(newPost);
 		postRequest.setTimestamp(System.currentTimeMillis());
 		
@@ -294,7 +291,7 @@ public class FBClient implements Client {
 		if (socket == null || user == null)
 			return Error.LOGIN;
 
-		Request viewBoard = new Request(user.getId(), RequestType.VIEW_BOARD);
+		Request viewBoard = new Request(RequestType.VIEW_BOARD);
 		viewBoard.getDetails().setBoard(board);
 		viewBoard.setTimestamp(System.currentTimeMillis());
 
@@ -322,7 +319,7 @@ public class FBClient implements Client {
 		if (socket == null || user == null)
 			return Error.LOGIN;
 		
-		Request delete = new Request(user.getId(), RequestType.DELETE_POST);
+		Request delete = new Request(RequestType.DELETE_POST);
 		delete.getDetails().setPost(new Post());
 
 		return Error.SUCCESS;
@@ -336,7 +333,7 @@ public class FBClient implements Client {
 		if (socket == null || user == null)
 			return Error.LOGIN;
 
-		Request addFriend = new Request(user.getId(), RequestType.ADD_FRIEND);
+		Request addFriend = new Request(RequestType.ADD_FRIEND);
 		addFriend.getDetails().setRequestedUser(username);
 		addFriend.setTimestamp(System.currentTimeMillis());
 
@@ -358,7 +355,7 @@ public class FBClient implements Client {
 		if (socket == null || user == null)
 			return Error.LOGIN;
 
-		Request addFriend = new Request(user.getId(), RequestType.DELETE_FRIEND);
+		Request addFriend = new Request(RequestType.DELETE_FRIEND);
 		addFriend.getDetails().setRequestedUser(username);
 		addFriend.setTimestamp(System.currentTimeMillis());
 
@@ -370,5 +367,11 @@ public class FBClient implements Client {
 		} catch (IOException ioe) {
 			return Error.CONNECTION;
 		}
+	}
+	
+	public String[] getAllFriends() {
+		String[] allFriends = new String[0];
+		
+		return allFriends;
 	}
 }
