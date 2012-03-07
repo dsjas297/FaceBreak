@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import server.FaceBreakRegion;
 import server.FaceBreakUser;
 import server.ServerBackend;
 
@@ -199,8 +200,7 @@ public class FBClientHandler extends Thread {
 		
 		//requestedProf = DummyQuery.getProfile(authUser.getId(), requestedProf);
 		int uid = FaceBreakUser.checkIfUserExists(requestedProf.getUsername());
-		FaceBreakUser user = new FaceBreakUser(uid);
-		requestedProf = user.getProfile();
+		requestedProf = FaceBreakUser.getProfile(uid);
 		if(requestedProf == null)
 			r.setReturnError(Error.NO_USER);
 		else {
@@ -221,8 +221,7 @@ public class FBClientHandler extends Thread {
 		}
 		
 		//DummyQuery.editProfile(authUser.getId(), newProfile);
-		FaceBreakUser user = new FaceBreakUser(authUser.getId());
-		user.setProfile(newProfile);
+		FaceBreakUser.setProfile(authUser.getId(),newProfile);
 		r.setReturnError(Error.SUCCESS);
 		
 		return r;
@@ -234,7 +233,7 @@ public class FBClientHandler extends Thread {
 		newPost.setWriterName(authUser.getUsername());
 		
 		newPost.setOwnerId(FaceBreakUser.checkIfUserExists(newPost.getOwnerName()));
-		if(ServerBackend.createPost(newPost))
+		if(FaceBreakRegion.createPost(newPost))
 			r.setReturnError(Error.SUCCESS);
 		else
 			r.setReturnError(Error.PRIVILEGE);
@@ -246,7 +245,7 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		try {
-			ArrayList<Post> board = ServerBackend.viewPosts(authUser.getId(), region);
+			ArrayList<Post> board = FaceBreakRegion.viewPosts(authUser.getId(), region);
 
 			region.setPosts(board);
 			r.getContents().setBoard(region);
@@ -274,7 +273,7 @@ public class FBClientHandler extends Thread {
 	public Reply processAddFriend(String friendName) {
 		Reply r = new Reply();
 		
-		int err = ServerBackend.addFriend(authUser.getId(), friendName);
+		int err = FaceBreakUser.addFriend(authUser.getId(), friendName);
 		if(err == -1)
 			r.setReturnError(Error.UNKNOWN_ERROR);
 		else if(err == 0)
@@ -287,7 +286,7 @@ public class FBClientHandler extends Thread {
 	public Reply processDeleteFriend(String friendName) {
 		Reply r = new Reply();
 		
-		int err = ServerBackend.deleteFriend(authUser.getId(), friendName);
+		int err = FaceBreakUser.deleteFriend(authUser.getId(), friendName);
 		if(err == -1)
 			r.setReturnError(Error.UNKNOWN_ERROR);
 		else if(err == 0)

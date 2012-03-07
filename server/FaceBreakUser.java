@@ -11,11 +11,11 @@ import common.User;
 
 public class FaceBreakUser {
 	
-	private User user;
-	private Profile profile;
-	private Title title;
-	private ArrayList<Integer> friends;
-	private HashMap<Integer,ArrayList<String>> untrustworthy;
+	//private User user;
+	//private Profile profile;
+	//private Title title;
+	//private ArrayList<Integer> friends;
+	//private HashMap<Integer,ArrayList<String>> untrustworthy;
 	
 	public static final String usersListFile = ServerBackend.globalUsers;
 	private static final String userIDFile = ServerBackend.globalUidCounter;
@@ -132,6 +132,7 @@ public class FaceBreakUser {
 		}
 	}
 	
+	/*
 	// Load user from files
 	public FaceBreakUser(int id){
 		try{
@@ -210,7 +211,9 @@ public class FaceBreakUser {
 			System.err.println("Error: " + e.getMessage());
 		}
 	}
+	*/
 	
+	/*
 	public void setProfile(Profile prof){
 		try{
 			this.profile = prof;
@@ -230,7 +233,8 @@ public class FaceBreakUser {
 	public Profile getProfile(){
 		return profile;
 	}
-	
+	*/
+	/*
 	public int addFriend(int requestUid, String username) {
 		int id = checkIfUserExists(username);
 		addFriend(requestUid, id);
@@ -262,10 +266,11 @@ public class FaceBreakUser {
 			return 1;
 		}
 	}
+	*/
 	
-	private boolean checkIfFriendExists(int friendID){
+	public static boolean checkIfFriendExists(int uid, int friendID){
 		try{
-			FileReader fReader = new FileReader(Integer.toString(this.user.getId()) + "\\" + userFriendsFile);
+			FileReader fReader = new FileReader(Integer.toString(uid) + "\\" + userFriendsFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
 			while( (temp = inputReader.readLine()) != null){
@@ -294,37 +299,30 @@ public class FaceBreakUser {
 	}
 	
 	// This is also used to mark users as trustworthy
-	public int markUntrustworthy(int foeID){
+	public static int markUntrustworthy(int uid, int foeID){
 		try{
 			if(!checkIfUserExists(foeID)){
 				System.err.println("Error: Attempted to mark nonexistent user untrustworthy");
-				return 1;
+				return -1;
 			}
 			String timestamp = Long.toString((new Date()).getTime());
 			// Append to friends file
-			String newFriend = "\n" + Integer.toString(foeID) + ":"
+			String newFoe = "\n" + Integer.toString(foeID) + ":"
 					+ timestamp;
 			BufferedWriter bWriter = new BufferedWriter(
-					new FileWriter(Integer.toString(this.user.getId()) + "\\" + userUntrustworthyFile, true));
-			bWriter.write(newFriend);
+					new FileWriter(Integer.toString(uid) + "\\" + userUntrustworthyFile, true));
+			bWriter.write(newFoe);
 			bWriter.close();
-			
-			// Append to untrustworthy list
-			if(this.untrustworthy.get(foeID) == null){
-				this.untrustworthy.put(foeID, new ArrayList<String>());
-			}
-			this.untrustworthy.get(foeID).add(timestamp);
-			
-			System.out.println(this.untrustworthy.toString());
 			
 			return 0;
 			
 		} catch (Exception e){
 			System.err.println("Error: " + e.getMessage());
-			return 1;
+			return -1;
 		}
 	}
 	
+	/*
 	public int post(int id, int ownerID, int regionID, String msg){
 		FaceBreakRegion postingBoard = new FaceBreakRegion(id, ownerID, regionID);
 		postingBoard.post(id, msg);
@@ -339,6 +337,7 @@ public class FaceBreakUser {
 		}
 		return 0;
 	}
+	*/
 	
 	private static int getNewUserID(){
 		try{
@@ -356,7 +355,234 @@ public class FaceBreakUser {
 		}
 	}
 	
+	/*
 	public User getUser(){
 		return user;
+	}
+	*/
+	
+	public static User getUser(int uid){
+		try{
+			if(!checkIfUserExists(uid)){
+				return null;
+			}
+		
+			String idStr = Integer.toString(uid);
+		
+			FileReader fReader = new FileReader(idStr + "\\" + userInfoFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			int userID = Integer.parseInt(inputReader.readLine());
+			String userName = inputReader.readLine();
+		
+			User user = new User(userName);
+			user.setId(userID);
+			inputReader.close();
+			
+			return user;
+			
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
+	public static Profile getProfile(int uid){
+		try{
+			if(!checkIfUserExists(uid)){
+				return null;
+			}
+			
+			String idStr = Integer.toString(uid);
+			
+			FileReader fReader = new FileReader(idStr + "\\" + userInfoFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			int userID = Integer.parseInt(inputReader.readLine());
+			String userName = inputReader.readLine();
+			int rank = Integer.parseInt(inputReader.readLine());
+			String family = inputReader.readLine();
+			String fname = inputReader.readLine();
+			String lname = inputReader.readLine();
+			
+			Profile profile = new Profile(userName, fname, lname);
+			
+			profile.setFamily(family);
+			
+			Title title = Title.ASSOC;
+			
+			switch(rank){
+				case 0:
+					title = Title.BOSS;
+					break;
+				case 1:
+					title = Title.CAPO;
+					break;
+				case 2:
+					title = Title.SOLDIER;
+					break;
+				case 3:
+					title = Title.ASSOC;
+					break;
+			}
+			
+			profile.setTitle(title);
+			
+			inputReader.close();
+			return profile;
+			
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
+	public static ArrayList<Integer> getFriends(int uid){
+		try{
+			if(!checkIfUserExists(uid)){
+				return null;
+			}
+			
+			String idStr = Integer.toString(uid);
+			
+			// Load friends file
+			ArrayList<Integer> friends = new ArrayList<Integer>();
+			FileReader fReader = new FileReader(idStr + "\\" + userFriendsFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String temp;
+			while( (temp = inputReader.readLine()) != null){
+				temp.trim();
+				if(!temp.equals("")){
+					friends.add(new Integer(Integer.parseInt(temp)));
+				}
+			}
+			inputReader.close();
+			
+			return friends;
+			
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
+	public static HashMap<Integer, ArrayList<String>> getUntrustworthy(int uid){
+		try{
+			if(!checkIfUserExists(uid)){
+				return null;
+			}
+			
+			String idStr = Integer.toString(uid);
+			
+			// Load hashmap of untrustworthy people
+			HashMap<Integer, ArrayList<String>> untrustworthy = new HashMap<Integer, ArrayList<String>>();
+			FileReader fReader = new FileReader(idStr + "\\" + userUntrustworthyFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String [] linesplit;
+			String temp;
+			while( (temp = inputReader.readLine()) != null){
+				linesplit = temp.split(":");
+				if(linesplit.length > 1){
+					Integer untrustworthyID = new Integer( Integer.parseInt(linesplit[0]));
+					if(untrustworthy.get(untrustworthyID) == null){
+						untrustworthy.put(untrustworthyID, new ArrayList<String>());
+					}
+					untrustworthy.get(untrustworthyID).add(linesplit[1]);
+				}
+			}
+			inputReader.close();
+			
+			return untrustworthy;
+			
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
+	public static int setProfile(int uid, Profile prof){
+		try{
+			if(!checkIfUserExists(uid)){
+				return -1;
+			}
+			
+			// Fill in info for user
+			String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
+					Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+					prof.getLname();
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(Integer.toString(uid) + "\\" + userInfoFile, false));
+			bWriter.write(userInfo);
+			bWriter.close();
+			
+			return 0;
+		}catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
+	public static int addFriend(int requestUid, String friendName) {
+		try{
+			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+			if(friendUid == -1) {
+				// do stuff here
+			}
+			
+			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+			FileReader fReader = new FileReader(friendsFileName);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			
+			String tmp;
+			boolean exists = false;
+			while((tmp = inputReader.readLine()) != null) {
+				if(tmp.equals(Integer.toString(friendUid))) {
+					exists = true;
+					inputReader.close();
+				}
+			}
+			
+			if(!exists) {
+				BufferedWriter bWriter = new BufferedWriter(new FileWriter(friendsFileName, true));
+				bWriter.write(Integer.toString(friendUid) + "\n");
+				bWriter.close();
+			}
+			return 0;
+			
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
+	public static int deleteFriend(int requestUid, String friendName) {
+		try{
+			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+			if(friendUid == -1) {
+				// do stuff here
+			}
+			
+			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+			FileReader fReader = new FileReader(friendsFileName);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			
+			String tmp;
+			ArrayList<String> friendList = new ArrayList<String>();
+			while((tmp = inputReader.readLine()) != null) {
+				if(!(tmp.equals(Integer.toString(friendUid)))) {
+					friendList.add(tmp);
+				}
+			}
+			inputReader.close();
+			
+			FileWriter fWriter = new FileWriter(friendsFileName);
+			BufferedWriter writer = new BufferedWriter(fWriter);
+			for(int i = 0; i < friendList.size(); i++){
+				writer.write(friendList.get(i) + "\n");
+			}
+			writer.close();
+			
+			return 0;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
 	}
 }
