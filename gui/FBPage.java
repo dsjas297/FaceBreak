@@ -36,39 +36,44 @@ import common.Region;
 public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	// permanent elements
-	private JPanel topnav;
-	private JLabel logo = new JLabel("FaceBreak");
-	private JLabel edit_button = new JLabel("Edit | ");
-	public JLabel logout = new JLabel("Log out");
-	private JPanel content;
-	private JScrollPane prof_scroller;
-	private JPanel profile;
-	private JScrollPane wall_scroller;
-	private JPanel wall;
-	private JTextArea comment_box;
-	private JButton comment_button;
-	private JTextField search_box;
-	private JButton search_button;
-	private JPanel edit;
-	private JButton save_edit = new JButton("Save profile");
-	private JButton add_friend = new JButton("Add friend");
-	private JButton rem_friend = new JButton("Remove friend");
-
-	// IDs
+	//CLIENT
+	FBClient myClient;
+	//IDs
 	private int myUserID; // user who is logged in
 	private String myUserName;
 	private int curr_profile; // user whose profile is being looked at
 	private String curr_username; // user whose profile is being looked at
 	private int curr_region; // region of profile being looked at
-
-	// sizing
+	//SIZING
 	private int width;
 	private int height;
 	private int prof_width;
 	private int wall_width;
+	//TOPNAV ELEMENTS
+	private JPanel topnav;
+	private JLabel logo = new JLabel("FaceBreak");
+	private JTextField search_box;
+	private JButton search_button;
+	private JLabel edit_button = new JLabel("Edit | ");
+	public JLabel logout = new JLabel("Log out");
+	//PROFILE ELEMENTS
+	private JPanel content;
+	private JScrollPane prof_scroller;
+	private JPanel profile;
+	private JButton add_friend = new JButton("Add friend");
+	private JButton rem_friend = new JButton("Remove friend");
+	private JButton add_trust = new JButton("Trust");
+	private JButton rem_trust  = new JButton("Don't trust");
+	private JButton add_covert = new JButton("Add covert board");
+	//WALL and COMMENT ELEMENTS
+	private JScrollPane wall_scroller;
+	private JPanel wall;
+	private JTextArea comment_box;
+	private JButton comment_button;
+	//EDITOR ELEMENTS
+	private JPanel edit;
+	private JButton save_edit = new JButton("Save profile");
 
-	// client
-	FBClient myClient;
 
 	/**
 *
@@ -131,17 +136,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	// adds profile picture, information, to user profile.
 	public void populate_userprofile() throws ClassNotFoundException {
-		//Profile myProfile = new Profile("godfather");
 		Profile myProfile = new Profile(curr_username);
 		myClient.viewProfile(myProfile);
 
 		// get user picture from ID
-//		String prof_pic;
-//		if (curr_profile == 0) {
-//			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/mc.jpg";
-//		} else {
-//			prof_pic = "C:/Users/Boiar/workspace/Facebreak/src/gui/gangsters.jpg";
-//		}
 		if (myProfile.getAvatar()!=null){
 			BufferedImage prof_pic = SerializableAvatar.serialAvatarToBufImage(myProfile.getAvatar());
 			
@@ -154,52 +152,85 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		JLabel username = new JLabel(myProfile.getFname() + " "
 				+ myProfile.getLname());
 		username.setAlignmentX((float) 0.0);
+		username.setPreferredSize(new Dimension(prof_width, 30));
 		JTextArea user_info = new JTextArea("Title: "
 				+ myProfile.getTitle().toString() + "\nFamily: "
-				+ myProfile.getFamily());
+				+ myProfile.getFamily(), 2, 10);
 		user_info.setAlignmentX((float) 0.0);
+		user_info.setEditable(false);
 		user_info.setLineWrap(true);
 		user_info.setWrapStyleWord(true);
+		user_info.setPreferredSize(new Dimension(prof_width,50));
+		user_info.setMinimumSize(new Dimension(prof_width,50));
+		user_info.setMaximumSize(new Dimension(prof_width,50));
 
 		// add to profile
 		profile.add(username);
 		profile.add(user_info);
 
 		//add friend
-		if (curr_username != myUserName){
-			add_friend.addActionListener(this);
-			profile.add(add_friend);
-		}
+		add_friend.addActionListener(this);
+		profile.add(add_friend);
+		add_friend.setVisible(false);
 		//remove friend
-		//rem_friend.addActionListener(this);
-		//TODO: if curr_profile is not friends with myUser {
-			//profile.add(add_friend);
-//		}
-//		else{ 
-//			// if curr_profile is friends with myUser
-//			profile.add(rem_friend);
-//		}
+		rem_friend.addActionListener(this);
+		profile.add(rem_friend);
+		rem_friend.setVisible(false);
+		//don't trust
+		rem_trust.addActionListener(this);
+		profile.add(rem_trust);
+		rem_trust.setVisible(false);
+		//trust
+		add_trust.addActionListener(this);
+		profile.add(add_trust);
+		add_trust.setVisible(false);
+		
+		if (curr_username != myUserName){
+			//TODO: if curr_profile is not friends with myUser {
+			add_friend.setVisible(true);
+			//			}
+			//else{ 
+			// if curr_profile is friends with myUser
+//				rem_friend.setVisible(true);
+			//TODO: check trustworthiness
+//			}	
+		}
 		
 		// need a new label for each region
 		// TODO: get list of regions that myUser is allowed to view
-		for (int i = 0; i < 27; i++) {
+		//regionList = 
+		int numRegions = 3; //= regionList.length();
+		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
 			if (i==0){
-				region = new Regionlink("Public", i, curr_username,
-						curr_profile);
+				region = new Regionlink("Public", i, curr_username, curr_profile);
 			}
 			else if (i==1){
-				region = new Regionlink("Private", i, curr_username,
-						curr_profile);
+				region = new Regionlink("Private", i, curr_username, curr_profile);
 			}
 			else {
-				region = new Regionlink("Covert " + (i-2), i, curr_username,
-						curr_profile);
+				region = new Regionlink("Covert " + (i-2), i, curr_username, curr_profile);
 			}
 			region.addMouseListener(this);
 			region.setAlignmentX((float) 0.0);
+			region.setForeground(new Color(130, 0, 0));
 			profile.add(region);
 		}
+		//get the max number of regions, based on title
+		int maxRegions = 2;
+		switch(myProfile.getTitle()){
+		case BOSS: maxRegions = 27; break;
+		case CAPO: maxRegions = 12; break;
+		case SOLDIER: maxRegions = 7; break;
+		default: maxRegions = 2; break;
+		}
+		//add Covert button
+		if (numRegions < maxRegions){
+			add_covert.addActionListener(this);
+			profile.add(add_covert);
+		}
+		//profile.add(Box.createVerticalGlue());
+		profile.add(Box.createRigidArea(new Dimension(0,30)));
 	}
 
 	// adds posts to user wall.
@@ -311,7 +342,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.setLayout(new BoxLayout(profile, BoxLayout.PAGE_AXIS));
 		profile.setMinimumSize(new Dimension(prof_width, height - 50));
 		profile.setMaximumSize(new Dimension(prof_width, height - 50));
-		profile.setBackground(Color.blue);
+		profile.setBackground(Color.WHITE);
 
 		try {
 			populate_userprofile();
@@ -343,19 +374,34 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// add containing JPanel
 		JPanel comment = new JPanel();
 		comment.setLayout(new BoxLayout(comment, BoxLayout.PAGE_AXIS));
-		comment.setMinimumSize(new Dimension(wall_width, 150));
-		comment.setMaximumSize(new Dimension(wall_width, 150));
+		comment.setMinimumSize(new Dimension(wall_width, 100));
+		comment.setMaximumSize(new Dimension(wall_width, 100));
 		comment.setBackground(Color.white);
 		comment.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		comment.setAlignmentX((float) 0.0);
 
 		// add label: "Leave a comment:"
-		JLabel leave_comm = new JLabel("Post to " + curr_region + ":");
+		String reg_name;
+		switch(curr_region){
+		case 0:
+			reg_name = "Public Region";
+			break;
+		case 1:
+			reg_name = "Private Region";
+			break;
+		default:
+			reg_name = "Covert Region " + ((Integer)curr_region-2);
+			break;
+		}
+		
+		JLabel leave_comm = new JLabel("Post to " + reg_name + ":");
 		leave_comm.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
 		// add text box
 		// TODO: implement character limit
-		comment_box = new JTextArea(3, 0);
+		comment_box = new JTextArea(2, 0);
+		comment_box.requestFocus();
+		comment_box.setDocument(new LimitedText(140));
 		comment_box.setEditable(true);
 		comment_box.setLineWrap(true);
 		comment_box.setWrapStyleWord(true);
@@ -499,14 +545,42 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			}
 
 		}
-		//add a friend
+		//ADD A FRIEND
 		else if (arg0.getSource()==add_friend){
 			try{
-				myClient.addFriend(curr_username);			
+				myClient.addFriend(curr_username);
+				add_friend.setVisible(false);
+				rem_trust.setVisible(true);
+				rem_friend.setVisible(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 			
+		}
+		//REMOVE A FRIEND
+		else if (arg0.getSource()==rem_friend){
+			try{
+				myClient.deleteFriend(curr_username);
+				rem_friend.setVisible(false);
+				rem_trust.setVisible(false);
+				add_trust.setVisible(false);
+				add_friend.setVisible(true);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		//REMOVE TRUST
+		else if (arg0.getSource()==rem_trust){
+				//TODO: rem trust
+			rem_trust.setVisible(false);
+			add_trust.setVisible(true);
+		}
+		//ADD TRUST
+		else if (arg0.getSource()==add_trust){
+				//TODO: add trust
+			rem_trust.setVisible(true);
+			add_trust.setVisible(false);
 		}
 	}
 
