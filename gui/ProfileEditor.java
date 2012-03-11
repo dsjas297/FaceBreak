@@ -86,7 +86,7 @@ public class ProfileEditor extends JPanel{
 		title_panel.setLayout(new BoxLayout(title_panel, BoxLayout.PAGE_AXIS));
 		title_panel.setBackground(Color.WHITE);
 		JLabel titlePrompt = new JLabel("Title: ");
-		String[] mafiaTitles = { "Boss", "Capo", "Soldier", "Assoc." };
+		String[] mafiaTitles = { "Boss", "Capo", "Soldier", "Assoc" };
 		titleEntry = new JComboBox(mafiaTitles);
 		title_panel.setMinimumSize(new Dimension(140, 40));
 		title_panel.setMaximumSize(new Dimension(140, 40));
