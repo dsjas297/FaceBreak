@@ -13,6 +13,7 @@ import server.ServerBackend;
 
 import networking.Request.RequestType;
 
+import common.Board;
 import common.Error;
 import common.FBClientUser;
 import common.Post;
@@ -57,7 +58,8 @@ public class FBClientHandler extends Thread {
 		FBClientUser clientUser = unpackedContent.getUser();
 		Profile profile = unpackedContent.getProfile();
 		Post post = unpackedContent.getPost();
-		Region region = unpackedContent.getBoard();
+		Region region = unpackedContent.getRegion();
+		Board board = unpackedContent.getBoard();
 		
 		switch (type) {
 			case LOGIN:
@@ -93,11 +95,11 @@ public class FBClientHandler extends Thread {
 					myReply = processCreatePost(post);
 				break;
 			}
-			case VIEW_BOARD: {
+			case VIEW_REGION: {
 				if(region == null)
 					myReply.setReturnError(Error.MALFORMED_REQUEST);
 				else
-					myReply = processViewBoard(region);
+					myReply = processViewRegion(region);
 				break;
 			}
 			case DELETE_POST: {
@@ -241,21 +243,19 @@ public class FBClientHandler extends Thread {
 		return r;
 	}
 
-	public Reply processViewBoard(Region region) {
+	public Reply processViewRegion(Region region) {
 		Reply r = new Reply();
 		
 		try {
-			ArrayList<Post> board = FaceBreakRegion.viewPosts(authUser.getId(), region);
+			ArrayList<Post> posts = FaceBreakRegion.viewPosts(authUser.getId(), region);
 
-			region.setPosts(board);
-			r.getContents().setBoard(region);
-
-			r.getContents().setBoard(region);
+			region.setPosts(posts);
+			r.getContents().setRegion(region);
 			r.setReturnError(Error.SUCCESS);
 			
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found.");
-			r.getContents().setBoard(null);
+			r.getContents().setRegion(null);
 			r.setReturnError(Error.SUCCESS);
 		}
 		return r;

@@ -2,6 +2,7 @@ package networking;
 
 import java.io.Serializable;
 
+import common.Board;
 import common.FBClientUser;
 import common.Post;
 import common.Profile;
@@ -17,12 +18,14 @@ public class Content implements Serializable {
 	private String requestedUsername;
 	private Profile profile;
 	private Post post;
-	private Region board;
+	private Region region;
+	private Board board;
 	
 	public Content() {
 		user = null;
 		profile = null;
 		post = null;
+		region = null;
 		board = null;
 	}
 
@@ -57,12 +60,17 @@ public class Content implements Serializable {
 	public void setPost(Post post) {
 		this.post = post;
 	}
-
-	public Region getBoard() {
+	public Region getRegion(){
+		return region;
+	}
+	public void setRegion(Region region){
+		this.region = region;
+	}
+	public Board getBoard() {
 		return board;
 	}
 	
-	public void setBoard(Region board) {
+	public void setBoard(Board board) {
 		this.board = board;
 	}
 }

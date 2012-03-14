@@ -59,7 +59,7 @@ public class SampleMain {
 			e = myClient.post(post2);
 			
 			Region reg = new Region(username, 0);
-			e = myClient.viewBoard(reg);
+			e = myClient.viewRegion(reg);
 			System.out.println(e.toString());
 			
 			Post[] board = reg.getPosts();

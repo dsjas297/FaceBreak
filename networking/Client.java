@@ -1,5 +1,6 @@
 package networking;
 
+import common.Board;
 import common.Error;
 import common.Post;
 import common.Profile;
@@ -51,10 +52,10 @@ public interface Client {
 	public Error post(Post newPost) throws ClassNotFoundException;
 
 	/*
-	 * View my or someone else's board/region by creating new Region object and
+	 * View my or someone else's region by creating new Region object and
 	 * setting necessary fields
 	 */
-	public Error viewBoard(Region board) throws ClassNotFoundException;
+	public Error viewRegion(Region region) throws ClassNotFoundException;
 
 	/*
 	 * TODO: implement deletion
@@ -71,4 +72,11 @@ public interface Client {
 	 * This user deletes a friend of username
 	 */
 	public Error deleteFriend(String username) throws ClassNotFoundException;
+
+	/*
+	 * View my or someone else's board by creating new Board object and
+	 * setting necessary fields
+	 */
+	public Error viewBoard(Board board) throws ClassNotFoundException;
+
 }
