@@ -7,8 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.*;
+import java.security.spec.*;
 import java.util.ArrayList;
 import java.util.Date;
+
+import javax.crypto.*;
+import javax.crypto.spec.*;
 
 import common.Post;
 import common.Region;
@@ -27,6 +32,9 @@ public class ServerBackend {
 	public static final String regionPostsFile = "posts";
 	public static final String regionInfoFile = "regionInfo";
 
+	public static char[] password = null;
+	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
+	
 	public static void initDirTree() {
 		File uidFile = new File(globalUidCounter);
 		File usersFile = new File(globalUsers);
@@ -70,8 +78,42 @@ public class ServerBackend {
 	 *   	- Retrieving the other lines is undetermined
 	 *   		- Will probably return an ArrayList of valid lines as strings
 	 */
-	public static void writeSecure(){
-		
+	public static void writeSecure(String fileContents, String filePath){
+		try {
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			byte bytes[] = new byte[1];
+			random.nextBytes(bytes);
+			
+			int num_padding_lines = (int)(bytes[1]) % 256;
+			int i = 0;
+			
+			for(i = 0; i < num_padding_lines; i++){
+				fileContents = garbled + fileContents;
+			}
+			
+			fileContents = Integer.toString(num_padding_lines) + "\n" + fileContents;
+			
+			// With a little help from online source (stackoverflow),
+			// crafted the following
+			
+			byte[] salt = new byte[8];// We set a salt on our own
+			for(i = 0; i < 8; i++){salt[i] = 0;}
+			
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
+			SecretKey tmp = factory.generateSecret(spec);
+			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+			Cipher c = Cipher.getInstance("AES");
+			c.init(Cipher.ENCRYPT_MODE, secret);
+			
+			AlgorithmParameters params = c.getParameters();
+			byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
+			
+			byte[] ciphertext = c.doFinal(fileContents.getBytes("UTF-8"));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void readSecure(){
