@@ -35,6 +35,8 @@ public class ServerBackend {
 	public static char[] password = null;
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
 	
+	private static int IV_LENGTH = 16;
+	
 	public static void initDirTree() {
 		File uidFile = new File(globalUidCounter);
 		File usersFile = new File(globalUsers);
@@ -78,13 +80,13 @@ public class ServerBackend {
 	 *   	- Retrieving the other lines is undetermined
 	 *   		- Will probably return an ArrayList of valid lines as strings
 	 */
-	public static void writeSecure(String fileContents, String filePath){
+	public static byte[] writeSecure(String fileContents){
 		try {
 			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 			byte bytes[] = new byte[1];
 			random.nextBytes(bytes);
 			
-			int num_padding_lines = (int)(bytes[1]) % 256;
+			int num_padding_lines = Math.abs((int)(bytes[0]) % 256);
 			int i = 0;
 			
 			for(i = 0; i < num_padding_lines; i++){
@@ -100,10 +102,10 @@ public class ServerBackend {
 			for(i = 0; i < 8; i++){salt[i] = 0;}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
+			KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
-			Cipher c = Cipher.getInstance("AES");
+			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			c.init(Cipher.ENCRYPT_MODE, secret);
 			
 			AlgorithmParameters params = c.getParameters();
@@ -111,12 +113,62 @@ public class ServerBackend {
 			
 			byte[] ciphertext = c.doFinal(fileContents.getBytes("UTF-8"));
 			
+			byte[] encrypted = new byte[IV_LENGTH + ciphertext.length];
+			
+			for(i = 0; i < IV_LENGTH; i++){
+				encrypted[i] = iv[i];
+			}
+			for(i = IV_LENGTH; i < IV_LENGTH + ciphertext.length; i++){
+				encrypted[i] = ciphertext[i - IV_LENGTH];
+			}
+			
+			return encrypted;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	public static void readSecure(){
-		
+	public static ArrayList<String> readSecure(byte[] encrypted){
+		try {
+			int i = 0;
+			byte[] salt = new byte[8];// We set a salt on our own
+			for(i = 0; i < 8; i++){salt[i] = 0;}
+			
+			byte[] iv = new byte[IV_LENGTH];
+			for(i = 0; i < IV_LENGTH; i++){
+				iv[i] = encrypted[i];
+			}
+			
+			byte[] ciphertext = new byte[encrypted.length - IV_LENGTH];
+			for(i = IV_LENGTH; i < encrypted.length; i++){
+				ciphertext[i - IV_LENGTH] = encrypted[i];
+			}
+			
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
+			SecretKey tmp = factory.generateSecret(spec);
+			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			c.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
+			
+			String plaintext = new String(c.doFinal(ciphertext), "UTF-8");
+			
+			String[] plaintext_lines = plaintext.split("\n");
+			ArrayList<String> lines = new ArrayList<String>();
+			
+			int num_garbage = Integer.parseInt(plaintext_lines[0]);
+			
+			for(i = num_garbage + 1; i < plaintext_lines.length; i++){
+				lines.add(plaintext_lines[i]);
+			}
+			
+			return lines;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
