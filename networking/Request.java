@@ -60,6 +60,7 @@ public class Request implements Serializable {
 		VIEW_PROFILE,
 		EDIT_PROFILE,
 		VIEW_BOARD,
+		VIEW_REGION,
 		POST,
 		DELETE_POST,
 		ADD_FRIEND,

@@ -72,10 +72,15 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			System.out.println(login.usernameEntry.getText());
 			System.out.println(new String(login.pwdEntry.getPassword()));
 			//logged_in = true;
-			login.setVisible(false);
-			fbpage = new FBPage(client, login.usernameEntry.getText());
-			setContentPane(fbpage);
-			fbpage.logout.addMouseListener(this);
+			if (login_error == common.Error.SUCCESS){
+				login.setVisible(false);
+				fbpage = new FBPage(client, login.usernameEntry.getText());
+				setContentPane(fbpage);
+				fbpage.logout.addMouseListener(this);
+			}
+			else {
+				login.loginFailed.setVisible(true);
+			}
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -88,7 +93,9 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		if (e.getSource() == login.loginButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();			
-			if (!login.usernameEntry.getText().equals("")&&!(new String(login.pwdEntry.getPassword())).equals("")){
+			if (!login.usernameEntry.getText().equals("")&&
+				!(new String(login.pwdEntry.getPassword())).equals("")&&
+				login.is_alphanum()){
 				client.setCurrentUser(login.usernameEntry.getText(),
 						new String(login.pwdEntry.getPassword()));
 				login_protocol();	
@@ -96,7 +103,9 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		} else if (e.getSource() == login.signupButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();
-			if (!login.usernameEntry.getText().equals("")&&!(new String(login.pwdEntry.getPassword())).equals("")){
+			if (!login.usernameEntry.getText().equals("")&&
+				!(new String(login.pwdEntry.getPassword())).equals("")&&
+				login.is_alphanum()){
 				try {
 					common.Error signup_error = client.createUser(login.usernameEntry.getText(),
 							new String(login.pwdEntry.getPassword()));

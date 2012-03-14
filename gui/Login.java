@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import java.util.regex.*;
+
 public class Login extends JPanel implements ActionListener{
 
 	/**
@@ -29,9 +31,11 @@ public class Login extends JPanel implements ActionListener{
 	protected JPasswordField pwdEntry = new JPasswordField(8);
 	JButton loginButton = new JButton("Log in");
 	JButton signupButton = new JButton("Sign up!");
-	JLabel loginFailed = new JLabel("Login failed");
+	//WARNINGS
+	JLabel loginFailed = new JLabel("Login failed; username or password incorrect");
 	JLabel duplicateUser = new JLabel("This user already exists. Please sign up under a different username.");
 	JLabel loggedOut = new JLabel("Thank you for using FaceBreak");
+	JLabel alphanum = new JLabel("Username and password must consist only of characters a-z, A-Z, 0-9");
 
 	public Login(){
 		// Create welcome panel
@@ -114,6 +118,9 @@ public class Login extends JPanel implements ActionListener{
 		this.add(duplicateUser);
 		duplicateUser.setAlignmentX((float) 0.5);
 		duplicateUser.setVisible(false);
+		this.add(alphanum);
+		alphanum.setAlignmentX((float) 0.5);
+		alphanum.setVisible(false);
 		this.add(loggedOut);
 		loggedOut.setAlignmentX((float) 0.5);
 		loggedOut.setVisible(false);
@@ -137,5 +144,13 @@ public class Login extends JPanel implements ActionListener{
 		usernameEntry.setText(usernameEntry.getText().replaceAll("\\s+", ""));
 		pwdEntry.setText((new String(pwdEntry.getPassword())).replaceAll("\\s+", ""));
 	}
-			
+	public boolean is_alphanum(){
+		//make sure that username and password consist only of alphanumeric chars.
+		boolean user_alnum = Pattern.matches("[a-zA-Z0-9]+", usernameEntry.getText());
+		boolean pwd_alnum = Pattern.matches("[a-zA-Z0-9]+", new String(pwdEntry.getPassword()));
+		if (!(user_alnum&&pwd_alnum)){
+			alphanum.setVisible(true);
+		}
+		return user_alnum&&pwd_alnum;
+	}
 }

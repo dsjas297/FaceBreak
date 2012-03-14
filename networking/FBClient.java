@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 
 import networking.Request.RequestType;
 
+import common.Board;
 import common.Error;
 import common.FBClientUser;
 import common.Post;
@@ -286,27 +287,27 @@ public class FBClient implements Client {
 	}
 
 	/*
-	 * View my or someone else's board/region by creating new Region object and
+	 * View my or someone else's region by creating new Region object and
 	 * setting necessary fields
 	 */
-	public Error viewBoard(Region board) throws ClassNotFoundException {
+	public Error viewRegion(Region region) throws ClassNotFoundException {
 		// sanity check
 		if (socket == null || user == null)
 			return Error.LOGIN;
 
-		Request viewBoard = new Request(user.getId(), RequestType.VIEW_BOARD);
-		viewBoard.getDetails().setBoard(board);
-		viewBoard.setTimestamp(System.currentTimeMillis());
+		Request viewRegion = new Request(user.getId(), RequestType.VIEW_REGION);
+		viewRegion.getDetails().setRegion(region);
+		viewRegion.setTimestamp(System.currentTimeMillis());
 
 		try {
-			outStream.writeObject(viewBoard);
+			outStream.writeObject(viewRegion);
 			Reply serverReply = (Reply)inStream.readObject();
-			Region tmp = serverReply.getContents().getBoard();
+			Region tmp = serverReply.getContents().getRegion();
 			
 			if(tmp == null || tmp.getPosts().length < 1)
-				board = null;
+				region = null;
 			else
-				board.setPosts(tmp.getPosts());
+				region.setPosts(tmp.getPosts());
 			
 			return serverReply.getReturnError();
 		} catch (IOException ioe) {
@@ -371,4 +372,33 @@ public class FBClient implements Client {
 			return Error.CONNECTION;
 		}
 	}
+	/*
+	 * Create new Board object to view all permissible regions of username
+	 */
+	public Error viewBoard(Board board) throws ClassNotFoundException {
+		// sanity check
+		if (socket == null || user == null)
+			return Error.LOGIN;
+
+		Request viewBoard = new Request(user.getId(), RequestType.VIEW_BOARD);
+		viewBoard.setTimestamp(System.currentTimeMillis());
+
+		try {
+			outStream.writeObject(viewBoard);
+			Reply serverReply = (Reply)inStream.readObject();
+			Board tmp = serverReply.getContents().getBoard();
+			
+			if(tmp == null || tmp.getRegions().length < 1)
+				board = null;
+			else
+				board.setRegions(tmp.getRegions());
+			
+			return serverReply.getReturnError();
+		} catch (IOException ioe) {
+			return Error.CONNECTION;
+		}
+	}
+	
+	
+	
 }

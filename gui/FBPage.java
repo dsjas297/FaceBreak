@@ -235,11 +235,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	// adds posts to user wall.
 	public void populate_wall() {
-		// TODO: given ownerID, regionID, get all posts for this region, with
-		
 		Region region = new Region(curr_username, curr_region);
 		try {
-			myClient.viewBoard(region);
+			myClient.viewRegion(region);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -398,7 +396,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		leave_comm.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
 		// add text box
-		// TODO: implement character limit
 		comment_box = new JTextArea(2, 0);
 		comment_box.requestFocus();
 		comment_box.setDocument(new LimitedText(140));
@@ -581,6 +578,13 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//TODO: add trust
 			rem_trust.setVisible(true);
 			add_trust.setVisible(false);
+		}
+		//CREATE NEW COVERT BOARD
+		else if (arg0.getSource()==add_covert){
+			//TODO:open a dialog box
+			//enter comma-separated usernames
+			//create a new board that only those users can view
+			//update profile
 		}
 	}
 
