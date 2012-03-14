@@ -57,4 +57,24 @@ public class ServerBackend {
 			}
 		}
 	}
+	
+	/* Design for following:
+	 *   - Locks should not be used in write/readSecure() [Should be somewhere in call stack]
+	 *   - writeSecure:
+	 *   	- Use secure random number generate to get an extra number of lines
+	 *   		- Array of 1-byte -> unsigned int from 0 to 256
+	 *   	- Use symmetric key generated from hashed password
+	 *   	- Question that remains is how to receive lines to be written
+	 *   - readSecure:
+	 *   	- Read first line to get number of extra lines
+	 *   	- Retrieving the other lines is undetermined
+	 *   		- Will probably return an ArrayList of valid lines as strings
+	 */
+	public static void writeSecure(){
+		
+	}
+	
+	public static void readSecure(){
+		
+	}
 }
