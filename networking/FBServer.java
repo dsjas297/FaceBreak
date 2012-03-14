@@ -30,12 +30,15 @@ public class FBServer {
 			System.out.println(e.getMessage());
 		}
 		
+		String password = "";
+		byte[] hashed;
+		
 		while(!passwordCorrect){
 			System.out.println("Enter password:");
 				try{
-					String password = reader.readLine().trim();
+					password = reader.readLine().trim();
 					md.update(password.getBytes());
-					byte[] hashed = md.digest();
+					hashed = md.digest();
 					int i = 0;
 					while( i < hashed.length){
 						if(passwordHash[i] != hashed[i]){
@@ -54,6 +57,8 @@ public class FBServer {
 		
 		System.out.println("Starting up server...");
 
+		ServerBackend.key = password.getBytes();
+		
 		try {
 			// Create the server socket.
 			listener = new ServerSocket(port);
