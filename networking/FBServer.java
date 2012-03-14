@@ -57,7 +57,7 @@ public class FBServer {
 		
 		System.out.println("Starting up server...");
 
-		ServerBackend.key = password.getBytes();
+		ServerBackend.password = password.toCharArray();
 		
 		try {
 			// Create the server socket.
