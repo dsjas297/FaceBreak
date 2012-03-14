@@ -25,6 +25,7 @@ import javax.swing.JTextField;
 
 import networking.FBClient;
 
+import common.Board;
 import common.Error;
 import common.Post;
 import common.SerializableAvatar;
@@ -196,20 +197,21 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 //			}	
 		}
 		
-		// need a new label for each region
-		// TODO: get list of regions that myUser is allowed to view
-		//regionList = 
-		int numRegions = 3; //= regionList.length();
+		// get Board for user, get list of regions
+		Board board = new Board(curr_profile);
+		myClient.viewBoard(board);
+		Integer[] regionList = board.getRegions();
+		int numRegions = regionList.length;
 		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
 			if (i==0){
-				region = new Regionlink("Public", i, curr_username, curr_profile);
+				region = new Regionlink("Public", regionList[i], curr_username, curr_profile);
 			}
 			else if (i==1){
-				region = new Regionlink("Private", i, curr_username, curr_profile);
+				region = new Regionlink("Private", regionList[i], curr_username, curr_profile);
 			}
 			else {
-				region = new Regionlink("Covert " + (i-2), i, curr_username, curr_profile);
+				region = new Regionlink("Covert " + (regionList[i]-2), regionList[i], curr_username, curr_profile);
 			}
 			region.addMouseListener(this);
 			region.setAlignmentX((float) 0.0);
