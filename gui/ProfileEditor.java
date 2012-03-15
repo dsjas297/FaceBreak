@@ -22,7 +22,7 @@ public class ProfileEditor extends JPanel{
 	JButton save_edit;
 	
 	/**
-	 * 
+	 * Profile Editor creates a page with fields for a new fname, lname, title, family to be entered
 	 */
 	private static final long serialVersionUID = 1L;
 

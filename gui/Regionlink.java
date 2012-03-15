@@ -4,7 +4,7 @@ import javax.swing.JLabel;
 
 public class Regionlink extends JLabel {
 	/**
-	 * 
+	 * Regionlink is a JLabel that contains information about the associated region
 	 */
 	private static final long serialVersionUID = 1L;
 	int userID; //associated userID

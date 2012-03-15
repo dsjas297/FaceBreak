@@ -4,7 +4,7 @@ import javax.swing.JLabel;
 
 public class Userlink extends JLabel{
 	/**
-	 * 
+	 * Userlink is a JLabel that contains information about the associated user
 	 */
 	private static final long serialVersionUID = 1L;
 	int userID; //associated userID
