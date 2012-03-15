@@ -133,6 +133,10 @@ public class ServerBackend {
 			in.read(encrypted);
 			in.close();
 			
+			if(file.length() == 0){ // empty file, return empty array list
+				return new ArrayList<String>();
+			}
+			
 			int i = 0;
 			byte[] salt = new byte[8];// We set a salt on our own
 			for(i = 0; i < 8; i++){salt[i] = 0;}
