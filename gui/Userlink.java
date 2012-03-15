@@ -15,6 +15,10 @@ public class Userlink extends JLabel{
 		userID = uid;
 		username = user;
 	}
+	public Userlink(String name, String user){
+		super(name);
+		username = user;
+	}
 	
 	public int get_userid(){
 		return userID;

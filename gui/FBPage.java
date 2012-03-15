@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -61,6 +62,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JPanel content;
 	private JScrollPane prof_scroller;
 	private JPanel profile;
+	private JLabel view_friends = new JLabel("View Friends");
 	private JButton add_friend = new JButton("Add friend");
 	private JButton rem_friend = new JButton("Remove friend");
 	private JButton add_trust = new JButton("Trust");
@@ -169,6 +171,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.add(username);
 		profile.add(user_info);
 
+		//view friends
+		view_friends.addMouseListener(this);
+		view_friends.setForeground(new Color(130, 0, 0));
+		profile.add(view_friends);
+		profile.add(Box.createRigidArea(new Dimension(0,10)));
+		
 		//add friend
 		add_friend.addActionListener(this);
 		profile.add(add_friend);
@@ -185,8 +193,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		add_trust.addActionListener(this);
 		profile.add(add_trust);
 		add_trust.setVisible(false);
+		profile.add(Box.createRigidArea(new Dimension(0,10)));
 		
-		if (curr_username != myUserName){
+		if (!curr_username.equals(myUserName)){
 			//TODO: if curr_profile is not friends with myUser {
 			add_friend.setVisible(true);
 			//			}
@@ -202,7 +211,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		/**myClient.viewBoard(board);
 		Integer[] regionList = board.getRegions();
 		System.out.println(regionList);**/
-		int numRegions = 3; //regionList.length;
+		int numRegions = 2; //regionList.length;
 		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
 			if (i==0){
@@ -220,13 +229,13 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			profile.add(region);
 		}
 		//get the max number of regions, based on title
-		int maxRegions = 2;
-		switch(myProfile.getTitle()){
+		int maxRegions = 3;
+		/**switch(myProfile.getTitle()){
 		case BOSS: maxRegions = 27; break;
 		case CAPO: maxRegions = 12; break;
 		case SOLDIER: maxRegions = 7; break;
 		default: maxRegions = 2; break;
-		}
+		}**/
 		//add Covert button
 		if (numRegions < maxRegions){
 			add_covert.addActionListener(this);
@@ -495,10 +504,22 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			System.out.println("saving");
 			//send new profile info to server
 			try {
+				String newFname, newLname, newTitle, newFam;
+				
+				Profile oldProfile = new Profile(myUserName);
+				myClient.viewProfile(oldProfile);
 				String[] fields = ((ProfileEditor) edit).get_fields();
-				Profile newProfile = new Profile(myUserName, fields[0], fields[1]); 
+				//check for blank fields
+				if (fields[0].equals("")){newFname = oldProfile.getFname();}
+				else{newFname = fields[0];}
+				if (fields[1].equals("")){newLname = oldProfile.getLname();}
+				else{newLname = fields[1];} 
+				if (fields[3].equals("")){newFam = oldProfile.getFamily();}
+				else{newFam = fields[3];}
+
+				Profile newProfile = new Profile(myUserName, newFname, newLname); 
 				newProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
-				newProfile.setFamily(fields[3]);
+				newProfile.setFamily(newFam);
 				//Avatar
 				// Get Image
 				if (!fields[4].equals("")){
@@ -584,10 +605,26 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//CREATE NEW COVERT BOARD
 		else if (arg0.getSource()==add_covert){
-			//TODO:open a dialog box
 			//enter comma-separated usernames
-			//create a new board that only those users can view
-			//update profile
+			String s = (String)JOptionPane.showInputDialog(
+			                    this,
+			                    "Enter usernames (separated by commas)",
+			                    "Create Covert Board",
+			                    JOptionPane.PLAIN_MESSAGE,
+			                    null,
+			                    null,
+			                    null);
+			if ((s != null) && (s.length() > 0)) {
+				//eliminate whitespace
+				s = s.replaceAll("\\s+", "");
+				//split string by commas
+				String[] usernames = s.split(",");
+				//TODO:create a new board that only those users can view
+				//update profile
+			}
+			else{
+				//setLabel("Come on, finish the sentence!");	
+			}
 		}
 	}
 
@@ -610,14 +647,22 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			int new_region = ((Regionlink) arg0.getSource()).get_regionid();
 			String same_user = ((Regionlink) arg0.getSource()).get_username();
 			change_wall(same_user, new_region);
-		} else if (arg0.getSource() == edit_button) {
+		}
+		//edit profile
+		else if (arg0.getSource() == edit_button) {
 			// change profile to user's own
 			change_profile(myUserName);
 			edit_profile();
 			wall_scroller.setViewportView(edit);
 			// change wall to edit page
 		}
-		
+		//view this user's friends
+		else if (arg0.getSource() == view_friends) {
+			// TODO: get list of user's friends
+			String[] friendsList = {"a"};
+			// change wall to list of friends
+			wall_scroller.setViewportView(new FriendsPage(this, myClient, wall_width, friendsList));
+		}
 	}
 
 	@Override
