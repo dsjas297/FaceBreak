@@ -126,10 +126,8 @@ public class FaceBreakRegion {
 			// Fill in info for user
 			// For now this file only contains allowed viewers of the board
 			String info = ownerIDstr;
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
-					Integer.toString(regionID) + "\\" + regionInfoFile, false));
-			bWriter.write(info);
-			bWriter.close();
+			ServerBackend.writeSecure(info, ownerIDstr + "\\" + regionsFolder + "\\" +
+					Integer.toString(regionID) + "\\" + regionInfoFile);
 
 			return 0;
 
@@ -162,10 +160,20 @@ public class FaceBreakRegion {
 
 			String ownerIDstr = Integer.toString(uid);
 			String regionIDstr = Integer.toString(regionID);
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(ownerIDstr + "\\" + regionsFolder + "\\" +
-					regionIDstr + "\\" + regionInfoFile, true));
-			bWriter.write("\n" + Integer.toString(friendID));
-			bWriter.close();
+			String filename = ownerIDstr + "\\" + regionsFolder + "\\" +
+					regionIDstr + "\\" + regionInfoFile;
+			
+			ArrayList<String> allowed = ServerBackend.readSecure(filename);
+			allowed.add(Integer.toString(friendID));
+			
+			String fileContents = "";
+			
+			for(int i = 0; i < allowed.size() - 1; i++){
+				fileContents = fileContents + allowed.get(i) + "\n";
+			}
+			fileContents = fileContents + allowed.get(allowed.size() - 1);
+			
+			ServerBackend.writeSecure(fileContents, filename);
 			
 			return 0;
 		}catch(Exception e){
@@ -176,18 +184,16 @@ public class FaceBreakRegion {
 
 	private static boolean checkViewable(int uid, int regionID, int friendID){
 		try{
-			FileReader fReader = new FileReader(Integer.toString(uid) +
+			ArrayList<String> allowed = ServerBackend.readSecure(Integer.toString(uid) +
 					"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			String temp;
-			while( (temp = inputReader.readLine()) != null){
-				if(temp.equals(Integer.toString(friendID))){
-					inputReader.close();
+
+			
+			for(int i = 0; i < allowed.size(); i++){
+				if(allowed.get(i).equals(Integer.toString(friendID))){
 					return true;
 				}
 			}
 
-			inputReader.close();
 			return false;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -289,16 +295,25 @@ public class FaceBreakRegion {
 			String path = Integer.toString(oid) + "\\"
 					+ regionsFolder + "\\" + Integer.toString(rid) + "\\"
 					+ regionPostsFile;
-			FileWriter fWriter = new FileWriter(path, true);
-
-			BufferedWriter bw = new BufferedWriter(fWriter);
+			
+			ArrayList<String> posts = ServerBackend.readSecure(path);
 			
 			String newPost = Long.toString((new Date()).getTime()) + ":"
 					+ myPost.getWriterName() + ":" + myPost.getText() + "\n";
-			bw.write(newPost);
-			bw.close();
+
+			posts.add(newPost);
+			
+			String fileContents = "";
+			
+			for(int i = 0; i < posts.size() - 1; i++){
+				fileContents = fileContents + posts.get(i) + "\n";
+			}
+			fileContents = fileContents + posts.get(posts.size() - 1);
+			
+			ServerBackend.writeSecure(fileContents, path);
+			
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
@@ -315,14 +330,15 @@ public class FaceBreakRegion {
 				"\\" + regionsFolder + 
 				"\\" + Integer.toString(rid) + 
 				"\\" + regionPostsFile;
-		FileReader fReader = new FileReader(path);
-		BufferedReader br = new BufferedReader(fReader);
+		
+		ArrayList<String> postLines = ServerBackend.readSecure(path);
 		
 		ArrayList<Post> allPosts = new ArrayList<Post>();
 
 		try {
 			String tmp;
-			while((tmp = br.readLine()) != null) {
+			for(int i = 0; i < postLines.size(); i++) {
+				tmp = postLines.get(i);
 				String[] linesplit = tmp.split(":");
 				if (linesplit.length > 1) {
 					Post thisPost = new Post();
@@ -333,9 +349,9 @@ public class FaceBreakRegion {
 					allPosts.add(thisPost);
 				}
 			}
-			br.close();
+			
 			return allPosts;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
