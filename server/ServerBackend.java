@@ -30,6 +30,7 @@ public class ServerBackend {
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
 	
 	private static int IV_LENGTH = 16;
+	private static int SALT_LENGTH = 8;
 	
 	public static void initDirTree() {
 		File uidFile = new File(globalUidCounter);
@@ -92,8 +93,9 @@ public class ServerBackend {
 			// With a little help from online source (stackoverflow),
 			// crafted the following
 			
-			byte[] salt = new byte[8];// We set a salt on our own
-			for(i = 0; i < 8; i++){salt[i] = 0;}
+			byte[] salt = new byte[SALT_LENGTH];// We set a salt on our own
+			random.nextBytes(salt);
+			//for(i = 0; i < 8; i++){salt[i] = 0;}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
@@ -107,13 +109,16 @@ public class ServerBackend {
 			
 			byte[] ciphertext = c.doFinal(fileContents.getBytes("UTF-8"));
 			
-			byte[] encrypted = new byte[IV_LENGTH + ciphertext.length];
+			byte[] encrypted = new byte[salt.length + IV_LENGTH + ciphertext.length];
 			
-			for(i = 0; i < IV_LENGTH; i++){
-				encrypted[i] = iv[i];
+			for(i = 0; i < SALT_LENGTH; i++){
+				encrypted[i] = salt[i];
 			}
-			for(i = IV_LENGTH; i < IV_LENGTH + ciphertext.length; i++){
-				encrypted[i] = ciphertext[i - IV_LENGTH];
+			for(i = 0; i < IV_LENGTH; i++){
+				encrypted[i + SALT_LENGTH] = iv[i];
+			}
+			for(i = 0; i < ciphertext.length; i++){
+				encrypted[i + SALT_LENGTH + IV_LENGTH] = ciphertext[i];
 			}
 			
 			FileOutputStream out = new FileOutputStream(filename);
@@ -138,17 +143,19 @@ public class ServerBackend {
 			}
 			
 			int i = 0;
-			byte[] salt = new byte[8];// We set a salt on our own
-			for(i = 0; i < 8; i++){salt[i] = 0;}
+			byte[] salt = new byte[SALT_LENGTH];// We set a salt on our own
+			for(i = 0; i < SALT_LENGTH; i++){
+				salt[i] = encrypted[i];
+			}
 			
 			byte[] iv = new byte[IV_LENGTH];
 			for(i = 0; i < IV_LENGTH; i++){
-				iv[i] = encrypted[i];
+				iv[i] = encrypted[i + SALT_LENGTH];
 			}
 			
-			byte[] ciphertext = new byte[encrypted.length - IV_LENGTH];
-			for(i = IV_LENGTH; i < encrypted.length; i++){
-				ciphertext[i - IV_LENGTH] = encrypted[i];
+			byte[] ciphertext = new byte[encrypted.length - IV_LENGTH - SALT_LENGTH];
+			for(i = 0; i < ciphertext.length; i++){
+				ciphertext[i] = encrypted[i + SALT_LENGTH + IV_LENGTH];
 			}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
