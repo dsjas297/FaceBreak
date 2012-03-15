@@ -49,20 +49,18 @@ public class FaceBreakUser {
 			String userInfo = newUserIDstr + "\n" + userName + "\n" + 
 					Integer.toString(title.rank) + "\n" + family + "\n" + fname + "\n" +
 					lname;
-			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userInfoFile, false));
-			bWriter.write(userInfo);
-			bWriter.close();
+			ServerBackend.writeSecure(userInfo, newUserIDstr + "\\" + userInfoFile);
 			
 			// Give the user their first friend (himself!)
-			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userFriendsFile, false));
-			bWriter.write(newUserIDstr + "\n");
-			bWriter.close();
+			ServerBackend.writeSecure(newUserIDstr, newUserIDstr + "\\" + userFriendsFile);
 			
 			// Initialize untrustworthy file
+			/*
 			bWriter = new BufferedWriter(new FileWriter(newUserIDstr + "\\" + userUntrustworthyFile, false));
 			bWriter.write("");
 			bWriter.close();
-			
+			*/
+			ServerBackend.writeSecure("", newUserIDstr + "\\" + userUntrustworthyFile);
 			
 			// Create directory for user's regions
 			File file = new File(newUserIDstr + "\\" + FaceBreakRegion.regionsFolder);
@@ -270,10 +268,8 @@ public class FaceBreakUser {
 	
 	public static boolean checkIfFriendExists(int uid, int friendID){
 		try{
-			FileReader fReader = new FileReader(Integer.toString(uid) + "\\" + userFriendsFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			String temp;
-			while( (temp = inputReader.readLine()) != null){
+			ArrayList<String> listOfFriends = ServerBackend.readSecure(Integer.toString(uid) + "\\" + userFriendsFile);
+			for( int i = 0; i < listOfFriends.size(); i ++){
 				/*
 				String [] linesplit = temp.split(":");
 				if(linesplit.length > 1){
@@ -284,13 +280,10 @@ public class FaceBreakUser {
 					}
 				}
 				*/
-				if(temp.equals(Integer.toString(friendID))){
-					inputReader.close();
+				if(listOfFriends.get(i).equals(Integer.toString(friendID))){
 					return true;
 				}
 			}
-			
-			inputReader.close();
 			return false;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -306,13 +299,19 @@ public class FaceBreakUser {
 				return -1;
 			}
 			String timestamp = Long.toString((new Date()).getTime());
+			String filename = Integer.toString(uid) + "\\" + userUntrustworthyFile;
 			// Append to friends file
-			String newFoe = "\n" + Integer.toString(foeID) + ":"
-					+ timestamp;
-			BufferedWriter bWriter = new BufferedWriter(
-					new FileWriter(Integer.toString(uid) + "\\" + userUntrustworthyFile, true));
-			bWriter.write(newFoe);
-			bWriter.close();
+			ArrayList<String> untrustworthyList = ServerBackend.readSecure(filename);
+			untrustworthyList.add(Integer.toString(foeID) + ":"+ timestamp);
+			
+			String fileContents = "";
+			
+			for(int i = 0; i < untrustworthyList.size() - 1; i++){
+				fileContents = fileContents + untrustworthyList.get(i) + "\n";
+			}
+			fileContents = fileContents + untrustworthyList.get(untrustworthyList.size() - 1);
+			
+			ServerBackend.writeSecure(fileContents, filename);
 			
 			return 0;
 			
@@ -368,15 +367,15 @@ public class FaceBreakUser {
 			}
 		
 			String idStr = Integer.toString(uid);
+			String filename = idStr + "\\" + userInfoFile;
 		
-			FileReader fReader = new FileReader(idStr + "\\" + userInfoFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			int userID = Integer.parseInt(inputReader.readLine());
-			String userName = inputReader.readLine();
+			ArrayList<String> temp = ServerBackend.readSecure(filename);
+
+			int userID = Integer.parseInt(temp.get(0));
+			String userName = temp.get(1);
 		
 			User user = new User(userName);
 			user.setId(userID);
-			inputReader.close();
 			
 			return user;
 			
@@ -393,15 +392,16 @@ public class FaceBreakUser {
 			}
 			
 			String idStr = Integer.toString(uid);
+			String filename = idStr + "\\" + userInfoFile;
+		
+			ArrayList<String> temp = ServerBackend.readSecure(filename);
 			
-			FileReader fReader = new FileReader(idStr + "\\" + userInfoFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			int userID = Integer.parseInt(inputReader.readLine());
-			String userName = inputReader.readLine();
-			int rank = Integer.parseInt(inputReader.readLine());
-			String family = inputReader.readLine();
-			String fname = inputReader.readLine();
-			String lname = inputReader.readLine();
+			int userID = Integer.parseInt(temp.get(0));
+			String userName = temp.get(1);
+			int rank = Integer.parseInt(temp.get(2));
+			String family = temp.get(3);
+			String fname = temp.get(4);
+			String lname = temp.get(5);
 			
 			Profile profile = new Profile(userName, fname, lname);
 			
@@ -423,10 +423,8 @@ public class FaceBreakUser {
 					title = Title.ASSOC;
 					break;
 			}
-			
 			profile.setTitle(title);
 			
-			inputReader.close();
 			return profile;
 			
 		} catch (Exception e) {
@@ -445,16 +443,12 @@ public class FaceBreakUser {
 			
 			// Load friends file
 			ArrayList<Integer> friends = new ArrayList<Integer>();
-			FileReader fReader = new FileReader(idStr + "\\" + userFriendsFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
-			String temp;
-			while( (temp = inputReader.readLine()) != null){
-				temp.trim();
-				if(!temp.equals("")){
-					friends.add(new Integer(Integer.parseInt(temp)));
-				}
+			ArrayList<String> friendsStr = ServerBackend.readSecure(idStr + "\\" + userFriendsFile);
+			
+
+			for(int i = 0; i < friendsStr.size(); i++){
+					friends.add(new Integer(Integer.parseInt(friendsStr.get(i))));
 			}
-			inputReader.close();
 			
 			return friends;
 			
@@ -474,11 +468,13 @@ public class FaceBreakUser {
 			
 			// Load hashmap of untrustworthy people
 			HashMap<Integer, ArrayList<String>> untrustworthy = new HashMap<Integer, ArrayList<String>>();
-			FileReader fReader = new FileReader(idStr + "\\" + userUntrustworthyFile);
-			BufferedReader inputReader = new BufferedReader(fReader);
+
+			ArrayList<String> lines = ServerBackend.readSecure(idStr + "\\" + userUntrustworthyFile);
+			
 			String [] linesplit;
 			String temp;
-			while( (temp = inputReader.readLine()) != null){
+			for(int i = 0; i < lines.size(); i++){
+				temp = lines.get(i);
 				linesplit = temp.split(":");
 				if(linesplit.length > 1){
 					Integer untrustworthyID = new Integer( Integer.parseInt(linesplit[0]));
@@ -488,7 +484,6 @@ public class FaceBreakUser {
 					untrustworthy.get(untrustworthyID).add(linesplit[1]);
 				}
 			}
-			inputReader.close();
 			
 			return untrustworthy;
 			
@@ -508,9 +503,7 @@ public class FaceBreakUser {
 			String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
 					Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 					prof.getLname();
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(Integer.toString(uid) + "\\" + userInfoFile, false));
-			bWriter.write(userInfo);
-			bWriter.close();
+			ServerBackend.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
 			
 			return 0;
 		}catch(Exception e){
@@ -527,22 +520,26 @@ public class FaceBreakUser {
 			}
 			
 			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
-			FileReader fReader = new FileReader(friendsFileName);
-			BufferedReader inputReader = new BufferedReader(fReader);
+			ArrayList<String> friends = ServerBackend.readSecure(friendsFileName);
 			
-			String tmp;
 			boolean exists = false;
-			while((tmp = inputReader.readLine()) != null) {
-				if(tmp.equals(Integer.toString(friendUid))) {
+			int i;
+			for(i = 0; i < friends.size(); i++) {
+				if(friends.get(i).equals(Integer.toString(friendUid))) {
 					exists = true;
-					inputReader.close();
 				}
 			}
 			
 			if(!exists) {
-				BufferedWriter bWriter = new BufferedWriter(new FileWriter(friendsFileName, true));
-				bWriter.write(Integer.toString(friendUid) + "\n");
-				bWriter.close();
+				friends.add(Integer.toString(friendUid));
+				String friendContents = "";
+				
+				for(i = 0; i < friends.size() - 1; i++){
+					friendContents = friendContents + friends.get(i) + "\n";
+				}
+				friendContents = friendContents + friends.get(friends.size() - 1);
+				
+				ServerBackend.writeSecure(friendContents, friendsFileName);
 			}
 			return 0;
 			
@@ -560,24 +557,20 @@ public class FaceBreakUser {
 			}
 			
 			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
-			FileReader fReader = new FileReader(friendsFileName);
-			BufferedReader inputReader = new BufferedReader(fReader);
+
+			ArrayList<String> friends = ServerBackend.readSecure(friendsFileName);
 			
-			String tmp;
-			ArrayList<String> friendList = new ArrayList<String>();
-			while((tmp = inputReader.readLine()) != null) {
-				if(!(tmp.equals(Integer.toString(friendUid)))) {
-					friendList.add(tmp);
+			String friendContents = "";
+			
+			for(int i = 0; i < friends.size() - 1; i++){
+				if(Integer.parseInt(friends.get(i)) != friendUid){
+					friendContents = friendContents + friends.get(i) + "\n";
 				}
 			}
-			inputReader.close();
+			// Need to deal with the last newline
+			friendContents = friendContents.substring(0,friendContents.length() - 2);
 			
-			FileWriter fWriter = new FileWriter(friendsFileName);
-			BufferedWriter writer = new BufferedWriter(fWriter);
-			for(int i = 0; i < friendList.size(); i++){
-				writer.write(friendList.get(i) + "\n");
-			}
-			writer.close();
+			ServerBackend.writeSecure(friendContents, friendsFileName);
 			
 			return 0;
 		} catch (Exception e){
