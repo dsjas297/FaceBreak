@@ -4,7 +4,7 @@ public class LaunchGui {
 	public static FBWindow window;
 
 	/**
-	 * @param args
+	 * Call LaunchGui after FBServer to open the GUI to Login page.
 	 */
 	public static void main(String[] args) {
 		window = new FBWindow();

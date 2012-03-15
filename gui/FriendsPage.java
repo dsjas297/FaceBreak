@@ -15,12 +15,12 @@ import networking.FBClient;
 import common.Profile;
 
 public class FriendsPage extends JPanel{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	String[] friendsList; //list of usernames
 	
+	/**FriendsPage takes a list of usernames and calls client to get profile information 
+	for each friend, which is displayed on page.
+	Displays a message if the friends list is empty.
+	**/
 	public FriendsPage(MouseListener parent, FBClient myClient, int wall_width, String[] friendsList){
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		setMinimumSize(new Dimension(wall_width,300));
