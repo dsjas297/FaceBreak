@@ -229,7 +229,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			profile.add(region);
 		}
 		//get the max number of regions, based on title
-		int maxRegions = 3;
+		int maxRegions = 2;
 		/**switch(myProfile.getTitle()){
 		case BOSS: maxRegions = 27; break;
 		case CAPO: maxRegions = 12; break;
