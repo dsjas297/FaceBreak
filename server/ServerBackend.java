@@ -1,12 +1,6 @@
 package server;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.security.*;
 import java.security.spec.*;
 import java.util.ArrayList;
@@ -80,7 +74,7 @@ public class ServerBackend {
 	 *   	- Retrieving the other lines is undetermined
 	 *   		- Will probably return an ArrayList of valid lines as strings
 	 */
-	public static byte[] writeSecure(String fileContents){
+	public static void writeSecure(String fileContents, String filename){
 		try {
 			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 			byte bytes[] = new byte[1];
@@ -122,16 +116,23 @@ public class ServerBackend {
 				encrypted[i] = ciphertext[i - IV_LENGTH];
 			}
 			
-			return encrypted;
+			FileOutputStream out = new FileOutputStream(filename);
+			out.write(encrypted);
+			out.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		}
 	}
 	
-	public static ArrayList<String> readSecure(byte[] encrypted){
+	public static ArrayList<String> readSecure(String filename){
 		try {
+			File file = new File(filename);
+			byte[] encrypted = new byte[(int)file.length()];
+			FileInputStream in = new FileInputStream(filename);
+			in.read(encrypted);
+			in.close();
+			
 			int i = 0;
 			byte[] salt = new byte[8];// We set a salt on our own
 			for(i = 0; i < 8; i++){salt[i] = 0;}
