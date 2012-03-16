@@ -31,8 +31,8 @@ public class ServerBackend {
 	public static char[] password = null;
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
 	
-	private static int IV_LENGTH = 16;
-	private static int SALT_LENGTH = 8;
+	public static int IV_LENGTH = 16;
+	public static int SALT_LENGTH = 8;
 	
 	public static HashMap<String, ReentrantLock> lockMap;
 	

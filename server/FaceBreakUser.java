@@ -1,5 +1,7 @@
 package server;
 
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.io.*;
@@ -26,7 +28,7 @@ public class FaceBreakUser {
 	private static final String userUntrustworthyFile = ServerBackend.userUntrustworthyFile;
 	private static final String imageFile = ServerBackend.imageFile;
 	
-	public static int addUser(String userName, Title title, String family, String fname, String lname){
+	public static int addUser(String userName, Title title, String family, String fname, String lname, String password){
 		
 		try{
 			if(checkIfUserExists(userName) > 0){
@@ -78,6 +80,41 @@ public class FaceBreakUser {
 			FaceBreakRegion.addRegion(newUserID, RegionType.PUBLIC);
 			FaceBreakRegion.addRegion(newUserID, RegionType.PRIVATE);
 			
+			// Set password file for user
+			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+			byte[] salt = new byte[ServerBackend.SALT_LENGTH];// We set a salt on our own
+			random.nextBytes(salt);
+			
+			byte[] passwd_bytes = password.getBytes();
+			
+			byte[] passwd_and_salt = new byte[salt.length + passwd_bytes.length];
+			
+			int i = 0;
+			for(i = 0; i < salt.length; i++){
+				passwd_and_salt[i] = salt[i];
+			}
+			for(i = 0; i < passwd_bytes.length; i++){
+				passwd_and_salt[i + salt.length] = passwd_bytes[i];
+			}
+			
+			// Get hash of salt and password
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(passwd_and_salt);
+			byte[] hashed = md.digest();
+			
+			// Write salt and hash to file
+			byte[] write_to_file = new byte[hashed.length + salt.length];
+			for(i = 0; i < salt.length; i++){
+				write_to_file[i] = salt[i];
+			}
+			for(i = 0; i < hashed.length; i++){
+				passwd_and_salt[i + salt.length] = hashed[i];
+			}
+			
+			FileOutputStream out = new FileOutputStream(newUserIDstr + "\\password");
+			out.write(write_to_file);
+			out.close();
+			
 			for(int j = 0; j < 25; j++){
 				FaceBreakRegion.addRegion(newUserID, RegionType.COVERT);
 			}
@@ -86,6 +123,59 @@ public class FaceBreakUser {
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 			return -1;
+		}
+	}
+	
+	public static boolean verifyUser(int uid, String password){
+		try{
+			String userIDstr = Integer.toString(uid);
+			
+			File file = new File(userIDstr + "\\password");
+			
+			byte[] filebytes = new byte[(int)file.length()];
+			FileInputStream in = new FileInputStream(userIDstr + "\\password");
+			in.read(filebytes);
+			in.close();
+			
+			byte[] salt = new byte[ServerBackend.SALT_LENGTH];
+			byte[] hash_on_file = new byte[filebytes.length - salt.length];
+			
+			int i = 0;
+			for(i = 0; i < salt.length; i++){
+				salt[i] = filebytes[i];
+			}
+			for(i = 0; i < hash_on_file.length; i++){
+				hash_on_file[i] = filebytes[i + salt.length];
+			}
+			
+			// Get hash of password
+			byte[] passwd_bytes = password.getBytes();
+			
+			byte[] passwd_and_salt = new byte[salt.length + passwd_bytes.length];
+			
+			for(i = 0; i < salt.length; i++){
+				passwd_and_salt[i] = salt[i];
+			}
+			for(i = 0; i < passwd_bytes.length; i++){
+				passwd_and_salt[i + salt.length] = passwd_bytes[i];
+			}
+			
+			// Get hash of salt and password
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(passwd_and_salt);
+			byte[] hashed = md.digest();
+			
+			// Loop through to check hash
+			for(i = 0; i < hashed.length; i++){
+				if(hashed[i] != hash_on_file[i]){
+					return false;
+				}
+			}
+			
+			return true;
+		} catch(Exception e){
+			e.printStackTrace();
+			return false;
 		}
 	}
 	
