@@ -41,7 +41,6 @@ public class FaceBreakUser {
 				ServerBackend.lockMap.put(usersListFile, new ReentrantLock());
 			}
 			ServerBackend.lockMap.get(usersListFile).lock();
-			
 			// Add userId to users file
 			String newEntry = "\n" + newUserIDstr + ":" + userName;
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(usersListFile, true));
@@ -106,6 +105,7 @@ public class FaceBreakUser {
 					int uid = Integer.parseInt(linesplit[0]);
 					if(existingName.equals(userName)){
 						inputReader.close();
+						ServerBackend.lockMap.get(usersListFile).unlock();
 						return uid;
 					}
 				}
@@ -138,6 +138,7 @@ public class FaceBreakUser {
 					String existingID = linesplit[0].trim();
 					if(existingID.equals(userIDstr)){
 						inputReader.close();
+						ServerBackend.lockMap.get(usersListFile).unlock();
 						return true;
 					}
 				}
