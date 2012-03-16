@@ -6,7 +6,7 @@ import java.security.spec.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.crypto.*;
 import javax.crypto.spec.*;
@@ -34,7 +34,7 @@ public class ServerBackend {
 	private static int IV_LENGTH = 16;
 	private static int SALT_LENGTH = 8;
 	
-	public static HashMap<String, Lock> lockMap;
+	public static HashMap<String, ReentrantLock> lockMap;
 	
 	public static void initDirTree() {
 		File uidFile = new File(globalUidCounter);

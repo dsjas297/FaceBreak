@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import server.ServerBackend;
 
@@ -60,7 +60,7 @@ public class FBServer {
 		System.out.println("Starting up server...");
 
 		ServerBackend.password = password.toCharArray();
-		ServerBackend.lockMap = new HashMap<String, Lock>();
+		ServerBackend.lockMap = new HashMap<String, ReentrantLock>();
 		
 		try {
 			// Create the server socket.
