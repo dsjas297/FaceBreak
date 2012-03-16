@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -196,14 +197,15 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.add(Box.createRigidArea(new Dimension(0,10)));
 		
 		if (!curr_username.equals(myUserName)){
-			//TODO: if curr_profile is not friends with myUser {
-			add_friend.setVisible(true);
-			//			}
-			//else{ 
+			ArrayList<String> myFriendsList = null;
+			//TODO: GET LIST OF FRIENDS (myFriendsList)
+			if (myFriendsList.contains(curr_profile)){
+				add_friend.setVisible(true);
+			}
+			else{ 
 			// if curr_profile is friends with myUser
-//				rem_friend.setVisible(true);
-			//TODO: check trustworthiness
-//			}	
+				rem_friend.setVisible(true);
+			}	
 		}
 		
 		// get Board for user, get list of regions
@@ -593,13 +595,13 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//REMOVE TRUST
 		else if (arg0.getSource()==rem_trust){
-				//TODO: rem trust
+				//t: rem trust
 			rem_trust.setVisible(false);
 			add_trust.setVisible(true);
 		}
 		//ADD TRUST
 		else if (arg0.getSource()==add_trust){
-				//TODO: add trust
+				//t: add trust
 			rem_trust.setVisible(true);
 			add_trust.setVisible(false);
 		}
@@ -619,7 +621,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				s = s.replaceAll("\\s+", "");
 				//split string by commas
 				String[] usernames = s.split(",");
-				//TODO:create a new board that only those users can view
+				//T:create a new board that only those users can view
 				//update profile
 			}
 			else{
@@ -658,7 +660,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
-			// TODO: get list of user's friends
+			// TODO: GET LIST OF USER'S FRIENDS
 			String[] friendsList = {"a"};
 			// change wall to list of friends
 			wall_scroller.setViewportView(new FriendsPage(this, myClient, wall_width, friendsList));
