@@ -1,6 +1,7 @@
 package server;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.io.*;
 
 import common.Post.RegionType;
@@ -157,11 +158,16 @@ public class FaceBreakRegion {
 				System.err.println("Error: User either doesn't exist or can already view board");
 				return 1;
 			}
-
+			
 			String ownerIDstr = Integer.toString(uid);
 			String regionIDstr = Integer.toString(regionID);
 			String filename = ownerIDstr + "\\" + regionsFolder + "\\" +
 					regionIDstr + "\\" + regionInfoFile;
+			
+			if(ServerBackend.lockMap.get(filename) == null){
+				ServerBackend.lockMap.put(filename, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(filename).lock();
 			
 			ArrayList<String> allowed = ServerBackend.readSecure(filename);
 			allowed.add(Integer.toString(friendID));
@@ -175,6 +181,8 @@ public class FaceBreakRegion {
 			
 			ServerBackend.writeSecure(fileContents, filename);
 			
+			ServerBackend.lockMap.get(filename).unlock();
+			
 			return 0;
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -184,9 +192,18 @@ public class FaceBreakRegion {
 
 	private static boolean checkViewable(int uid, int regionID, int friendID){
 		try{
-			ArrayList<String> allowed = ServerBackend.readSecure(Integer.toString(uid) +
-					"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile);
+			
+			String filename = Integer.toString(uid) +
+					"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
+			
+			if(ServerBackend.lockMap.get(filename) == null){
+				ServerBackend.lockMap.put(filename, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(filename).lock();
+			
+			ArrayList<String> allowed = ServerBackend.readSecure(filename);
 
+			ServerBackend.lockMap.get(filename).unlock();
 			
 			for(int i = 0; i < allowed.size(); i++){
 				if(allowed.get(i).equals(Integer.toString(friendID))){
@@ -296,6 +313,11 @@ public class FaceBreakRegion {
 					+ regionsFolder + "\\" + Integer.toString(rid) + "\\"
 					+ regionPostsFile;
 			
+			if(ServerBackend.lockMap.get(path) == null){
+				ServerBackend.lockMap.put(path, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(path).lock();
+			
 			ArrayList<String> posts = ServerBackend.readSecure(path);
 			
 			String newPost = Long.toString((new Date()).getTime()) + ":"
@@ -311,6 +333,8 @@ public class FaceBreakRegion {
 			fileContents = fileContents + posts.get(posts.size() - 1);
 			
 			ServerBackend.writeSecure(fileContents, path);
+			
+			ServerBackend.lockMap.get(path).unlock();
 			
 			return true;
 		} catch (Exception e) {
@@ -331,6 +355,11 @@ public class FaceBreakRegion {
 				"\\" + Integer.toString(rid) + 
 				"\\" + regionPostsFile;
 		
+		if(ServerBackend.lockMap.get(path) == null){
+			ServerBackend.lockMap.put(path, new ReentrantLock());
+		}
+		ServerBackend.lockMap.get(path).lock();
+		
 		ArrayList<String> postLines = ServerBackend.readSecure(path);
 		
 		ArrayList<Post> allPosts = new ArrayList<Post>();
@@ -349,6 +378,8 @@ public class FaceBreakRegion {
 					allPosts.add(thisPost);
 				}
 			}
+			
+			ServerBackend.lockMap.get(path).unlock();
 			
 			return allPosts;
 		} catch (Exception e) {
