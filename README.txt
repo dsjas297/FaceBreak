@@ -28,12 +28,10 @@ CONTENTS
 --Title
 --User
 
--dummyserver
---DummyQuery
-
 -gui
 --FBPage
 --FBWindow
+--FriendsPage
 --LaunchGui
 --LimitedText
 --Login
@@ -75,6 +73,8 @@ FBPage: Displays a menu at the top with home, search, profile edit, and logout o
     -Profile edit: Displays user profile normally. In place of public region, displays a panel that allows user to modify his first name, last name, title, family, and profile picture.
     -User Profile: Displays a user’s first name, last name, title, family, and profile picture (if it exists). Displays Regionlinks to access user’s regions (public, private, and coverts). Currently displays all regions.
     -User Region: Always defaults to public region (same user whose profile is being displayed). Shows a comment box, and calls client to get all (if any) posts ever made in the region. Each post contains the name (first and last) of its writer, the message, and the time it was posted. Clicking on the name of the writer will display their profile.
+
+FriendsPage: Displays list of user’s friends.
 
 LimitedText: Text field with character limit
 
@@ -162,6 +162,9 @@ Fill in first name, last name, title, and family fields. Click “Save”. You s
 
 [Adding friends/viewing users]
 Search for another user to view their profile. In the left pane, click on “Add friend” to add them as a friend.
+
+[Viewing friends]
+In the left pane, click on “View friends” to view a users friends.
 
 [Viewing posts]
 The right pane shows public region posts for the user whose profile is currently being viewed. To view posts in other regions, select the appropriate region from the list in the left pane.
