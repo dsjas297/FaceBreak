@@ -1,6 +1,7 @@
 package server;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.io.*;
 
 import common.Post;
@@ -36,6 +37,11 @@ public class FaceBreakUser {
 			int newUserID = getNewUserID();
 			String newUserIDstr = Integer.toString(newUserID);
 			
+			if(ServerBackend.lockMap.get(usersListFile) == null){
+				ServerBackend.lockMap.put(usersListFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(usersListFile).lock();
+			
 			// Add userId to users file
 			String newEntry = "\n" + newUserIDstr + ":" + userName;
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(usersListFile, true));
@@ -44,6 +50,10 @@ public class FaceBreakUser {
 			// Create directory for user + their regions
 			String directory = newUserIDstr + "\\" + FaceBreakRegion.regionsFolder;
 			(new File(directory)).mkdirs();
+			
+			ServerBackend.lockMap.get(usersListFile).unlock();
+
+			// Rest of the files do not need locks since this is the first time we are dealing with them
 			
 			// Fill in info for user
 			String userInfo = newUserIDstr + "\n" + userName + "\n" + 
@@ -82,6 +92,10 @@ public class FaceBreakUser {
 	
 	public static int checkIfUserExists(String userName){
 		try{
+			if(ServerBackend.lockMap.get(usersListFile) == null){
+				ServerBackend.lockMap.put(usersListFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(usersListFile).lock();
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp;
@@ -96,8 +110,10 @@ public class FaceBreakUser {
 					}
 				}
 			}
-			
 			inputReader.close();
+			
+			ServerBackend.lockMap.get(usersListFile).unlock();
+			
 			return -1;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -107,6 +123,11 @@ public class FaceBreakUser {
 	
 	public static boolean checkIfUserExists(int userID){
 		try{
+			if(ServerBackend.lockMap.get(usersListFile) == null){
+				ServerBackend.lockMap.put(usersListFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(usersListFile).lock();
+			
 			String userIDstr = Integer.toString(userID);
 			FileReader fReader = new FileReader(usersListFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
@@ -121,8 +142,10 @@ public class FaceBreakUser {
 					}
 				}
 			}
-			
 			inputReader.close();
+			
+			ServerBackend.lockMap.get(usersListFile).unlock();
+			
 			return false;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -268,7 +291,15 @@ public class FaceBreakUser {
 	
 	public static boolean checkIfFriendExists(int uid, int friendID){
 		try{
+			if(ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile) == null){
+				ServerBackend.lockMap.put(Integer.toString(uid) + "\\" + userFriendsFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).lock();
+			
 			ArrayList<String> listOfFriends = ServerBackend.readSecure(Integer.toString(uid) + "\\" + userFriendsFile);
+			
+			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).unlock();
+			
 			for( int i = 0; i < listOfFriends.size(); i ++){
 				/*
 				String [] linesplit = temp.split(":");
@@ -300,6 +331,12 @@ public class FaceBreakUser {
 			}
 			String timestamp = Long.toString((new Date()).getTime());
 			String filename = Integer.toString(uid) + "\\" + userUntrustworthyFile;
+			
+			if(ServerBackend.lockMap.get(filename) == null){
+				ServerBackend.lockMap.put(filename, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(filename).lock();
+			
 			// Append to friends file
 			ArrayList<String> untrustworthyList = ServerBackend.readSecure(filename);
 			untrustworthyList.add(Integer.toString(foeID) + ":"+ timestamp);
@@ -312,6 +349,8 @@ public class FaceBreakUser {
 			fileContents = fileContents + untrustworthyList.get(untrustworthyList.size() - 1);
 			
 			ServerBackend.writeSecure(fileContents, filename);
+			
+			ServerBackend.lockMap.get(filename).unlock();
 			
 			return 0;
 			
@@ -340,6 +379,11 @@ public class FaceBreakUser {
 	
 	private static int getNewUserID(){
 		try{
+			if(ServerBackend.lockMap.get(userIDFile) == null){
+				ServerBackend.lockMap.put(userIDFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(userIDFile).lock();
+			
 			FileReader fReader = new FileReader(userIDFile);
 			BufferedReader inputReader = new BufferedReader(fReader);
 			String temp = inputReader.readLine();
@@ -347,6 +391,9 @@ public class FaceBreakUser {
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(userIDFile, false));
 			bWriter.write(Integer.toString(id + 1));
 			bWriter.close();
+			
+			ServerBackend.lockMap.get(userIDFile).unlock();
+			
 			return id;
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -369,6 +416,11 @@ public class FaceBreakUser {
 			String idStr = Integer.toString(uid);
 			String filename = idStr + "\\" + userInfoFile;
 		
+			if(ServerBackend.lockMap.get(filename) == null){
+				ServerBackend.lockMap.put(filename, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(filename).lock();
+			
 			ArrayList<String> temp = ServerBackend.readSecure(filename);
 
 			int userID = Integer.parseInt(temp.get(0));
@@ -376,6 +428,8 @@ public class FaceBreakUser {
 		
 			User user = new User(userName);
 			user.setId(userID);
+			
+			ServerBackend.lockMap.get(filename).unlock();
 			
 			return user;
 			
@@ -394,6 +448,11 @@ public class FaceBreakUser {
 			String idStr = Integer.toString(uid);
 			String filename = idStr + "\\" + userInfoFile;
 		
+			if(ServerBackend.lockMap.get(filename) == null){
+				ServerBackend.lockMap.put(filename, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(filename).lock();
+			
 			ArrayList<String> temp = ServerBackend.readSecure(filename);
 			
 			int userID = Integer.parseInt(temp.get(0));
@@ -425,6 +484,8 @@ public class FaceBreakUser {
 			}
 			profile.setTitle(title);
 			
+			ServerBackend.lockMap.get(filename).unlock();
+			
 			return profile;
 			
 		} catch (Exception e) {
@@ -441,14 +502,20 @@ public class FaceBreakUser {
 			
 			String idStr = Integer.toString(uid);
 			
+			if(ServerBackend.lockMap.get(idStr + "\\" + userFriendsFile) == null){
+				ServerBackend.lockMap.put(idStr + "\\" + userFriendsFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(idStr + "\\" + userFriendsFile).lock();
+			
 			// Load friends file
 			ArrayList<Integer> friends = new ArrayList<Integer>();
 			ArrayList<String> friendsStr = ServerBackend.readSecure(idStr + "\\" + userFriendsFile);
 			
-
 			for(int i = 0; i < friendsStr.size(); i++){
 					friends.add(new Integer(Integer.parseInt(friendsStr.get(i))));
 			}
+			
+			ServerBackend.lockMap.get(idStr + "\\" + userFriendsFile).unlock();
 			
 			return friends;
 			
@@ -469,6 +536,11 @@ public class FaceBreakUser {
 			// Load hashmap of untrustworthy people
 			HashMap<Integer, ArrayList<String>> untrustworthy = new HashMap<Integer, ArrayList<String>>();
 
+			if(ServerBackend.lockMap.get(idStr + "\\" + userUntrustworthyFile) == null){
+				ServerBackend.lockMap.put(idStr + "\\" + userUntrustworthyFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(idStr + "\\" + userUntrustworthyFile).lock();
+			
 			ArrayList<String> lines = ServerBackend.readSecure(idStr + "\\" + userUntrustworthyFile);
 			
 			String [] linesplit;
@@ -485,6 +557,8 @@ public class FaceBreakUser {
 				}
 			}
 			
+			ServerBackend.lockMap.get(idStr + "\\" + userUntrustworthyFile).unlock();
+			
 			return untrustworthy;
 			
 		} catch (Exception e) {
@@ -499,11 +573,18 @@ public class FaceBreakUser {
 				return -1;
 			}
 			
+			if(ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile) == null){
+				ServerBackend.lockMap.put(Integer.toString(uid) + "\\" + userInfoFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
+			
 			// Fill in info for user
 			String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
 					Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 					prof.getLname();
 			ServerBackend.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
+			
+			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			
 			return 0;
 		}catch(Exception e){
@@ -520,6 +601,12 @@ public class FaceBreakUser {
 			}
 			
 			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+			
+			if(ServerBackend.lockMap.get(friendsFileName) == null){
+				ServerBackend.lockMap.put(friendsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(friendsFileName).lock();
+			
 			ArrayList<String> friends = ServerBackend.readSecure(friendsFileName);
 			
 			boolean exists = false;
@@ -541,6 +628,9 @@ public class FaceBreakUser {
 				
 				ServerBackend.writeSecure(friendContents, friendsFileName);
 			}
+			
+			ServerBackend.lockMap.get(friendsFileName).unlock();
+			
 			return 0;
 			
 		} catch (Exception e){
@@ -558,6 +648,11 @@ public class FaceBreakUser {
 			
 			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
 
+			if(ServerBackend.lockMap.get(friendsFileName) == null){
+				ServerBackend.lockMap.put(friendsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(friendsFileName).lock();
+			
 			ArrayList<String> friends = ServerBackend.readSecure(friendsFileName);
 			
 			String friendContents = "";
@@ -571,6 +666,8 @@ public class FaceBreakUser {
 			friendContents = friendContents.substring(0,friendContents.length() - 2);
 			
 			ServerBackend.writeSecure(friendContents, friendsFileName);
+			
+			ServerBackend.lockMap.get(friendsFileName).unlock();
 			
 			return 0;
 		} catch (Exception e){
