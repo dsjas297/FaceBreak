@@ -198,12 +198,15 @@ public class FBClientHandler extends Thread {
 			r.setReturnError(Error.USERNAME_PWD);
 			return r;
 		}
-		
-		authUser.setId(uid);
-		authUser.logIn();
-		retries = 0;
-		
-		r.setReturnError(Error.SUCCESS);
+		if(FaceBreakUser.verifyUser(uid, thisUser.getPassword())) {
+			authUser.setId(uid);
+			authUser.logIn();
+			retries = 0;
+			r.setReturnError(Error.SUCCESS);
+		}
+		else {
+			r.setReturnError(Error.USERNAME_PWD);
+		}	
 		return r;
 	}
 
