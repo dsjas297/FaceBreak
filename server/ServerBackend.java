@@ -28,7 +28,7 @@ public class ServerBackend {
 	public static final String regionPostsFile = "posts";
 	public static final String regionInfoFile = "regionInfo";
 
-	public static char[] password = null;
+	public static byte[] password = null;
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
 	
 	public static int IV_LENGTH = 16;
@@ -102,7 +102,7 @@ public class ServerBackend {
 			//for(i = 0; i < 8; i++){salt[i] = 0;}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
+			KeySpec spec = new PBEKeySpec(new String(password).toCharArray(), salt, 65536, 128);
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -163,7 +163,7 @@ public class ServerBackend {
 			}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			KeySpec spec = new PBEKeySpec(password, salt, 65536, 128);
+			KeySpec spec = new PBEKeySpec(new String(password).toCharArray(), salt, 65536, 128);
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
