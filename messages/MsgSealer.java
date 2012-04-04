@@ -83,7 +83,7 @@ public class MsgSealer {
 	public SealedObject encrypt(GenericMsg obj) {
 		try {
 			return new SealedObject(obj, encrypter);
-		} catch (IllegalBlockSizeException | IOException e) {
+		} catch (Exception e) {
 			System.err.println("Bad encryption algorithm: ");
 			e.printStackTrace();
 			return null;
@@ -93,8 +93,7 @@ public class MsgSealer {
 	public GenericMsg decrypt(SealedObject sealedMsg) {
 		try {
 			return (GenericMsg) sealedMsg.getObject(decrypter);
-		} catch (ClassNotFoundException | IllegalBlockSizeException
-				| BadPaddingException | IOException e) {
+		} catch (Exception e) {
 			System.err.println("Bad decryption algorithm: ");
 			e.printStackTrace();
 			return null;

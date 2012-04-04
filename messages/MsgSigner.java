@@ -53,7 +53,7 @@ public class MsgSigner {
 	public SignedObject sign(SealedObject sealedMsg) {
 		try {
 			return new SignedObject(sealedMsg, privateKey, signingEngine);
-		} catch (InvalidKeyException | SignatureException | IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -67,8 +67,7 @@ public class MsgSigner {
 		try {
 			if(signedMsg.verify(remotePublicKey, signingEngine))
 				return (SealedObject) signedMsg.getObject();
-		} catch (ClassNotFoundException | IOException | InvalidKeyException
-				| SignatureException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
