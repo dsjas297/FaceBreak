@@ -108,7 +108,7 @@ public class FaceBreakUser {
 				write_to_file[i] = salt[i];
 			}
 			for(i = 0; i < hashed.length; i++){
-				passwd_and_salt[i + salt.length] = hashed[i];
+				write_to_file[i + salt.length] = hashed[i];
 			}
 			
 			FileOutputStream out = new FileOutputStream(newUserIDstr + "\\password");
