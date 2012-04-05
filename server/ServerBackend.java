@@ -209,9 +209,10 @@ public class ServerBackend {
 					error.add("ERROR");
 					return error;
 				}
+				i++;
 			}
 			
-			String plaintext = new String(c.doFinal(text), "UTF-8");
+			String plaintext = new String(text, "UTF-8");
 			
 			String[] plaintext_lines = plaintext.split("\n");
 			ArrayList<String> lines = new ArrayList<String>();
