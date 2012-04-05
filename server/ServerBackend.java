@@ -33,6 +33,7 @@ public class ServerBackend {
 	
 	public static int IV_LENGTH = 16;
 	public static int SALT_LENGTH = 8;
+	public static int SHA_256_LENGTH = 32;
 	
 	public static HashMap<String, ReentrantLock> lockMap;
 	
@@ -111,7 +112,23 @@ public class ServerBackend {
 			AlgorithmParameters params = c.getParameters();
 			byte[] iv = params.getParameterSpec(IvParameterSpec.class).getIV();
 			
-			byte[] ciphertext = c.doFinal(fileContents.getBytes("UTF-8"));
+			byte[] contents = fileContents.getBytes("UTF-8");
+			
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(contents);
+			byte[] hash = md.digest();
+			
+			byte[] to_encrypt = new byte[SHA_256_LENGTH + contents.length];
+			
+			for(i = 0; i < SHA_256_LENGTH; i++){
+				to_encrypt[i] = hash[i];
+			}
+			
+			for(i = 0; i < contents.length; i++){
+				to_encrypt[i + SHA_256_LENGTH] = contents[i];
+			}
+			
+			byte[] ciphertext = c.doFinal(to_encrypt);
 			
 			byte[] encrypted = new byte[salt.length + IV_LENGTH + ciphertext.length];
 			
@@ -169,7 +186,32 @@ public class ServerBackend {
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			c.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
 			
-			String plaintext = new String(c.doFinal(ciphertext), "UTF-8");
+			byte[] unencrypted = c.doFinal(ciphertext);
+			
+			byte[] hash = new byte[SHA_256_LENGTH];
+			byte[] text = new byte[unencrypted.length - SHA_256_LENGTH];
+			
+			for(i = 0; i < SHA_256_LENGTH; i++){
+				hash[i] = unencrypted[i];
+			}
+			
+			for(i = 0; i < text.length; i++){
+				text[i] = unencrypted[i + SHA_256_LENGTH];
+			}
+			
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(text);
+			byte[] texthash = md.digest();
+			i = 0;
+			while (i < texthash.length) {
+				if (texthash[i] != hash[i]) {
+					ArrayList<String> error = new ArrayList<String>();
+					error.add("ERROR");
+					return error;
+				}
+			}
+			
+			String plaintext = new String(c.doFinal(text), "UTF-8");
 			
 			String[] plaintext_lines = plaintext.split("\n");
 			ArrayList<String> lines = new ArrayList<String>();
