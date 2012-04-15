@@ -24,18 +24,21 @@ public class Login extends JPanel implements ActionListener{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	//Fields and labels for UserId and Password
+	//Fields and labels for Username and Password
 	private JLabel usernamePrompt = new JLabel("User ID: ");
 	JTextField usernameEntry= new JTextField(8);
 	private JLabel pwdPrompt = new JLabel("Password: ");
 	protected JPasswordField pwdEntry = new JPasswordField(8);
 	JButton loginButton = new JButton("Log in");
 	JButton signupButton = new JButton("Sign up!");
+	int max_len = 20; //max length of username and pwd
 	//WARNINGS
 	JLabel loginFailed = new JLabel("Login failed; username or password incorrect");
 	JLabel duplicateUser = new JLabel("This user already exists. Please sign up under a different username.");
 	JLabel loggedOut = new JLabel("Thank you for using FaceBreak");
 	JLabel alphanum = new JLabel("Username and password must consist only of characters a-z, A-Z, 0-9");
+	JLabel alphanum2 = new JLabel("Password must contain at least one character from each group a-z, A-Z, 0-9");
+	JLabel pwd_lengthreq = new JLabel("Password must be between 6-20 characters in length.");
 
 	public Login(){
 		// Create welcome panel
@@ -70,7 +73,7 @@ public class Login extends JPanel implements ActionListener{
 		usernamePanel.setBackground(new Color(130, 0, 0));
 		usernameEntry.setMaximumSize(new Dimension(150,20));
 		usernameEntry.requestFocus();
-		usernameEntry.setDocument(new LimitedText(10));
+		usernameEntry.setDocument(new LimitedText(max_len));
 		usernamePrompt.setForeground(Color.white);
 		usernamePanel.add(usernamePrompt);
 		usernamePanel.add(Box.createHorizontalGlue());
@@ -83,7 +86,7 @@ public class Login extends JPanel implements ActionListener{
 		pwdPanel.setLayout(new BoxLayout(pwdPanel, BoxLayout.LINE_AXIS));
 		pwdPanel.setBackground(new Color(130, 0, 0));
 		pwdEntry.setMaximumSize(new Dimension(150,20));
-		pwdEntry.setDocument(new LimitedText(10));
+		pwdEntry.setDocument(new LimitedText(max_len));
 		pwdPrompt.setForeground(Color.white);
 		pwdPanel.add(pwdPrompt);
 		pwdPanel.add(Box.createHorizontalGlue());
@@ -121,6 +124,12 @@ public class Login extends JPanel implements ActionListener{
 		this.add(alphanum);
 		alphanum.setAlignmentX((float) 0.5);
 		alphanum.setVisible(false);
+		this.add(alphanum2);
+		alphanum2.setAlignmentX((float) 0.5);
+		alphanum2.setVisible(false);
+		this.add(pwd_lengthreq);
+		pwd_lengthreq.setAlignmentX((float) 0.5);
+		pwd_lengthreq.setVisible(false);
 		this.add(loggedOut);
 		loggedOut.setAlignmentX((float) 0.5);
 		loggedOut.setVisible(false);
@@ -152,5 +161,49 @@ public class Login extends JPanel implements ActionListener{
 			alphanum.setVisible(true);
 		}
 		return user_alnum&&pwd_alnum;
+	}
+	public boolean has_3groups(){
+		//make sure that password consist of at least one char from a-z, A-Z, 0-9
+		boolean pwd_group1 = Pattern.matches(".*[a-z]+.*", new String(pwdEntry.getPassword()));
+		boolean pwd_group2 = Pattern.matches(".*[A-Z]+.*", new String(pwdEntry.getPassword()));
+		boolean pwd_group3 = Pattern.matches(".*[0-9]+.*", new String(pwdEntry.getPassword()));
+		System.out.print(pwd_group1);
+		System.out.print(pwd_group2);
+		System.out.print(pwd_group3);
+		if (pwd_group1 && pwd_group2 && pwd_group3){
+			return true;
+		}
+		else{
+			alphanum2.setVisible(true);
+			return false;
+		}
+	}
+	public boolean check_lengthreq(){
+		if (pwdEntry.getPassword().length >= 6 && pwdEntry.getPassword().length <= 20){
+			return true;
+		}
+		else{
+			pwd_lengthreq.setVisible(true);
+			return false;
+		}
+	}
+	//check validity of password
+	public boolean is_valid(){
+		boolean pwd_is_an = is_alphanum();
+		System.out.print(pwd_is_an);
+		boolean pwd_has_3groups = has_3groups();
+		System.out.print(pwd_has_3groups);
+		boolean pwd_correct_length = check_lengthreq();
+		System.out.print(pwd_correct_length);
+		return pwd_is_an && pwd_has_3groups && pwd_correct_length;
+	}
+	//clear all displayed warnings
+	public void clearWarnings(){
+		loginFailed.setVisible(false);
+		duplicateUser.setVisible(false);
+		loggedOut.setVisible(false);
+		alphanum.setVisible(false);
+		alphanum2.setVisible(false);
+		pwd_lengthreq.setVisible(false);
 	}
 }
