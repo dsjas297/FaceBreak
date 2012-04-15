@@ -113,10 +113,10 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 						//display an error
 						login.duplicateUser.setVisible(true);
 					}
-					//else{
+					else{
 						//auto-login
-						//login_protocol();		
-					//}
+						login_protocol();		
+					}
 						
 				} catch (Exception e1) {
 					e1.printStackTrace();
