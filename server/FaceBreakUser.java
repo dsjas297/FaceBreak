@@ -72,7 +72,7 @@ public class FaceBreakUser {
 			bWriter.write("");
 			bWriter.close();
 			*/
-			ServerBackend.writeSecure("", newUserIDstr + "\\" + userUntrustworthyFile);
+			ServerBackend.writeSecure("", newUserIDstr + "\\" + notificationsFile);
 			
 			// Create directory for user's regions
 			File file = new File(newUserIDstr + "\\" + FaceBreakRegion.regionsFolder);
