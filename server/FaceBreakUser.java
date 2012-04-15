@@ -27,6 +27,7 @@ public class FaceBreakUser {
 	private static final String userFriendsFile = ServerBackend.userFriendsFile;
 	private static final String userUntrustworthyFile = ServerBackend.userUntrustworthyFile;
 	private static final String imageFile = ServerBackend.imageFile;
+	private static final String notificationsFile = ServerBackend.notificationsFile;
 	
 	public static int addUser(String userName, Title title, String family, String fname, String lname, String password){
 		
@@ -722,6 +723,8 @@ public class FaceBreakUser {
 				ServerBackend.writeSecure(friendContents, friendsFileName);
 			}
 			
+			notifyAddFriend(friendName, getUser(requestUid).getUsername());
+			
 			ServerBackend.lockMap.get(friendsFileName).unlock();
 			
 			return 0;
@@ -756,7 +759,7 @@ public class FaceBreakUser {
 				}
 			}
 			// Need to deal with the last newline
-			friendContents = friendContents.substring(0,friendContents.length() - 2);
+			friendContents = friendContents.substring(0,friendContents.length() - 1);
 			
 			ServerBackend.writeSecure(friendContents, friendsFileName);
 			
@@ -766,6 +769,103 @@ public class FaceBreakUser {
 		} catch (Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return -1;
+		}
+	}
+	
+	public static int notifyAddFriend(String friendName, String requesterName) {
+		try{
+			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+			if(friendUid == -1) {
+				// do stuff here
+			}
+			
+			String notificationsFileName = Integer.toString(friendUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
+			
+			friendings.add(requesterName);
+			
+			String notificationContents = "";
+			
+			for(int i = 0; i < friendings.size() - 1; i++){
+				notificationContents = notificationContents + friendings.get(i) + "\n";
+			}
+			// Need to deal with the last newline
+			notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
+			
+			ServerBackend.writeSecure(notificationContents, notificationsFileName);
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return 0;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
+	public static ArrayList<String> getFriendNotifications(int requestUid) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return null;
+			}
+			
+			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return friendings;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
+	public static ArrayList<String> deleteFriendNotifications(int requestUid, String friendName) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return null;
+			}
+			
+			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
+			
+			while(!friendings.remove(friendName)){};
+			
+			String notificationContents = "";
+			
+			for(int i = 0; i < friendings.size() - 1; i++){
+				notificationContents = notificationContents + friendings.get(i) + "\n";
+			}
+			// Need to deal with the last newline
+			notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
+			
+			ServerBackend.writeSecure(notificationContents, notificationsFileName);
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return friendings;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return null;
 		}
 	}
 }

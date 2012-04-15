@@ -27,6 +27,8 @@ public class ServerBackend {
 	public static final String regionsFolder = "regions";
 	public static final String regionPostsFile = "posts";
 	public static final String regionInfoFile = "regionInfo";
+	
+	public static final String notificationsFile = "notifications";
 
 	public static byte[] password = null;
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
