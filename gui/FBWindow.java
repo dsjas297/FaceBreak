@@ -88,14 +88,11 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		login.loginFailed.setVisible(false);
-		login.duplicateUser.setVisible(false);
+		login.clearWarnings();
 		if (e.getSource() == login.loginButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();			
-			if (!login.usernameEntry.getText().equals("")&&
-				!(new String(login.pwdEntry.getPassword())).equals("")&&
-				login.is_alphanum()){
+			if (login.is_valid()){
 				client.setCurrentUser(login.usernameEntry.getText(),
 						new String(login.pwdEntry.getPassword()));
 				login_protocol();	
@@ -103,9 +100,8 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		} else if (e.getSource() == login.signupButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();
-			if (!login.usernameEntry.getText().equals("")&&
-				!(new String(login.pwdEntry.getPassword())).equals("")&&
-				login.is_alphanum()){
+			if (login.is_valid()){
+					//!login.usernameEntry.getText().equals("")&& !(new String(login.pwdEntry.getPassword())).equals("")&&login.is_alphanum()){
 				try {
 					common.Error signup_error = client.createUser(login.usernameEntry.getText(),
 							new String(login.pwdEntry.getPassword()));
@@ -114,10 +110,10 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 						//display an error
 						login.duplicateUser.setVisible(true);
 					}
-					else{
+					//else{
 						//auto-login
-						login_protocol();		
-					}
+						//login_protocol();		
+					//}
 						
 				} catch (Exception e1) {
 					e1.printStackTrace();

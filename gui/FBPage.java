@@ -57,6 +57,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JLabel logo = new JLabel("FaceBreak");
 	private JTextField search_box;
 	private JButton search_button;
+	private JLabel notifications = new JLabel("0 | ");
 	private JLabel edit_button = new JLabel("Edit | ");
 	public JLabel logout = new JLabel("Log out");
 	//PROFILE ELEMENTS
@@ -335,6 +336,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		topnav.add(search_box);
 		topnav.add(search_button);
 		
+		// add notifications button
+		notifications.setForeground(Color.white);
+		notifications.addMouseListener(this);
 		// add edit button
 		edit_button.setForeground(Color.white);
 		edit_button.addMouseListener(this);
@@ -345,6 +349,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		topnav.add(search_box);
 		topnav.add(search_button);
 		topnav.add(Box.createHorizontalGlue());
+		topnav.add(notifications);
 		topnav.add(edit_button);
 		topnav.add(logout);
 	}
@@ -477,6 +482,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		//TODO: poll notifications
+		int num_not = 1; //number of notifications
+		notifications.setText(num_not + " | ");
+		
 		//LEAVE A COMMENT
 		if (arg0.getSource() == comment_button) {
 			// if post is not all whitespace
@@ -632,6 +641,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
+		//TODO: poll notifications
+		int num_not = 1; //number of notifications
+		notifications.setText(num_not + " | ");
+		
 		if (arg0.getSource() == logo) {
 			System.out.println(arg0.getSource().getClass().getName());
 			// change wall to user's own wall.
@@ -664,6 +677,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			String[] friendsList = {"a"};
 			// change wall to list of friends
 			wall_scroller.setViewportView(new FriendsPage(this, myClient, wall_width, friendsList));
+		}
+		//view notifications
+		if (arg0.getSource() == notifications) {
+			wall_scroller.setViewportView(new NotificationPage(myClient, wall_width, new String[][]{{"title", "a", "Capo"}, {"friend", "c"}}));
 		}
 	}
 
