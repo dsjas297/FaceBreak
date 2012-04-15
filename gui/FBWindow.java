@@ -67,7 +67,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	public void login_protocol(){
 		try {
 			common.Error login_error = client.login(login.usernameEntry.getText(), new String(login.pwdEntry.getPassword()));
-			System.out.println(login_error.toString());
 			//reset password field
 			login.clearPwd();
 			
@@ -86,44 +85,38 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		login.loginFailed.setVisible(false);
-		login.duplicateUser.setVisible(false);
+		login.clearWarnings();
 		if (e.getSource() == login.loginButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();			
-			if (!login.usernameEntry.getText().equals("")&&
-				!(new String(login.pwdEntry.getPassword())).equals("")&&
-				login.is_alphanum()){
-//				client.setCurrentUser(login.usernameEntry.getText(),
-//						new String(login.pwdEntry.getPassword()));
+			if (login.is_valid()){
+				//client.setCurrentUser(login.usernameEntry.getText(),
+				//		new String(login.pwdEntry.getPassword()));
 				login_protocol();	
 			}
 		} else if (e.getSource() == login.signupButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();
-			if (!login.usernameEntry.getText().equals("")&&
-				!(new String(login.pwdEntry.getPassword())).equals("")&&
-				login.is_alphanum()){
+			if (login.is_valid()){
+					//!login.usernameEntry.getText().equals("")&& !(new String(login.pwdEntry.getPassword())).equals("")&&login.is_alphanum()){
 				try {
 					common.Error signup_error = client.createUser(login.usernameEntry.getText(),
 							new String(login.pwdEntry.getPassword()));
 					//client.getSocket().close();
-					System.out.println("Creating user error: " + signup_error.toString());
 					if (signup_error==common.Error.DUPLICATE_USER){
 						//display an error
 						login.duplicateUser.setVisible(true);
 					}
-					else{
+					//else{
 						//auto-login
-						login_protocol();		
-					}
+						//login_protocol();		
+					//}
 						
 				} catch (Exception e1) {
 					e1.printStackTrace();
