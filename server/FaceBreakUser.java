@@ -868,4 +868,34 @@ public class FaceBreakUser {
 			return null;
 		}
 	}
+
+	public static ArrayList<String> getFriendsList (int requestUid) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return null;
+			}
+			
+			String friendsFile = Integer.toString(requestUid) + "\\" + userFriendsFile;
+				
+			if(ServerBackend.lockMap.get(friendsFile) == null){
+				ServerBackend.lockMap.put(friendsFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(friendsFile).lock();
+			
+			ArrayList<String> friendIDs = ServerBackend.readSecure(friendsFile);
+			
+			ArrayList<String> friendNames = new ArrayList<String>();
+			
+			for(int i = 0; i < friendIDs.size() - 1; i++){
+				friendNames.add(getUser(Integer.parseInt(friendIDs.get(i))).getUsername());
+			}
+			
+			ServerBackend.lockMap.get(friendsFile).unlock();
+			
+			return friendNames;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
 }
