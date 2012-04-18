@@ -40,6 +40,7 @@ public class Request extends GenericMsg implements Serializable {
 		DELETE_POST,
 		ADD_FRIEND,
 		DELETE_FRIEND,
-		LIST_FRIENDS;
+		GET_FRIENDS,
+		GET_NOTIFICATIONS;
 	}
 }

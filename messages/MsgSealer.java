@@ -9,6 +9,7 @@
 package messages;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
@@ -32,7 +33,7 @@ public class MsgSealer {
 	
 	/* specify algorithm, mode, and padding
 	 * AES because secure and fast; CBC because common and more secure than EBC
-	 * PKCS7Padding
+	 * PKCS5Padding
 	 */
 	private static final String ALG_MODE_PAD = "AES/CBC/PKCS5Padding";
 	private static final String ALGORITHM = "AES";
@@ -68,7 +69,7 @@ public class MsgSealer {
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		KeySpec spec = new PBEKeySpec(sharedSecret, salt, 65536, 128);
 		SecretKey tmp = factory.generateSecret(spec);
-		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), ALGORITHM);
 		
 		encrypter.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(iv));
 		decrypter.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
@@ -80,20 +81,44 @@ public class MsgSealer {
 			sharedSecret[i] = '0';
 	}
 	
-	public SealedObject encrypt(GenericMsg obj) {
+	// "seals" a generic message
+	public SealedObject encrypt(Serializable obj) {
 		try {
 			return new SealedObject(obj, encrypter);
-		} catch (Exception e) {
+		} catch (IllegalBlockSizeException | IOException e) {
 			System.err.println("Bad encryption algorithm: ");
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	public GenericMsg decrypt(SealedObject sealedMsg) {
+	// "unseals" a sealed object to 
+	public Serializable decrypt(SealedObject sealedMsg) {
 		try {
-			return (GenericMsg) sealedMsg.getObject(decrypter);
-		} catch (Exception e) {
+			return (Serializable) sealedMsg.getObject(decrypter);
+		} catch (ClassNotFoundException | IllegalBlockSizeException
+				| BadPaddingException | IOException e) {
+			System.err.println("Bad decryption algorithm: ");
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public SealedObject encrypt(KeyExchangeMsg obj) {
+		try {
+			return new SealedObject(obj, encrypter);
+		} catch (IllegalBlockSizeException | IOException e) {
+			System.err.println("Bad encryption algorithm: ");
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public KeyExchangeMsg decryptKEM(SealedObject sealedMsg) {
+		try {
+			return (KeyExchangeMsg) sealedMsg.getObject(decrypter);
+		} catch (ClassNotFoundException | IllegalBlockSizeException
+				| BadPaddingException | IOException e) {
 			System.err.println("Bad decryption algorithm: ");
 			e.printStackTrace();
 			return null;

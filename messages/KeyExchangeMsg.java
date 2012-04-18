@@ -1,10 +1,12 @@
 package messages;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.PublicKey;
 
-@SuppressWarnings("serial")
-public class KeyExchangeMsg extends GenericContent {
+public class KeyExchangeMsg implements Serializable {
+
+	private static final long serialVersionUID = -8583780774745299419L;
 	private BigInteger p;
 	private BigInteger g;
 	private int l;

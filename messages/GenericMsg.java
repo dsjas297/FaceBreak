@@ -10,14 +10,14 @@ package messages;
 import java.io.Serializable;
 
 
-@SuppressWarnings("serial")
 public class GenericMsg implements Serializable {
+	private static final long serialVersionUID = -7370780819488374980L;
 	private long timestamp;
 	private long count;
-	private GenericContent details;
+	private Serializable details;
 	
 	public GenericMsg() {
-		details = new GenericContent();
+		count = 0;
 	}
 	
 	public long getTimestamp() {
@@ -40,11 +40,11 @@ public class GenericMsg implements Serializable {
 		this.count = count;
 	}
 
-	public void setDetails(GenericContent details) {
+	public void setDetails(Serializable details) {
 		this.details = details;
 	}
 	
-	public GenericContent getDetails() {
+	public Serializable getDetails() {
 		return details;
 	}
 }

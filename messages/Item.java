@@ -6,13 +6,12 @@
 
 package messages;
 
-@SuppressWarnings("serial")
-public class ContentSingle<T> extends GenericContent {
+import java.io.Serializable;
+
+public class Item<T> implements Serializable {
+
+	private static final long serialVersionUID = -1615300875166801724L;
 	private T t;
-	
-	public ContentSingle() {
-		super();
-	}
 
 	public T get() {
 		return t;
