@@ -152,13 +152,8 @@ public class FaceBreakRegion {
 		}
 	}
 
-	public static int addToViewable(int uid, int regionID, int friendID){
+	public static int addToViewable(int uid, int regionID, int[] friendIDs){
 		try{
-			if(checkViewable(uid, regionID, friendID) || !FaceBreakUser.checkIfUserExists(friendID)){
-				System.err.println("Error: User either doesn't exist or can already view board");
-				return 1;
-			}
-			
 			String ownerIDstr = Integer.toString(uid);
 			String regionIDstr = Integer.toString(regionID);
 			String filename = ownerIDstr + "\\" + regionsFolder + "\\" +
@@ -170,7 +165,13 @@ public class FaceBreakRegion {
 			ServerBackend.lockMap.get(filename).lock();
 			
 			ArrayList<String> allowed = ServerBackend.readSecure(filename);
-			allowed.add(Integer.toString(friendID));
+			
+			for(int i = 0; i < friendIDs.length; i++){
+				if(!checkViewable(uid, regionID, friendIDs[i])
+						&& FaceBreakUser.checkIfUserExists(friendIDs[i])){
+					allowed.add(Integer.toString(friendIDs[i]));
+				}
+			}
 			
 			String fileContents = "";
 			
