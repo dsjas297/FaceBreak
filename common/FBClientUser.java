@@ -3,9 +3,9 @@ package common;
 import java.io.Serializable;
 
 public class FBClientUser implements Serializable {
+	private static final long serialVersionUID = 1661379995107465209L;
 	private String username;
 	private String pwd;
-	private String hashedPassword;
 	
 	public FBClientUser() {
 		username = null;

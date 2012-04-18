@@ -3,12 +3,12 @@ package common;
 import java.io.Serializable;
 
 public class Profile implements Serializable {
+	private static final long serialVersionUID = 1082744487895554393L;
 	private String username;
 	private String fname;
 	private String lname;
 	private String family;
 	private Title title;
-	private SerializableAvatar avatar;
 	
 	public Profile(String username) {
 		this.username = username;
@@ -16,7 +16,6 @@ public class Profile implements Serializable {
 		lname = null;
 		family = null;
 		title = null;
-		avatar = null;
 	}
 	
 	public Profile(String username, String fname, String lname) {
@@ -25,7 +24,6 @@ public class Profile implements Serializable {
 		this.lname = lname;
 		family = null;
 		title = null;
-		avatar = null;
 	}
 	
 	public String getUsername() {
@@ -66,13 +64,5 @@ public class Profile implements Serializable {
 	
 	public void setTitle(Title title) {
 		this.title = title;
-	}
-	
-	public SerializableAvatar getAvatar() {
-		return avatar;
-	}
-	
-	public void setAvatar(SerializableAvatar avatar) {
-		this.avatar = avatar;
 	}
 }

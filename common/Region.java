@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import common.Post.RegionType;
 
 public class Region implements Serializable {
+	private static final long serialVersionUID = -4178250919838025288L;
 	private int ownerId;
 	private int regionId;
 	private String ownerName;

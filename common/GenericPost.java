@@ -3,6 +3,8 @@ package common;
 import java.io.Serializable;
 
 public class GenericPost implements Serializable {
+
+	private static final long serialVersionUID = -8741828622092181708L;
 	private int pid;			// unique id for this post
 	private int oid;			// id for owner of board
 	private int rid;			// region id?

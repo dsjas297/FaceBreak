@@ -3,6 +3,8 @@ package common;
 import java.io.Serializable;
 
 public class User implements Serializable {
+
+	private static final long serialVersionUID = -1819083656621091380L;
 	private int uid;
 	private String username;
 	

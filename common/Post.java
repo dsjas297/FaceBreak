@@ -3,6 +3,7 @@ package common;
 import java.io.Serializable;
 
 public class Post extends GenericPost implements Serializable {
+	private static final long serialVersionUID = -7450831301223610111L;
 	private String ownerName;
 	private String writerName;
 	private RegionType region;

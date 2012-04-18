@@ -2,37 +2,52 @@ package common;
 
 import java.io.Serializable;
 
-public class Notification extends GenericPost implements Serializable {
+public class Notification implements Serializable {
+
+	private static final long serialVersionUID = 6613012381243813845L;
+	private int nid;
+	private NotificationType type;
+	private String username;
+	private int newRank;
+	
+	
+	public Notification(NotificationType type) {
+		this.type = type;
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	public void setRank(int newRank) {
+		this.newRank = newRank;
+	}
+	
+	public void setId(int nid) {
+		this.nid = nid;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public NotificationType getType() {
+		return type;
+	}
+	
+	/*
+	 * boss checks that getNewRank > Title.BOSS.rank (only one boss)
+	 */
+	public int getNewRank() {
+		return newRank;
+	}
+	
+	public int getId() {
+		return nid;
+	}
 	
 	public enum NotificationType {
-		TITLE, FRIEND;
-	}
-	
-	private static int nextID = 0;
-	private int id;
-	private String requesterName;
-	private int requesterID;
-	private NotificationType type;
-	private String requestMessage;
-	
-	public Notification(String requesterName, int requesterID, NotificationType type, String requestMessage) {
-		this.id = nextID++;
-		this.requesterName = requesterName;
-		this.requesterID = requesterID;
-		this.type = type;
-		this.requestMessage = requestMessage;
-	}
-	
-	public Notification(int id, String requesterName, int requesterID, NotificationType type, String requestMessage) {
-		this.id = id;
-		this.requesterName = requesterName;
-		this.requesterID = requesterID;
-		this.type = type;
-		this.requestMessage = requestMessage;
-	}
-	
-	public String toString(){
-		return Integer.toString(id) + " " + this.requesterName + " "
-				+ Integer.toString(this.requesterID) + " " + type + " " + this.requestMessage;
+		NewFriend,
+		ChangeRank;
 	}
 }
