@@ -120,10 +120,6 @@ public class FaceBreakUser {
 			out.write(write_to_file);
 			out.close();
 			
-			for(int j = 0; j < 25; j++){
-				FaceBreakRegion.addRegion(newUserID, RegionType.COVERT);
-			}
-			
 			return newUserID;
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
