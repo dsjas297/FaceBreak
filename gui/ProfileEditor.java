@@ -17,7 +17,6 @@ public class ProfileEditor extends JPanel{
 	private JTextField lnameEntry;
 	private JTextField famEntry;
 	private JComboBox titleEntry;
-	private JTextField imgEntry;
 	JLabel warning = new JLabel("First name and last name are required");
 	JButton save_edit;
 	
@@ -109,20 +108,7 @@ public class ProfileEditor extends JPanel{
 		add(names);
 		add(Box.createRigidArea(new Dimension(0,10)));
 		add(status);
-		//add profile picture
-		JPanel img_panel = new JPanel();
-		img_panel.setLayout(new BoxLayout(img_panel, BoxLayout.LINE_AXIS));
-		img_panel.setBackground(Color.WHITE);
-		JLabel imgPrompt = new JLabel("Profile picture: ");
-		imgEntry = new JTextField(8);
-		img_panel.setMinimumSize(new Dimension(300, 30));
-		img_panel.setMaximumSize(new Dimension(300, 30));
-		img_panel.add(imgPrompt);
-		img_panel.add(imgEntry);
-		add(Box.createRigidArea(new Dimension(0,10)));
-		add(img_panel);
-		add(Box.createRigidArea(new Dimension(0,10)));
-
+		
 		//add save button
 		JPanel save_panel = new JPanel();
 		save_panel.setLayout(new BoxLayout(save_panel, BoxLayout.LINE_AXIS));
@@ -143,7 +129,6 @@ public class ProfileEditor extends JPanel{
 		fields[1] = lnameEntry.getText();
 		fields[2] = (String)titleEntry.getSelectedItem();
 		fields[3] = famEntry.getText();
-		fields[4] = imgEntry.getText();
 		return fields;
 	}
 	//did all required fields get filled in?

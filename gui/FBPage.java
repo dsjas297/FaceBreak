@@ -3,20 +3,15 @@ package gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -42,7 +37,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	//CLIENT
 	FBClient myClient;
 	//IDs
-	private int myUserID; // user who is logged in
+	//private int myUserID; // user who is logged in
 	private String myUserName;
 	private int curr_profile; // user whose profile is being looked at
 	private String curr_username; // user whose profile is being looked at
@@ -144,15 +139,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		Profile myProfile = new Profile(curr_username);
 		myClient.viewProfile(myProfile);
 
-		// get user picture from ID
-		if (myProfile.getAvatar()!=null){
-			BufferedImage prof_pic = SerializableAvatar.serialAvatarToBufImage(myProfile.getAvatar());
-			
-			// System.out.println(prof_pic);
-			JLabel prof_pic_label = new JLabel(new ImageIcon(prof_pic));
-			prof_pic_label.setHorizontalAlignment(JLabel.CENTER);
-			profile.add(prof_pic_label);
-		}
 		//get user info
 		JLabel username = new JLabel(myProfile.getFname() + " "
 				+ myProfile.getLname());
@@ -187,15 +173,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		rem_friend.addActionListener(this);
 		profile.add(rem_friend);
 		rem_friend.setVisible(false);
-		//don't trust
-		rem_trust.addActionListener(this);
-		profile.add(rem_trust);
-		rem_trust.setVisible(false);
-		//trust
-		add_trust.addActionListener(this);
-		profile.add(add_trust);
-		add_trust.setVisible(false);
-		profile.add(Box.createRigidArea(new Dimension(0,10)));
 		
 		if (!curr_username.equals(myUserName)){
 			ArrayList<String> myFriendsList = null;
@@ -233,12 +210,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//get the max number of regions, based on title
 		int maxRegions = 2;
-		/**switch(myProfile.getTitle()){
-		case BOSS: maxRegions = 27; break;
-		case CAPO: maxRegions = 12; break;
-		case SOLDIER: maxRegions = 7; break;
-		default: maxRegions = 2; break;
-		}**/
+		switch(myProfile.getTitle()){
+			case BOSS: maxRegions = 27; break;
+			case CAPO: maxRegions = 12; break;
+			case SOLDIER: maxRegions = 7; break;
+			default: maxRegions = 2; break;
+		}
 		//add Covert button
 		if (numRegions < maxRegions){
 			add_covert.addActionListener(this);
@@ -531,22 +508,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				Profile newProfile = new Profile(myUserName, newFname, newLname); 
 				newProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
 				newProfile.setFamily(newFam);
-				//Avatar
-				// Get Image
-				if (!fields[4].equals("")){
-				    ImageIcon icon = new ImageIcon(fields[4]);
-				    Image image = icon.getImage();
-				    // Create empty BufferedImage, sized to Image
-				    BufferedImage bi = 
-				      new BufferedImage(
-				          image.getWidth(null), 
-				          image.getHeight(null), 
-				          BufferedImage.TYPE_INT_ARGB);
-				    // Draw Image into BufferedImage
-				    Graphics g = bi.getGraphics();
-				    g.drawImage(image, 0, 0, null);
-					newProfile.setAvatar(SerializableAvatar.bufImageToSerialAvatar(bi));
-				}
+				
 				//tell client to edit profile
 				Error e = myClient.editProfile(newProfile);
 				if (e == Error.SUCCESS)
@@ -582,7 +544,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			try{
 				myClient.addFriend(curr_username);
 				add_friend.setVisible(false);
-				rem_trust.setVisible(true);
 				rem_friend.setVisible(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -594,25 +555,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			try{
 				myClient.deleteFriend(curr_username);
 				rem_friend.setVisible(false);
-				rem_trust.setVisible(false);
-				add_trust.setVisible(false);
 				add_friend.setVisible(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 			
-		}
-		//REMOVE TRUST
-		else if (arg0.getSource()==rem_trust){
-				//t: rem trust
-			rem_trust.setVisible(false);
-			add_trust.setVisible(true);
-		}
-		//ADD TRUST
-		else if (arg0.getSource()==add_trust){
-				//t: add trust
-			rem_trust.setVisible(true);
-			add_trust.setVisible(false);
 		}
 		//CREATE NEW COVERT BOARD
 		else if (arg0.getSource()==add_covert){
@@ -630,11 +577,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				s = s.replaceAll("\\s+", "");
 				//split string by commas
 				String[] usernames = s.split(",");
-				//T:create a new board that only those users can view
+				//TODO:create a new board that only those users can view
 				//update profile
 			}
 			else{
-				//setLabel("Come on, finish the sentence!");	
+				//does nothing
 			}
 		}
 	}

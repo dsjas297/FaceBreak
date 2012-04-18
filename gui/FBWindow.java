@@ -71,7 +71,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			login.clearPwd();
 			
 			System.out.println(login.usernameEntry.getText());
-			System.out.println(new String(login.pwdEntry.getPassword()));
 			//logged_in = true;
 			if (login_error == common.Error.SUCCESS){
 				login.setVisible(false);
@@ -81,6 +80,7 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			}
 			else {
 				login.loginFailed.setVisible(true);
+				System.out.println(login_error);
 			}
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
