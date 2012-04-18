@@ -29,6 +29,8 @@ public class ServerBackend {
 	public static final String regionInfoFile = "regionInfo";
 	
 	public static final String notificationsFile = "notifications";
+	
+	public static final String familiesFile = "families";
 
 	public static byte[] password = null;
 	private static String garbled = "daskjfjladsjfkldjaslkjonanocnaskld98973q2tg\n";
@@ -42,6 +44,7 @@ public class ServerBackend {
 	public static void initDirTree() {
 		File uidFile = new File(globalUidCounter);
 		File usersFile = new File(globalUsers);
+		File famFile = new File(familiesFile);
 
 		if (!usersFile.exists()) {
 			try {
@@ -61,6 +64,19 @@ public class ServerBackend {
 				BufferedWriter bWriter = new BufferedWriter(new FileWriter(
 						globalUidCounter, true));
 				bWriter.write("1\n");
+				bWriter.close();
+			} catch (IOException ioe) {
+				System.err
+						.println("OH NOES!! Cannot initialize file for user ID counter.");
+				ioe.printStackTrace();
+			}
+		}
+		
+		if (!famFile.exists()) {
+			try {
+				BufferedWriter bWriter = new BufferedWriter(new FileWriter(
+						familiesFile, true));
+				bWriter.write("");
 				bWriter.close();
 			} catch (IOException ioe) {
 				System.err

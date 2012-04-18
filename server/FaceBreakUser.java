@@ -6,7 +6,9 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.io.*;
 
+import common.Notification;
 import common.Post;
+import common.Notification.NotificationType;
 import common.Post.RegionType;
 import common.Profile;
 import common.Title;
@@ -28,6 +30,8 @@ public class FaceBreakUser {
 	private static final String userUntrustworthyFile = ServerBackend.userUntrustworthyFile;
 	private static final String imageFile = ServerBackend.imageFile;
 	private static final String notificationsFile = ServerBackend.notificationsFile;
+	
+	private static final String familiesFile = ServerBackend.familiesFile;
 	
 	public static int addUser(String userName, Title title, String family, String fname, String lname, String password){
 		
@@ -662,6 +666,10 @@ public class FaceBreakUser {
 	}
 	
 	public static int setProfile(int uid, Profile prof){
+		return setProfile(uid, prof, false);
+	}
+	
+	public static int setProfile(int uid, Profile prof, boolean approved){
 		try{
 			if(!checkIfUserExists(uid)){
 				return -1;
@@ -670,15 +678,33 @@ public class FaceBreakUser {
 			if(ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile) == null){
 				ServerBackend.lockMap.put(Integer.toString(uid) + "\\" + userInfoFile, new ReentrantLock());
 			}
-			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 			
-			// Fill in info for user
-			String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
-					Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
-					prof.getLname();
-			ServerBackend.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
+			// Make request to boss, encode string in request
 			
-			ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
+			Profile oldProfile = getProfile(uid);
+			
+			int bossID = checkIfFamilyExists(prof.getFamily());
+			
+			if(bossID == -1){
+				addFamily(uid, prof.getFamily());
+				prof.setTitle(Title.BOSS);
+			}
+			
+			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
+					(prof.getTitle() == oldProfile.getTitle() &&
+					 prof.getFamily().equals(oldProfile.getFamily()))){
+				ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
+				// Fill in info for user
+				String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
+						Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+						prof.getLname();
+				ServerBackend.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
+				ServerBackend.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
+			}
+			
+			else{ // make request
+				return notifyChangeTitle(prof.getUsername(), bossID, prof);
+			}
 			
 			return 0;
 		}catch(Exception e){
@@ -723,9 +749,11 @@ public class FaceBreakUser {
 				ServerBackend.writeSecure(friendContents, friendsFileName);
 			}
 			
-			notifyAddFriend(friendName, getUser(requestUid).getUsername());
-			
 			ServerBackend.lockMap.get(friendsFileName).unlock();
+			
+			if(!checkIfFriendExists(friendUid, requestUid)){
+				notifyAddFriend(friendName, getUser(requestUid).getUsername());
+			}
 			
 			return 0;
 			
@@ -779,6 +807,8 @@ public class FaceBreakUser {
 				// do stuff here
 			}
 			
+			int requesterID = FaceBreakUser.checkIfUserExists(requesterName);
+			
 			String notificationsFileName = Integer.toString(friendUid) + "\\" + notificationsFile;
 				
 			if(ServerBackend.lockMap.get(notificationsFileName) == null){
@@ -788,7 +818,10 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
 			
-			friendings.add(requesterName);
+			Notification notif = new Notification(requesterName, requesterID,
+					Notification.NotificationType.FRIEND, "FRIEND REQUEST");
+			
+			friendings.add(notif.toString());
 			
 			String notificationContents = "";
 			
@@ -809,13 +842,11 @@ public class FaceBreakUser {
 		}
 	}
 	
-	public static ArrayList<String> getFriendNotifications(int requestUid) {
+	public static int notifyChangeTitle(String requesterName, int bossID, Profile prof) {
 		try{
-			if(!checkIfUserExists(requestUid)){
-				return null;
-			}
+			int requesterID = FaceBreakUser.checkIfUserExists(requesterName);
 			
-			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+			String notificationsFileName = Integer.toString(bossID) + "\\" + notificationsFile;
 				
 			if(ServerBackend.lockMap.get(notificationsFileName) == null){
 				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -824,31 +855,13 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
 			
-			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			Notification notif = new Notification(requesterName, requesterID,
+					Notification.NotificationType.TITLE, prof.getTitle().toString() + " "
+													     + prof.getFname() + " "
+													     + prof.getLname() + " "
+													     + prof.getFamily() );
 			
-			return friendings;
-		} catch (Exception e){
-			System.err.println("Error: " + e.getMessage());
-			return null;
-		}
-	}
-	
-	public static ArrayList<String> deleteFriendNotifications(int requestUid, String friendName) {
-		try{
-			if(!checkIfUserExists(requestUid)){
-				return null;
-			}
-			
-			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
-				
-			if(ServerBackend.lockMap.get(notificationsFileName) == null){
-				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
-			}
-			ServerBackend.lockMap.get(notificationsFileName).lock();
-			
-			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
-			
-			while(!friendings.remove(friendName)){};
+			friendings.add(notif.toString());
 			
 			String notificationContents = "";
 			
@@ -862,13 +875,127 @@ public class FaceBreakUser {
 			
 			ServerBackend.lockMap.get(notificationsFileName).unlock();
 			
-			return friendings;
+			return 0;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
+	public static ArrayList<Notification> getNotifications(int requestUid) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return null;
+			}
+			
+			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> notif_strings = ServerBackend.readSecure(notificationsFileName);
+			
+			ArrayList<Notification> notifications = new ArrayList<Notification>();
+			
+			for(int i = 0; i < notif_strings.size(); i++){
+				String notif = notif_strings.get(i);
+				String[] notif_split = notif.split("\\s+");
+				notifications.add(
+						new Notification(Integer.parseInt(notif_split[0]), notif_split[1],
+								         Integer.parseInt(notif_split[2]),
+								         Notification.NotificationType.valueOf(notif_split[3]),
+								         notif_split[4]));
+			}
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return notifications;
 		} catch (Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
+	
+	public static int deleteNotification(int requestUid, int notificationID) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return -1;
+			}
+			
+			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> notifications = ServerBackend.readSecure(notificationsFileName);
+			
+			String notificationContents = "";
+			
+			for(int i = 0; i < notifications.size() - 1; i++){
+				if(!(notifications.get(i).split(" ")[0].equals(Integer.toString(notificationID)))){
+					notificationContents = notificationContents + notifications.get(i) + "\n";
+				}
+			}
+			// Need to deal with the last newline
+			notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
+			
+			ServerBackend.writeSecure(notificationContents, notificationsFileName);
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return 0;
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
 
+	public static int approveNotification(int requestUid, int notificationID) {
+		try{
+			if(!checkIfUserExists(requestUid)){
+				return -1;
+			}
+			
+			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+				
+			if(ServerBackend.lockMap.get(notificationsFileName) == null){
+				ServerBackend.lockMap.put(notificationsFileName, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(notificationsFileName).lock();
+			
+			ArrayList<String> notifications = ServerBackend.readSecure(notificationsFileName);
+			
+			String[] request = null;
+			
+			for(int i = 0; i < notifications.size() - 1; i++){
+				if(notifications.get(i).split(" ")[0].equals(Integer.toString(notificationID))){
+					request = notifications.get(i).split(" ");
+				}
+			}
+			
+			if(request == null){
+				return -1;
+			}
+			
+			Profile profile = new Profile(request[1], request[5], request[6]);
+			profile.setFamily(request[7]);
+			profile.setTitle(Title.valueOf(request[4]));
+			
+			setProfile(checkIfUserExists(profile.getUsername()), profile, true);
+			
+			ServerBackend.lockMap.get(notificationsFileName).unlock();
+			
+			return deleteNotification(requestUid, notificationID);
+		} catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return -1;
+		}
+	}
+	
 	public static ArrayList<String> getFriendsList (int requestUid) {
 		try{
 			if(!checkIfUserExists(requestUid)){
@@ -896,6 +1023,75 @@ public class FaceBreakUser {
 		} catch (Exception e){
 			System.err.println("Error: " + e.getMessage());
 			return null;
+		}
+	}
+	
+	public static int checkIfFamilyExists(String familyName){
+		try{
+			if(ServerBackend.lockMap.get(familiesFile) == null){
+				ServerBackend.lockMap.put(familiesFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(familiesFile).lock();
+			FileReader fReader = new FileReader(familiesFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String temp;
+			while((temp = inputReader.readLine()) != null){
+				String [] linesplit = temp.split(":");
+				if(linesplit.length > 1){
+					String existingName = linesplit[0].trim();
+					int bossID = Integer.parseInt(linesplit[1]);
+					if(existingName.equals(familyName)){
+						inputReader.close();
+						ServerBackend.lockMap.get(familiesFile).unlock();
+						return bossID;
+					}
+				}
+			}
+			inputReader.close();
+			
+			ServerBackend.lockMap.get(familiesFile).unlock();
+			
+			return -1;
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			e.printStackTrace();
+			return -2;
+		}
+	}
+	
+	public static int addFamily(int uid, String familyName){
+		try{
+			if(ServerBackend.lockMap.get(familiesFile) == null){
+				ServerBackend.lockMap.put(familiesFile, new ReentrantLock());
+			}
+			ServerBackend.lockMap.get(familiesFile).lock();
+
+			ArrayList<String> families = new ArrayList<String>();
+			
+			FileReader fReader = new FileReader(familiesFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String temp;
+			while((temp = inputReader.readLine()) != null){
+				families.add(temp);
+			}
+			inputReader.close();
+			
+			
+			FileWriter fWriter = new FileWriter(familiesFile);
+			BufferedWriter fileWriter = new BufferedWriter(fWriter);
+			for(int i = 0; i < families.size() - 1; i++){
+				fileWriter.write(temp + "\n");
+			}
+			fileWriter.write(familyName + ":" + Integer.toString(uid));
+			fileWriter.close();
+			
+			ServerBackend.lockMap.get(familiesFile).unlock();
+			
+			return -1;
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			e.printStackTrace();
+			return -2;
 		}
 	}
 }
