@@ -7,6 +7,7 @@ import java.io.*;
 import common.Post.RegionType;
 import common.Post;
 import common.Region;
+import common.Title;
 
 public class FaceBreakRegion {
 
@@ -97,7 +98,39 @@ public class FaceBreakRegion {
 		// posts are stored in single file
 		// Same directory as rest of user info, but different file
 		try{
+			
+			int maxRegions = 0; 
+			switch(FaceBreakUser.getProfile(ownerID).getTitle()){
+				case BOSS:
+					maxRegions = 27;
+					break;
+				case CAPO:
+					maxRegions = 12;
+					break;
+				case SOLDIER:
+					maxRegions = 7;
+					break;
+				case ASSOC:
+					maxRegions = 2;
+					break;
+			}
+			
 			String ownerIDstr = Integer.toString(ownerID);
+			
+			File userRegionsFolder = new File(ownerIDstr + "\\" + regionsFolder);
+			int folderCount= 0;
+			for (File file : userRegionsFolder.listFiles()) {
+                if (file.isDirectory()) {
+                        folderCount++;
+                }
+			}
+			
+			if(folderCount >= maxRegions){
+				System.err.println("Cannot create additional regions");
+				return 1;
+			}
+			
+			
 			int regionID = 1;
 			File regionFolder;
 			if(regionType == Post.RegionType.COVERT){
