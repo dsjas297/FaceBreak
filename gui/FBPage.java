@@ -71,10 +71,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JPanel edit;
 	private JButton save_edit = new JButton("Save profile");
 
-
-	/**
-*
-*/
 	private static final long serialVersionUID = 1L;
 
 	// create USER page
@@ -180,21 +176,20 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		
 		// get Board for user, get list of regions
-		Board board = new Board(curr_profile);
-		/**myClient.viewBoard(board);
-		Integer[] regionList = board.getRegions();
-		System.out.println(regionList);**/
-		int numRegions = 2; //regionList.length;
+		ArrayList<Integer> regionList = null;
+		myClient.getViewableRegions(curr_profile, regionList);
+		/**System.out.println(regionList);**/
+		int numRegions = regionList.size();
 		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
 			if (i==0){
-				region = new Regionlink("Public", i, curr_username, curr_profile);
+				region = new Regionlink("Public", regionList.get(i), curr_username, curr_profile);
 			}
 			else if (i==1){
-				region = new Regionlink("Private", i, curr_username, curr_profile);
+				region = new Regionlink("Private", regionList.get(i), curr_username, curr_profile);
 			}
 			else {
-				region = new Regionlink("Covert " + (i-2), i, curr_username, curr_profile);
+				region = new Regionlink("Covert " + (i-1), regionList.get(i), curr_username, curr_profile);
 			}
 			region.addMouseListener(this);
 			region.setAlignmentX((float) 0.0);
@@ -569,8 +564,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//split string by commas
 				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(","));
 				//TODO:create a new board that only those users can view
-				int regionid = 0;
-				myClient.addToCovert(regionid, usernames);
+				ArrayList<Integer> regionList = null;
+				myClient.getViewableRegions(myUserName, regionList);
+				int new_rid = regionList.size();
+				
+				myClient.addToCovert(new_rid, usernames);
 				//update profile
 			}
 			else{
