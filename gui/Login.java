@@ -32,6 +32,15 @@ public class Login extends JPanel implements ActionListener{
 	JButton loginButton = new JButton("Log in");
 	JButton signupButton = new JButton("Sign up!");
 	int max_len = 20; //max length of username and pwd
+	
+	//Fields/labels for fname, lname, and family
+	private JLabel fnamePrompt = new JLabel("First name: ");
+	JTextField fnameEntry= new JTextField(8);
+	private JLabel lnamePrompt = new JLabel("Last name: ");
+	JTextField lnameEntry= new JTextField(8);
+	private JLabel famPrompt = new JLabel("Family: ");
+	JTextField famEntry= new JTextField(8);
+	
 	//WARNINGS
 	JLabel loginFailed = new JLabel("Login failed; username or password incorrect");
 	JLabel duplicateUser = new JLabel("This user already exists. Please sign up under a different username.");
@@ -39,6 +48,7 @@ public class Login extends JPanel implements ActionListener{
 	JLabel alphanum = new JLabel("Username and password must consist only of characters a-z, A-Z, 0-9");
 	JLabel alphanum2 = new JLabel("Password must contain at least one character from each group a-z, A-Z, 0-9");
 	JLabel pwd_lengthreq = new JLabel("Password must be between 6-20 characters in length.");
+	JLabel personalFields = new JLabel("First name, last name, and family name required for sign up.");
 
 	public Login(){
 		// Create welcome panel
@@ -96,9 +106,53 @@ public class Login extends JPanel implements ActionListener{
 		pwdPanel.add(Box.createVerticalGlue());
 		loginPanel.add(pwdPanel);
 		
+		//fname entry
+		JPanel fnamePanel = new JPanel();
+		fnamePanel.setAlignmentX((float) 0.5);
+		fnamePanel.setMaximumSize(new Dimension(200,30));
+		fnamePanel.setLayout(new BoxLayout(fnamePanel, BoxLayout.LINE_AXIS));
+		fnamePanel.setBackground(new Color(130, 0, 0));
+		fnameEntry.setMaximumSize(new Dimension(150,20));
+		fnameEntry.setDocument(new LimitedText(max_len));
+		fnamePrompt.setForeground(Color.white);
+		fnamePanel.add(fnamePrompt);
+		fnamePanel.add(Box.createHorizontalGlue());
+		fnamePanel.add(fnameEntry);
+		
+		loginPanel.add(Box.createRigidArea(new Dimension(0,5)));
+		loginPanel.add(fnamePanel);
+		//lname entry
+		JPanel lnamePanel = new JPanel();
+		lnamePanel.setAlignmentX((float) 0.5);
+		lnamePanel.setMaximumSize(new Dimension(200,30));
+		lnamePanel.setLayout(new BoxLayout(lnamePanel, BoxLayout.LINE_AXIS));
+		lnamePanel.setBackground(new Color(130, 0, 0));
+		lnameEntry.setMaximumSize(new Dimension(150,20));
+		lnameEntry.setDocument(new LimitedText(max_len));
+		lnamePrompt.setForeground(Color.white);
+		lnamePanel.add(lnamePrompt);
+		lnamePanel.add(Box.createHorizontalGlue());
+		lnamePanel.add(lnameEntry);
+		
+		lnamePanel.add(Box.createVerticalGlue());
+		loginPanel.add(lnamePanel);
+		//family entry
+		JPanel famPanel = new JPanel();
+		famPanel.setAlignmentX((float) 0.5);
+		famPanel.setMaximumSize(new Dimension(200,30));
+		famPanel.setLayout(new BoxLayout(famPanel, BoxLayout.LINE_AXIS));
+		famPanel.setBackground(new Color(130, 0, 0));
+		famEntry.setMaximumSize(new Dimension(150,20));
+		famEntry.setDocument(new LimitedText(max_len));
+		famPrompt.setForeground(Color.white);
+		famPanel.add(famPrompt);
+		famPanel.add(Box.createHorizontalGlue());
+		famPanel.add(famEntry);
+		
+		famPanel.add(Box.createVerticalGlue());
+		loginPanel.add(famPanel);
 		
 		//Create and initialize the buttons.
-        //loginButton.addActionListener(this);
 		
 		//Lay out the buttons from left to right.
 		JPanel buttonPanel = new JPanel();
@@ -110,8 +164,6 @@ public class Login extends JPanel implements ActionListener{
 		buttonPanel.add(Box.createHorizontalGlue());
 		buttonPanel.add(loginButton);
 		
-		//this.add(Box.createHorizontalGlue());
-		//this.add(bgPanel);
 		this.setBorder(BorderFactory.createEmptyBorder(50,150,100,150));
 		this.add(facebreak);
 		this.add(welcome);
@@ -130,6 +182,9 @@ public class Login extends JPanel implements ActionListener{
 		this.add(pwd_lengthreq);
 		pwd_lengthreq.setAlignmentX((float) 0.5);
 		pwd_lengthreq.setVisible(false);
+		this.add(personalFields);
+		personalFields.setAlignmentX((float) 0.5);
+		personalFields.setVisible(false);
 		this.add(loggedOut);
 		loggedOut.setAlignmentX((float) 0.5);
 		loggedOut.setVisible(false);
@@ -205,5 +260,23 @@ public class Login extends JPanel implements ActionListener{
 		alphanum.setVisible(false);
 		alphanum2.setVisible(false);
 		pwd_lengthreq.setVisible(false);
+		personalFields.setVisible(false);
+	}
+	//check if personal fields are filled in
+	public boolean personal_filled(){
+		//fname
+		fnameEntry.setText(fnameEntry.getText().replaceAll("\\s+", ""));
+		//lname
+		lnameEntry.setText(lnameEntry.getText().replaceAll("\\s+", ""));
+		//family
+		famEntry.setText(famEntry.getText().replaceAll("\\s+", ""));
+		
+		if (fnameEntry.getText().equals("")||lnameEntry.getText().equals("")||famEntry.getText().equals("")){
+			personalFields.setVisible(true);
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 }
