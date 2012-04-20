@@ -2,18 +2,13 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -21,8 +16,9 @@ import javax.swing.JTextArea;
 import networking.FBClient;
 
 import common.Error;
+import common.Notification;
+import common.Notification.NotificationType;
 import common.Profile;
-import common.SerializableAvatar;
 import common.Title;
 
 public class NotificationPage extends JPanel implements ActionListener{
@@ -32,7 +28,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 	/**NotificationPage takes the list of notification messages, and displays one at a time 
 	with options for each.
 	**/
-	public NotificationPage(FBClient myClient, int wall_width, String[][] notifications){
+	public NotificationPage(FBClient myClient, int wall_width, ArrayList<Notification> notifications){
 		this.myClient = myClient;
 		
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -55,7 +51,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 		//for each one, check the type
 		Profile notProfile;
 		
-		for (int i=0; i<notifications.length; i++){
+		for (int i=0; i<notifications.size(); i++){
 			System.out.print(i);
 			//create box for each notification
 			JPanel notif = new JPanel();
@@ -75,22 +71,25 @@ public class NotificationPage extends JPanel implements ActionListener{
 			options.setLayout(new BoxLayout(options, BoxLayout.LINE_AXIS));
 			options.setBackground(Color.white);
 			
-			if (notifications[i][0].equals("title")){
+			if (notifications.get(i).getType() == NotificationType.ChangeRank){
 				try {
-					notProfile = new Profile(notifications[i][1]);
+					notProfile = new Profile(notifications.get(i).getUsername());
 					myClient.viewProfile(notProfile);
 					//set text
-					notif_msg = new JTextArea(notProfile.getFname() + " " + notProfile.getLname() + " wishes to change their title from "
-							+ notProfile.getTitle() + " to " + notifications[i][2] + ". Approve this request?");
+					notif_msg = new JTextArea(notProfile.getFname() + " " + notProfile.getLname()
+							+ " wishes to change their title from "
+							+ notProfile.getTitle() + " to "
+							+  Title.getTitle(notifications.get(i).getNewRank()).toString()
+							+ ". Approve this request?");
 					notif_msg.setEditable(false);
 					//notif_msg.setAlignmentX((float) 0.0);
 					notif_msg.setColumns(10);
 					notif_msg.setLineWrap(true);
 					notif_msg.setWrapStyleWord(true);
 					//add buttons "Approve/Deny"
-					NotifButton approve_b = new NotifButton("Approve", 0, notifications[i][1], notifications[i][2]);
+					NotifButton approve_b = new NotifButton("Approve", notifications.get(i).getId(), notifications.get(i).getUsername(), Title.getTitle(notifications.get(i).getNewRank()).toString());
 					approve_b.addActionListener(this);
-					NotifButton deny_b = new NotifButton("Deny", 0, notifications[i][1]);
+					NotifButton deny_b = new NotifButton("Deny", notifications.get(i).getId(), notifications.get(i).getUsername());
 					deny_b.addActionListener(this);
 					options.add(approve_b);
 					options.add(deny_b);
@@ -102,9 +101,9 @@ public class NotificationPage extends JPanel implements ActionListener{
 				}
 				
 			}
-			else if (notifications[i][0].equals("friend")){
+			else if (notifications.get(i).getType() == NotificationType.NewFriend){
 				try {
-					notProfile = new Profile(notifications[i][1]);
+					notProfile = new Profile(notifications.get(i).getUsername());
 					myClient.viewProfile(notProfile);
 					//set text
 					notif_msg = new JTextArea(notProfile.getFname() + " " + notProfile.getLname()
@@ -115,9 +114,9 @@ public class NotificationPage extends JPanel implements ActionListener{
 					notif_msg.setLineWrap(true);
 					notif_msg.setWrapStyleWord(true);
 					//add buttons "Add Friend/Ignore"
-					NotifButton add_b = new NotifButton("Add Friend", 0, notifications[i][1]);
+					NotifButton add_b = new NotifButton("Add Friend", notifications.get(i).getId(), notifications.get(i).getUsername());
 					add_b.addActionListener(this);
-					NotifButton ignore_b = new NotifButton("Ignore", 0, notifications[i][1]);
+					NotifButton ignore_b = new NotifButton("Ignore", notifications.get(i).getId(), notifications.get(i).getUsername());
 					ignore_b.addActionListener(this);
 					options.add(add_b);
 					options.add(ignore_b);
@@ -146,6 +145,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 					Error e = myClient.editProfile(oldProfile);
 					if (e == Error.SUCCESS)
 						System.out.println("Approved title change");
+					myClient.respondToNotification(nButton.get_notif_id(), true);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -155,6 +155,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 				try{
 					myClient.addFriend(nButton.get_username());
 					System.out.println("Added a friend");
+					myClient.respondToNotification(nButton.get_notif_id(), true);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -162,6 +163,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 			//deny/ignore a request
 			else{
 				System.out.println("Ignored/denied a request");
+				myClient.respondToNotification(nButton.get_notif_id(), false);
 			}
 			//remove the notification
 			//nButton.get_notif_id();

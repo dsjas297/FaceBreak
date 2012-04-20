@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
-import javax.swing.JPasswordField;
 
 import networking.FBClient;
 
+import common.Error;
 import common.FBClientUser;
 import common.Profile;
 import common.Title;
@@ -23,7 +23,6 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 	FBClient client;
 	FBClientUser myuser;
 	Login login = new Login();
-	//private boolean logged_in = false;
 	FBPage fbpage;
 
 	/**
@@ -96,24 +95,27 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 			//make sure both fields are filled in
 			login.strip_whitespace();			
 			if (login.is_valid()){
-				//client.setCurrentUser(login.usernameEntry.getText(),
-				//		new String(login.pwdEntry.getPassword()));
 				login_protocol();	
 			}
 		} else if (e.getSource() == login.signupButton) {
 			//make sure both fields are filled in
 			login.strip_whitespace();
-			if (login.is_valid()){
-					//!login.usernameEntry.getText().equals("")&& !(new String(login.pwdEntry.getPassword())).equals("")&&login.is_alphanum()){
+			//TODO:enforce fill-in of personal info
+			if (login.is_valid()&&login.personal_filled()){
 				try {
 					common.Error signup_error = client.createUser(login.usernameEntry.getText(),
 							new String(login.pwdEntry.getPassword()));
-					//client.getSocket().close();
 					if (signup_error==common.Error.DUPLICATE_USER){
 						//display an error
 						login.duplicateUser.setVisible(true);
 					}
 					else{
+						//sign up is successful
+						//tell client to edit profile
+						Profile newProfile = new Profile(login.usernameEntry.getText(), login.fnameEntry.getText(), login.lnameEntry.getText()); 
+						newProfile.setFamily(login.famEntry.getText());
+						client.editProfile(newProfile);
+						
 						//auto-login
 						login_protocol();		
 					}

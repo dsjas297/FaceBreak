@@ -15,7 +15,7 @@ public enum Title {
 		this.title = title;
 	}
 	
-	public Title getTitle(int rank) {
+	public static Title getTitle(int rank) {
 		switch(rank) {
 		case 0:
 			return BOSS;

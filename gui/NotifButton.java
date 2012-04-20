@@ -3,6 +3,10 @@ package gui;
 import javax.swing.JButton;
 
 public class NotifButton extends JButton{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int notif_id; //notification ID
 	private String username; //user who sent notification
 	private String newtitle; //title change, if any

@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -24,10 +25,9 @@ import networking.FBClient;
 
 import common.Board;
 import common.Error;
+import common.Notification;
 import common.Post;
-import common.SerializableAvatar;
 import common.Title;
-import common.Post.RegionType;
 import common.Profile;
 import common.Region;
 
@@ -37,8 +37,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	//CLIENT
 	FBClient myClient;
 	//IDs
-	//private int myUserID; // user who is logged in
-	private String myUserName;
+	private String myUserName; //user who is logged in
 	private int curr_profile; // user whose profile is being looked at
 	private String curr_username; // user whose profile is being looked at
 	private int curr_region; // region of profile being looked at
@@ -62,8 +61,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JLabel view_friends = new JLabel("View Friends");
 	private JButton add_friend = new JButton("Add friend");
 	private JButton rem_friend = new JButton("Remove friend");
-	private JButton add_trust = new JButton("Trust");
-	private JButton rem_trust  = new JButton("Don't trust");
 	private JButton add_covert = new JButton("Add covert board");
 	//WALL and COMMENT ELEMENTS
 	private JScrollPane wall_scroller;
@@ -84,10 +81,8 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	public FBPage(FBClient client, String curr_username) {
 		myClient = client;
 
-		//myUserID = userID;
 		myUserName = curr_username;
 		this.curr_username = curr_username;
-		//curr_profile = userID;
 		curr_region = 0;
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		// create and add topnav
@@ -124,9 +119,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		wall_scroller
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-		// //focus on comment_box
-		// comment_box.requestFocus();
-		// comment_box.setCaretPosition(0);
 		content.add(wall_scroller);
 		content.add(Box.createVerticalGlue());
 
@@ -176,12 +168,13 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		
 		if (!curr_username.equals(myUserName)){
 			ArrayList<String> myFriendsList = null;
+			Error friends_e = myClient.getFriendsList(myFriendsList);
 			//TODO: GET LIST OF FRIENDS (myFriendsList)
 			if (myFriendsList.contains(curr_profile)){
-				add_friend.setVisible(true);
+				// if curr_profile is friends with myUser
+				rem_friend.setVisible(true);
 			}
 			else{ 
-			// if curr_profile is friends with myUser
 				rem_friend.setVisible(true);
 			}	
 		}
@@ -459,8 +452,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		//TODO: poll notifications
-		int num_not = 1; //number of notifications
+		ArrayList<Notification> notifs = null;
+		myClient.getNotifications(notifs);
+		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
 		
 		//LEAVE A COMMENT
@@ -492,7 +486,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			System.out.println("saving");
 			//send new profile info to server
 			try {
-				String newFname, newLname, newTitle, newFam;
+				String newFname, newLname, newFam;
 				
 				Profile oldProfile = new Profile(myUserName);
 				myClient.viewProfile(oldProfile);
@@ -535,9 +529,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				
 			}
-
 		}
 		//ADD A FRIEND
 		else if (arg0.getSource()==add_friend){
@@ -548,7 +540,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			
 		}
 		//REMOVE A FRIEND
 		else if (arg0.getSource()==rem_friend){
@@ -576,8 +567,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//eliminate whitespace
 				s = s.replaceAll("\\s+", "");
 				//split string by commas
-				String[] usernames = s.split(",");
+				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(","));
 				//TODO:create a new board that only those users can view
+				int regionid = 0;
+				myClient.addToCovert(regionid, usernames);
 				//update profile
 			}
 			else{
@@ -588,8 +581,9 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		//TODO: poll notifications
-		int num_not = 1; //number of notifications
+		ArrayList<Notification> notifs = null;
+		myClient.getNotifications(notifs);
+		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
 		
 		if (arg0.getSource() == logo) {
@@ -621,13 +615,15 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
 			// TODO: GET LIST OF USER'S FRIENDS
-			String[] friendsList = {"a"};
+			ArrayList<String> friendsList = null;
+			myClient.getFriendsList(friendsList);
+			
 			// change wall to list of friends
 			wall_scroller.setViewportView(new FriendsPage(this, myClient, wall_width, friendsList));
 		}
 		//view notifications
 		if (arg0.getSource() == notifications) {
-			wall_scroller.setViewportView(new NotificationPage(myClient, wall_width, new String[][]{{"title", "a", "Capo"}, {"friend", "c"}}));
+			wall_scroller.setViewportView(new NotificationPage(myClient, wall_width, notifs));
 		}
 	}
 
