@@ -251,6 +251,31 @@ public class FaceBreakRegion {
 			return false;
 		}
 	}
+	
+	private static ArrayList<Integer> getViewable(int uid, int friendID){
+		try{
+			
+			ArrayList<Integer> viewableList = new ArrayList<Integer>();
+			
+			for(int regionID = 0; regionID < 27; regionID++){
+				String filename = Integer.toString(uid) +
+						"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
+				
+				File f = new File(filename);
+				if(f.exists()){
+					if(checkViewable(uid, regionID, friendID)){
+						viewableList.add(new Integer(regionID));
+					}
+				}
+			}
+
+			return viewableList;
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
     /*
 	public void post(int posterID, String msg){
 		try{

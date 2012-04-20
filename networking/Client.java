@@ -61,11 +61,6 @@ public interface Client {
     public Error viewRegion(Region region) throws ClassNotFoundException; 
 
     /*
-     * TODO: implement deletion
-     */
-    public Error deletePost(int badPostId); 
-
-    /*
      * This user adds a friend of username
      */
     public Error addFriend(String friendName) throws ClassNotFoundException; 
@@ -85,8 +80,7 @@ public interface Client {
     public Error getFriendsList(ArrayList<String> friends) throws ClassNotFoundException;
 
     /**
-     * 
-     * @param notifications	- empty ArrayList
+     * Gets a list of all "unread" notifications for this user
      * @return
      * @throws ClassNotFoundException
      */
@@ -94,7 +88,7 @@ public interface Client {
 
     /**
      * 
-     * @param id - id of the notification
+     * @param id - id of the individual notification
      * @param approve - True for approve, False for disapprove
      * @return 
      * @throws ClassNotFoundException
@@ -109,5 +103,15 @@ public interface Client {
      * @throws ClassNotFoundException
      */
 	public Error addToCovert(int rid, ArrayList<String> usernames) throws ClassNotFoundException;
+	
+	/**
+	 * Gets list of all regions belonging to owername that _this_ user can see
+	 * @param owername - username of the owner of the board/regions
+	 * @param rids - empty arraylist; will be populated with the region id of
+	 * viewable regions
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Error getViewableRegions(String owername, ArrayList<Integer> rids) throws ClassNotFoundException;
 }
 
