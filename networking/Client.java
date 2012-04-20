@@ -81,10 +81,10 @@ public interface Client {
 
     /**
      * Gets a list of all "unread" notifications for this user
-     * @return an array of all notifications
+     * @return
      * @throws ClassNotFoundException
      */
-    public Notification[] getNotifications() throws ClassNotFoundException; 
+    public Error getNotifications(ArrayList<Notification> notifications) throws ClassNotFoundException; 
 
     /**
      * 
@@ -105,11 +105,13 @@ public interface Client {
 	public Error addToCovert(int rid, ArrayList<String> usernames) throws ClassNotFoundException;
 	
 	/**
-	 * Get a list of all regions, belonging to owername, that _this_ user can see
-	 * @param owername - the username of the owner of the board
-	 * @return - an array of region id's
+	 * Gets list of all regions belonging to owername that _this_ user can see
+	 * @param owername - username of the owner of the board/regions
+	 * @param rids - empty arraylist; will be populated with the region id of
+	 * viewable regions
+	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public int[] getViewableRegions(String owername) throws ClassNotFoundException;
+	public Error getViewableRegions(String owername, ArrayList<Integer> rids) throws ClassNotFoundException;
 }
 
