@@ -26,7 +26,7 @@ public class FBServer {
 
 	private ServerSocket listener;
 
-	private FBServer() {
+	public FBServer() {
 		 validatePassword();
 
 		// create file system
@@ -124,9 +124,5 @@ public class FBServer {
 		// clear password hash
 		for(int j = 0; j < passwordHash.length; j++)
 			passwordHash[j] = 0;
-	}
-
-	public static void main(String args[]) {
-		new FBServer();
 	}
 }
