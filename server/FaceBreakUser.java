@@ -685,11 +685,18 @@ public class FaceBreakUser {
 			if(bossID == -1){
 				addFamily(uid, prof.getFamily());
 				prof.setTitle(Title.BOSS);
+			}	
+			
+			// do NOT allow Boss to change their title or family
+			if(oldProfile.getTitle() == Title.BOSS) {
+				prof.setTitle(Title.BOSS);
+				prof.setFamily(oldProfile.getFamily());
+				approved = true;
 			}
 			
 			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
 					(prof.getTitle() == oldProfile.getTitle() &&
-					 prof.getFamily().equals(oldProfile.getFamily()))){
+					 prof.getFamily().equals(oldProfile.getFamily()))) {
 				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 				// Fill in info for user
 				String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
