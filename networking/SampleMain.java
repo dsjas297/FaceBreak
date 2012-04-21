@@ -7,8 +7,6 @@ package networking;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import server.FileSystem;
-
 import common.Error;
 import common.Notification;
 import common.Post;
@@ -39,9 +37,10 @@ public class SampleMain {
 		}
 	}
 	
-	public static void testCorrectLogin(FBClient client, String username, String pwd) throws ClassNotFoundException, IOException {
+	public static void testCorrectLogin(String username, String pwd) throws ClassNotFoundException, IOException {
 		System.out.println("TEST: Logging in a pre-existing user");
 		
+		FBClient client = new FBClient();
 		Error e = client.login(username, pwd);
 		e.print();
 		
@@ -74,12 +73,43 @@ public class SampleMain {
 		while(true);
 	}
 	
-	public static void testUpdateProfile() throws ClassNotFoundException, IOException {
-		
+	/*
+	 * Login user via client; keep client alive to use for further testing
+	 */
+	public static void loginUser(FBClient client, String username, String pwd) throws ClassNotFoundException, IOException {
+		Error e = client.login(username, pwd);
+		e.print();
 	}
 	
-	public static void testAddFriend() throws ClassNotFoundException, IOException {
+	public static void testGetProfile(FBClient client, String username) throws ClassNotFoundException {
+		System.out.println("TEST: view user's profile");
 		
+		Profile prof = new Profile(username);
+		Error e = client.viewProfile(prof);
+		e.print();
+		
+		if(e == Error.SUCCESS) {
+			System.out.println("Profile for user " + prof.getUsername());
+			System.out.println("Name: " + prof.getFname() + " " + prof.getLname());
+			System.out.println("Family: " + prof.getFamily());
+			System.out.println("Title: " + prof.getTitle());
+		}
+	}
+	
+	public static void testUpdateProfile(FBClient client, String username, Title title) throws ClassNotFoundException, IOException {
+		Profile prof = new Profile(username);
+		prof.setFname("Tony");
+		prof.setLname("Soprano");
+		prof.setFamily("godfather");
+		prof.setTitle(title);
+		
+		Error e = client.editProfile(prof);
+	}
+	
+	public static void testAddFriend(FBClient client, String friendName) throws ClassNotFoundException, IOException {
+		System.out.println("TEST: adding a pre-existing user as friend");
+		Error e = client.addFriend(friendName);
+		e.print();
 	}
 	
 	public static void testPost() throws ClassNotFoundException, IOException {
@@ -96,12 +126,19 @@ public class SampleMain {
 		
 //		FileSystem.cleanup();
 		
-		testCreateUser(username1, pwd1);
-		testCreateUser(username2, pwd2);
+//		testCreateUser(username1, pwd1);
+//		testCreateUser(username2, pwd2);
+		
+		testCorrectLogin(username1, pwd1);
+		
+//		testFailedPassword();
 		
 		FBClient myClient = new FBClient();
-		testCorrectLogin(myClient, username1, pwd1);
-//		testFailedPassword();
+		loginUser(myClient, username2, pwd2);
+//		testAddFriend(myClient, username1);
+		testUpdateProfile(myClient, username2, Title.BOSS);
+		testGetProfile(myClient, username2);
+		myClient.logout();
 		
 		System.out.println();
 		System.out.println("Finished test suite");
@@ -110,24 +147,6 @@ public class SampleMain {
 	/*
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 		try {
-			
-			Error e;
-			System.out.println("Creating client socket.");
-			FBClient myClient = new FBClient();
-			
-			String username = "hamster";
-			e = myClient.login(username, "pwd");
-			
-			Profile profile = new Profile(username);
-			profile.setFname("Tony");
-			profile.setLname("Soprano");
-			profile.setFamily("godfather");
-			profile.setTitle(Title.BOSS);
-			e = myClient.editProfile(profile);
-			
-			Profile myProf = new Profile(username);
-			e = myClient.viewProfile(myProf);
-			
 			assert(e == Error.SUCCESS);
 			System.out.println("Name: " + myProf.getFname() + " " + myProf.getLname());
 			System.out.println("Title: " + myProf.getTitle().toString());

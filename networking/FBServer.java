@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import server.FileSystem;
-import server.ServerBackend;
 
 public class FBServer {
 	private static final int PORT_NUM = 4444;
@@ -110,8 +109,17 @@ public class FBServer {
 				System.out.println(e.getMessage());
 			}
 		}
-		ServerBackend.password = password.getBytes();
-		ServerBackend.lockMap = new HashMap<String, ReentrantLock>();
+		
+		try {
+			md = MessageDigest.getInstance("SHA-512");
+			md.update(password.getBytes());
+			hashed = md.digest();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		FileSystem.password = hashed;
+		FileSystem.lockMap = new HashMap<String, ReentrantLock>();
 		
 		// clear password hash
 		for(int j = 0; j < passwordHash.length; j++)
