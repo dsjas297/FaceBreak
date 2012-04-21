@@ -210,7 +210,6 @@ public class FBClient implements Client {
 		try {
 			if(socket == null || socket.isClosed()) {
 				socket = new Socket(serverAddr, PORT_NUM);
-				System.out.println("Creating new client socket!");
 				outStream = new ObjectOutputStream(socket.getOutputStream());
 				inStream = new ObjectInputStream(socket.getInputStream());
 			}
@@ -279,7 +278,6 @@ public class FBClient implements Client {
 		
 		try {
 			if(socket == null || socket.isClosed()) {
-				System.out.println("Creating new client socket for new user!");
 				socket = new Socket(serverAddr, PORT_NUM);
 				outStream = new ObjectOutputStream(socket.getOutputStream());
 				inStream = new ObjectInputStream(socket.getInputStream());

@@ -50,4 +50,15 @@ public class FileSystem {
 		}
 		return true;
 	} 
+	
+	/*
+	 * delete file system
+	 */
+	public static void cleanup() {
+		File uidFile = new File(global_uid_counter_file);
+		File usersFile = new File(global_users_file);
+		
+		uidFile.delete();
+		usersFile.delete();
+	}
 }

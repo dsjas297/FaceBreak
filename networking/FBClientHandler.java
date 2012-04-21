@@ -221,21 +221,25 @@ public class FBClientHandler extends Thread {
 		return r;
 	}
 
+	// TODO: UPDATE PROCESS CREATE USER
 	private Reply processCreateUser(Request req) {
 		Reply r = new Reply();
 
 		FBClientUser thisUser = ((Item<FBClientUser>)req.getDetails()).get();
-		if(thisUser == null) {
+		String username = thisUser.getUsername();
+		
+		if(thisUser == null || username == null) {
 			r.setReturnError(Error.MALFORMED_REQUEST);
 			return r;
 		}
 		
-		int uid = FaceBreakUser.checkIfUserExists(thisUser.getUsername());
+		int uid = FaceBreakUser.checkIfUserExists(username);
 		
 		// if username already exists
 		if(uid > 0) {
 			r.setReturnError(Error.DUPLICATE_USER);
 			authUser = null;
+			keepAlive = false;
 			return r;
 		}
 		
@@ -474,8 +478,6 @@ public class FBClientHandler extends Thread {
 		ois = null;
 		oos = null;
 		clientSocket = null;
-		
-		sealer.destroy();
 	}
 
 	/**

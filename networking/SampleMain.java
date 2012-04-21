@@ -7,6 +7,8 @@ package networking;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import server.FileSystem;
+
 import common.Error;
 import common.Notification;
 import common.Post;
@@ -17,51 +19,92 @@ import common.Notification.NotificationType;
 import common.Post.RegionType;
 
 public class SampleMain {
+	public static final String username1 = "user";
+	public static final String pwd1 = "null";
 
+	public static final String username2 = "friend";
+	public static final String pwd2 = "longpwd";
 	
-	public static void testCreateUser() {
+	public static void testCreateUser(String username, String pwd) throws ClassNotFoundException, IOException {
+		System.out.println("TEST: Creating a new user");
 		
-	}
-	
-	public static void testLogin() {
-		
-	}
-	
-	public static void testFailedPassword() {
-		
-	}
-	
-	public static void testUpdateProfile() {
-		
-	}
-	
-	public static void testAddFriend() {
-		
-	}
-	
-	public static void testPost() {
-		
-		
-	}
-	
-	public static void testView() {
-		
-	}
-	
-	public static void main(String args[]) {
-		Notification notif = new Notification(NotificationType.CHANGE_RANK);
-		notif.setId(0);
-		notif.setUsername("gdeng");
-		notif.setRank(Title.CAPO.rank);
-		
-		String s = notif.toString();
-		System.out.println(s);
+		FBClient client = new FBClient();
 
-		String[] notif_split = s.split("\\s+");
-		NotificationType type = NotificationType.valueOf(notif_split[1]);
-		System.out.println(type);
-		if(type == NotificationType.CHANGE_RANK)
-			System.out.println("changing rank");
+		Error e = client.createUser(username, pwd);
+		e.print();
+		
+		if(e == Error.SUCCESS) {
+			e = client.logout();
+			e.print();
+		}
+	}
+	
+	public static void testCorrectLogin(FBClient client, String username, String pwd) throws ClassNotFoundException, IOException {
+		System.out.println("TEST: Logging in a pre-existing user");
+		
+		Error e = client.login(username, pwd);
+		e.print();
+		
+		if(e == Error.SUCCESS) {
+			client.logout();
+			e.print();
+		}
+	}
+	
+	public static void testFailedPassword() throws ClassNotFoundException, IOException {
+		FBClient client = new FBClient();
+
+		System.out.println("Attempt to log in nonexistent user");
+		Error e = client.login("randomdude", "pwd");
+		e.print();
+		
+		System.out.println("Testing incorrect password login 3x");
+		e = client.login(username1, "garbage");
+		e.print();
+		
+		e = client.login(username1, "moregarbage");
+		e.print();
+		
+		e = client.login(username1, "ffffuuuuu");
+		e.print();
+		
+		e = client.login(username1, "finaltry");
+		e.print();
+		
+		while(true);
+	}
+	
+	public static void testUpdateProfile() throws ClassNotFoundException, IOException {
+		
+	}
+	
+	public static void testAddFriend() throws ClassNotFoundException, IOException {
+		
+	}
+	
+	public static void testPost() throws ClassNotFoundException, IOException {
+		
+		
+	}
+	
+	public static void testView() throws ClassNotFoundException, IOException {
+		
+	}
+	
+	public static void main(String args[]) throws IOException, ClassNotFoundException {
+		System.out.println("Running test suite...");
+		
+//		FileSystem.cleanup();
+		
+		testCreateUser(username1, pwd1);
+		testCreateUser(username2, pwd2);
+		
+		FBClient myClient = new FBClient();
+		testCorrectLogin(myClient, username1, pwd1);
+//		testFailedPassword();
+		
+		System.out.println();
+		System.out.println("Finished test suite");
 	}
 	
 	/*

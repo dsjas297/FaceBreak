@@ -31,4 +31,8 @@ public enum Error {
 			return msg;
 		return "Error: " + msg;
 	}
+	
+	public void print() {
+		System.out.println(toString());
+	}
 }
