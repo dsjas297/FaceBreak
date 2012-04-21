@@ -181,6 +181,7 @@ public class FaceBreakUser {
 		}
 	}
 	
+	// returns -1 if user does not exist; returns their uid otherwise
 	public static int checkIfUserExists(String userName){
 		try{
 			if(ServerBackend.lockMap.get(usersListFile) == null){
@@ -814,8 +815,11 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
 			
-			Notification notif = new Notification(requesterName, requesterID,
-					Notification.NotificationType.FRIEND, "FRIEND REQUEST");
+			// TODO: differing Notification object
+//			Notification notif = new Notification(requesterName, requesterID,
+//					Notification.NotificationType.FRIEND, "FRIEND REQUEST");
+			Notification notif = new Notification(NotificationType.NEW_FRIEND);
+			notif.setUsername(requesterName);
 			
 			friendings.add(notif.toString());
 			
@@ -851,11 +855,15 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendings = ServerBackend.readSecure(notificationsFileName);
 			
-			Notification notif = new Notification(requesterName, requesterID,
-					Notification.NotificationType.TITLE, prof.getTitle().toString() + " "
-													     + prof.getFname() + " "
-													     + prof.getLname() + " "
-													     + prof.getFamily() );
+			// TODO: differing Notification object
+//			Notification notif = new Notification(requesterName, requesterID,
+//					Notification.NotificationType.TITLE, prof.getTitle().toString() + " "
+//													     + prof.getFname() + " "
+//													     + prof.getLname() + " "
+//													     + prof.getFamily() );
+			Notification notif = new Notification(NotificationType.CHANGE_RANK);
+			notif.setUsername(requesterName);
+			notif.setRank(prof.getTitle().rank);
 			
 			friendings.add(notif.toString());
 			
@@ -898,11 +906,19 @@ public class FaceBreakUser {
 			for(int i = 0; i < notif_strings.size(); i++){
 				String notif = notif_strings.get(i);
 				String[] notif_split = notif.split("\\s+");
-				notifications.add(
-						new Notification(Integer.parseInt(notif_split[0]), notif_split[1],
-								         Integer.parseInt(notif_split[2]),
-								         Notification.NotificationType.valueOf(notif_split[3]),
-								         notif_split[4]));
+//				notifications.add(
+//						new Notification(Integer.parseInt(notif_split[0]), notif_split[1],
+//								         Integer.parseInt(notif_split[2]),
+//								         Notification.NotificationType.valueOf(notif_split[3]),
+//								         notif_split[4]));
+				// String representation of the notifications:
+				// nid_type_username_rank(optional)\n
+				NotificationType type = NotificationType.valueOf(notif_split[1]);
+				Notification tmp = new Notification(type);
+				tmp.setId(Integer.parseInt(notif_split[0]));
+				if(type == NotificationType.CHANGE_RANK)
+					tmp.setRank(Integer.parseInt(notif_split[2]));
+				notifications.add(tmp);
 			}
 			
 			ServerBackend.lockMap.get(notificationsFileName).unlock();

@@ -2,6 +2,8 @@ package common;
 
 import java.io.Serializable;
 
+import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
+
 public class Notification implements Serializable {
 
 	private static final long serialVersionUID = 6613012381243813845L;
@@ -46,8 +48,19 @@ public class Notification implements Serializable {
 		return nid;
 	}
 	
+	@Override
+	public String toString() {
+		String stringRep = Integer.toString(nid) + " " +
+							type.toString() + " " +
+							username;
+		if(type == NotificationType.CHANGE_RANK) 
+			stringRep += " " + Integer.toString(newRank);
+		
+		return stringRep + "\n";
+	}
+	
 	public enum NotificationType {
-		NewFriend,
-		ChangeRank;
+		NEW_FRIEND,
+		CHANGE_RANK;
 	}
 }

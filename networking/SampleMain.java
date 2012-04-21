@@ -8,14 +8,63 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import common.Error;
+import common.Notification;
 import common.Post;
 import common.Profile;
 import common.Region;
 import common.Title;
+import common.Notification.NotificationType;
 import common.Post.RegionType;
 
 public class SampleMain {
+
 	
+	public static void testCreateUser() {
+		
+	}
+	
+	public static void testLogin() {
+		
+	}
+	
+	public static void testFailedPassword() {
+		
+	}
+	
+	public static void testUpdateProfile() {
+		
+	}
+	
+	public static void testAddFriend() {
+		
+	}
+	
+	public static void testPost() {
+		
+		
+	}
+	
+	public static void testView() {
+		
+	}
+	
+	public static void main(String args[]) {
+		Notification notif = new Notification(NotificationType.CHANGE_RANK);
+		notif.setId(0);
+		notif.setUsername("gdeng");
+		notif.setRank(Title.CAPO.rank);
+		
+		String s = notif.toString();
+		System.out.println(s);
+
+		String[] notif_split = s.split("\\s+");
+		NotificationType type = NotificationType.valueOf(notif_split[1]);
+		System.out.println(type);
+		if(type == NotificationType.CHANGE_RANK)
+			System.out.println("changing rank");
+	}
+	
+	/*
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 		try {
 			
@@ -76,5 +125,5 @@ public class SampleMain {
 			System.out.println("Could not resolve host name");
 			e.printStackTrace();
 		}
-	}
+	}*/
 }

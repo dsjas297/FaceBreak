@@ -37,7 +37,6 @@ public class Request extends GenericMsg implements Serializable {
 		EDIT_PROFILE,
 		VIEW_BOARD,
 		POST,
-		DELETE_POST,
 		ADD_FRIEND,
 		DELETE_FRIEND,
 		GET_FRIENDS,

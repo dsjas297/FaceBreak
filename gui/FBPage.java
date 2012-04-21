@@ -176,8 +176,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		
 		// get Board for user, get list of regions
-		ArrayList<Integer> regionList = null;
-		myClient.getViewableRegions(curr_profile, regionList);
+		// TODO:
+		ArrayList<Integer> regionList = new ArrayList<Integer>();
+//		myClient.getViewableRegions(curr_profile, regionList);
+		myClient.getViewableRegions(curr_username, regionList);
 		/**System.out.println(regionList);**/
 		int numRegions = regionList.size();
 		for (int i = 0; i < numRegions; i++) {
@@ -447,8 +449,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		ArrayList<Notification> notifs = null;
-		myClient.getNotifications(notifs);
+		ArrayList<Notification> notifs = new ArrayList<Notification>();
+		try {
+			myClient.getNotifications(notifs);
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
 		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
 		
@@ -562,14 +568,19 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//eliminate whitespace
 				s = s.replaceAll("\\s+", "");
 				//split string by commas
-				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(","));
+				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(",")));
 				//TODO:create a new board that only those users can view
 				ArrayList<Integer> regionList = null;
-				myClient.getViewableRegions(myUserName, regionList);
-				int new_rid = regionList.size();
-				
-				myClient.addToCovert(new_rid, usernames);
-				//update profile
+				try {
+					myClient.getViewableRegions(myUserName, regionList);
+					int new_rid = regionList.size();
+					
+					myClient.addToCovert(new_rid, usernames);
+					//update profile
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			else{
 				//does nothing
@@ -580,7 +591,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		ArrayList<Notification> notifs = null;
-		myClient.getNotifications(notifs);
+		try {
+			myClient.getNotifications(notifs);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
 		
@@ -614,7 +629,11 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		else if (arg0.getSource() == view_friends) {
 			// TODO: GET LIST OF USER'S FRIENDS
 			ArrayList<String> friendsList = null;
-			myClient.getFriendsList(friendsList);
+			try {
+				myClient.getFriendsList(friendsList);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			
 			// change wall to list of friends
 			wall_scroller.setViewportView(new FriendsPage(this, myClient, wall_width, friendsList));

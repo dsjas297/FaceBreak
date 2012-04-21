@@ -200,6 +200,8 @@ public class FaceBreakRegion {
 			ArrayList<String> allowed = ServerBackend.readSecure(filename);
 			
 			for(int i = 0; i < friendIDs.length; i++){
+				if(friendIDs[i] == -1)
+					continue;
 				if(!checkViewable(uid, regionID, friendIDs[i])
 						&& FaceBreakUser.checkIfUserExists(friendIDs[i])){
 					allowed.add(Integer.toString(friendIDs[i]));
@@ -220,7 +222,7 @@ public class FaceBreakRegion {
 			return 0;
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
-			return 0;
+			return -1;
 		}
 	}
 
@@ -252,7 +254,10 @@ public class FaceBreakRegion {
 		}
 	}
 	
-	private static ArrayList<Integer> getViewable(int uid, int friendID){
+	/*
+	 * Get a list of region ids on the board owned by uid that are viewable by friendID
+	 */
+	public static ArrayList<Integer> getViewable(int uid, int friendID){
 		try{
 			
 			ArrayList<Integer> viewableList = new ArrayList<Integer>();

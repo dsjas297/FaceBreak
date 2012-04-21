@@ -145,9 +145,6 @@ public class FBClientHandler extends Thread {
 			case VIEW_BOARD: 
 				myReply = processViewBoard(req);
 				break;
-			case DELETE_POST: 
-				myReply = processDeletePost();
-				break;
 			case ADD_FRIEND: 
 				myReply = processAddFriend(req);
 				break;
@@ -356,15 +353,6 @@ public class FBClientHandler extends Thread {
 		return r;
 	}
 	
-	/*
-	 * TODO: not sure how this should be implemented?
-	 */
-	private Reply processDeletePost() {
-		Reply r = new Reply();
-		
-		return r;
-	}
-	
 	private Reply processAddFriend(Request req) {
 		Reply r = new Reply();
 		
@@ -394,22 +382,17 @@ public class FBClientHandler extends Thread {
 	}
 	
 	/**
-	 * TODO implement this!
-	 * 
 	 * @param req
 	 * @return
 	 */
 	private Reply processGetFriends(Request req) {
 		Reply r = new Reply();
-
-		String myName = authUser.getUsername();
-		// MAKE CALL TO SERVER HERE
-		ArrayList<String> flist = new ArrayList<String>();
 		
-		ItemList<String> myFriends = new ItemList<String>();
-		myFriends.setArray(flist, String.class);
+		ArrayList<String> flist = FaceBreakUser.getFriendsList(authUser.getId());
+		ItemList<String> serializableFlist = new ItemList<String>();
+		serializableFlist.setArray(flist, String.class);
 		
-		r.setDetails(myFriends);
+		r.setDetails(serializableFlist);
 		r.setReturnError(Error.SUCCESS);
 		
 		return r;
@@ -418,11 +401,7 @@ public class FBClientHandler extends Thread {
 	private Reply processGetNotifications(Request req) {
 		Reply r = new Reply();
 		
-		String myName = authUser.getUsername();
-		// MAKE CALL TO SERVER HERE
-		
-		ArrayList<Notification> notifications = new ArrayList<Notification>();
-		
+		ArrayList<Notification> notifications = FaceBreakUser.getNotifications(authUser.getId());
 		ItemList<Notification> serializableNot = new ItemList<Notification>();
 		serializableNot.setArray(notifications, Notification.class);
 		
@@ -453,11 +432,21 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		int rid = req.getId();
-		String[] users = ((ItemList<String>)req.getDetails()).getArray();
 		
-		// ADD USERS TO REGION RID FOR THIS USER
+		String[] friendsNames = ((ItemList<String>)req.getDetails()).getArray();
+		int[] friendsUids = new int[friendsNames.length];
+		for(int i = 0; i < friendsNames.length; i++) {
+			int uid = FaceBreakUser.checkIfUserExists(friendsNames[i]);
+			friendsUids[i] = uid;
+		}
 		
-		r.setReturnError(Error.SUCCESS);
+		int err = FaceBreakRegion.addToViewable(authUser.getId(), rid, friendsUids);
+		
+		if(err == 0)
+			r.setReturnError(Error.SUCCESS);
+		else
+			r.setReturnError(Error.UNKNOWN_ERROR);
+		
 		return r;
 	}
 	
@@ -466,9 +455,9 @@ public class FBClientHandler extends Thread {
 		String owername = ((Item<String>)r.getDetails()).get();
 		int oid = FaceBreakUser.checkIfUserExists(owername);
 		
-		// GET LIST OF VIEWABLE REGIONS
-		ArrayList<Integer> rids = new ArrayList<Integer>();
+		ArrayList<Integer> rids = FaceBreakRegion.getViewable(oid, authUser.getId());
 		ItemList<Integer> serializableRids = new ItemList<Integer>();
+		serializableRids.setArray(rids, Integer.class);
 		
 		r.setDetails(serializableRids);
 		r.setReturnError(Error.SUCCESS);

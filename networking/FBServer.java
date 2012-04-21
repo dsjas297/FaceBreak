@@ -110,7 +110,7 @@ public class FBServer {
 				System.out.println(e.getMessage());
 			}
 		}
-		ServerBackend.password = password.toCharArray();
+		ServerBackend.password = password.getBytes();
 		ServerBackend.lockMap = new HashMap<String, ReentrantLock>();
 		
 		// clear password hash

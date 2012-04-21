@@ -71,7 +71,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 			options.setLayout(new BoxLayout(options, BoxLayout.LINE_AXIS));
 			options.setBackground(Color.white);
 			
-			if (notifications.get(i).getType() == NotificationType.ChangeRank){
+			if (notifications.get(i).getType() == NotificationType.CHANGE_RANK){
 				try {
 					notProfile = new Profile(notifications.get(i).getUsername());
 					myClient.viewProfile(notProfile);
@@ -101,7 +101,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 				}
 				
 			}
-			else if (notifications.get(i).getType() == NotificationType.NewFriend){
+			else if (notifications.get(i).getType() == NotificationType.NEW_FRIEND){
 				try {
 					notProfile = new Profile(notifications.get(i).getUsername());
 					myClient.viewProfile(notProfile);
@@ -163,7 +163,12 @@ public class NotificationPage extends JPanel implements ActionListener{
 			//deny/ignore a request
 			else{
 				System.out.println("Ignored/denied a request");
-				myClient.respondToNotification(nButton.get_notif_id(), false);
+				try {
+					myClient.respondToNotification(nButton.get_notif_id(), false);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			//remove the notification
 			//nButton.get_notif_id();

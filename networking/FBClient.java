@@ -433,20 +433,6 @@ public class FBClient implements Client {
 		region = null;
 		return e;
 	}
-
-	/*
-	 * TODO: implement deletion
-	 */
-	public Error deletePost(int badPostId) {
-		// sanity check
-		if (socket == null || user == null)
-			return Error.LOGIN;
-		
-		Request delete = new Request(RequestType.DELETE_POST);
-//		delete.getDetails().setPost(new Post());
-
-		return Error.SUCCESS;
-	}
 	
 	/*
 	 * This user adds a friend of username
