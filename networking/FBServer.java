@@ -110,7 +110,16 @@ public class FBServer {
 				System.out.println(e.getMessage());
 			}
 		}
-		ServerBackend.password = password.getBytes();
+		
+		try {
+			md = MessageDigest.getInstance("SHA-512");
+			md.update(password.getBytes());
+			hashed = md.digest();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+		ServerBackend.password = hashed;
 		ServerBackend.lockMap = new HashMap<String, ReentrantLock>();
 		
 		// clear password hash
