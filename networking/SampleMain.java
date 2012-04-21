@@ -138,6 +138,9 @@ public class SampleMain {
 //		testAddFriend(myClient, username1);
 		testUpdateProfile(myClient, username2, Title.BOSS);
 		testGetProfile(myClient, username2);
+
+		testUpdateProfile(myClient, username2, Title.ASSOC);
+		
 		myClient.logout();
 		
 		System.out.println();
