@@ -105,9 +105,9 @@ public class FBServer {
 				}
 				//password = reader.readLine().trim();
 				numChars = reader.read(passwd);
-				System.out.println(numChars);
-				passwd_bytes = new byte[numChars];
-				for(int i = 0; i < numChars; i++){
+				//System.out.println(numChars);
+				passwd_bytes = new byte[numChars - 2];
+				for(int i = 0; i < passwd_bytes.length; i++){
 					passwd_bytes[i] = (byte)(passwd[i]);
 				}
 				md.update(passwd_bytes);
