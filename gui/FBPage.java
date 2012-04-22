@@ -171,7 +171,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				rem_friend.setVisible(true);
 			}
 			else{ 
-				rem_friend.setVisible(true);
+				add_friend.setVisible(true);
 			}	
 		}
 		
@@ -596,6 +596,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+
 		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
 		
