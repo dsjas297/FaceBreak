@@ -199,6 +199,11 @@ public class FaceBreakRegion {
 			
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
 			
+			if(allowed.get(0).equals("ERROR")){
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return -1;
+			}
+			
 			for(int i = 0; i < friendIDs.length; i++){
 				if(friendIDs[i] == -1)
 					continue;
@@ -238,6 +243,11 @@ public class FaceBreakRegion {
 			FileSystem.lockMap.get(filename).lock();
 			
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
+			
+			if(allowed.get(0).equals("ERROR")){
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return false;
+			}
 
 			FileSystem.lockMap.get(filename).unlock();
 			
@@ -384,6 +394,11 @@ public class FaceBreakRegion {
 			
 			ArrayList<String> posts = FileSystem.readSecure(path);
 			
+			if(posts.get(0).equals("ERROR")){
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return false;
+			}
+			
 			String newPost = Long.toString((new Date()).getTime()) + ":"
 					+ myPost.getWriterName() + ":" + myPost.getText() + "\n";
 
@@ -425,6 +440,11 @@ public class FaceBreakRegion {
 		FileSystem.lockMap.get(path).lock();
 		
 		ArrayList<String> postLines = FileSystem.readSecure(path);
+		
+		if(postLines.get(0).equals("ERROR")){
+			System.out.println("FILE INTEGRITY COMPROMISED");
+			return null;
+		}
 		
 		ArrayList<Post> allPosts = new ArrayList<Post>();
 
