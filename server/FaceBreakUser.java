@@ -727,10 +727,16 @@ public class FaceBreakUser {
 				prof.setFamily(oldProfile.getFamily());
 				approved = true;
 			}
-			
-			String info = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
+			String info = "";
+			if(oldProfile.getFamily().equals(prof.getFamily())){
+				info = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
 					Integer.toString(oldProfile.getTitle().rank) + "\n" + oldProfile.getFamily() + "\n" + prof.getFname() + "\n" +
 					prof.getLname();
+			} else {
+				info = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
+						Integer.toString(Title.ASSOC.rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
+						prof.getLname();
+			}
 			FileSystem.writeSecure(info,Integer.toString(uid) + "\\" + userInfoFile);
 			
 			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
