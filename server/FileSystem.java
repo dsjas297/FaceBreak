@@ -177,8 +177,10 @@ public class FileSystem {
 			in.read(encrypted);
 			in.close();
 			
-			if(file.length() == 0){ // empty file, return empty array list
-				return new ArrayList<String>();
+			if(file.length() < SALT_LENGTH + IV_LENGTH + SHA_256_LENGTH){ // empty file, return empty array list
+				ArrayList<String> error = new ArrayList<String>();
+				error.add("ERROR");
+				return error;
 			}
 			
 			int i = 0;
