@@ -49,6 +49,7 @@ public class Login extends JPanel implements ActionListener{
 	JLabel alphanum2 = new JLabel("Password must contain at least one character from each group a-z, A-Z, 0-9");
 	JLabel pwd_lengthreq = new JLabel("Password must be between 6-20 characters in length.");
 	JLabel personalFields = new JLabel("First name, last name, and family name required for sign up.");
+	JLabel pwd_retries = new JLabel("Password retries exceeded. Please open a new client window.");
 
 	public Login(){
 		// Create welcome panel
@@ -185,6 +186,9 @@ public class Login extends JPanel implements ActionListener{
 		this.add(personalFields);
 		personalFields.setAlignmentX((float) 0.5);
 		personalFields.setVisible(false);
+		this.add(pwd_retries);
+		pwd_retries.setAlignmentX((float) 0.5);
+		pwd_retries.setVisible(false);
 		this.add(loggedOut);
 		loggedOut.setAlignmentX((float) 0.5);
 		loggedOut.setVisible(false);

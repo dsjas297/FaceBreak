@@ -163,8 +163,8 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		rem_friend.setVisible(false);
 		
 		if (!curr_username.equals(myUserName)){
-			ArrayList<String> myFriendsList = null;
-			Error friends_e = myClient.getFriendsList(myFriendsList);
+			ArrayList<String> myFriendsList = new ArrayList<String>();
+			myClient.getFriendsList(myFriendsList);
 			//TODO: GET LIST OF FRIENDS (myFriendsList)
 			if (myFriendsList.contains(curr_profile)){
 				// if curr_profile is friends with myUser
@@ -174,13 +174,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				add_friend.setVisible(true);
 			}	
 		}
-		
-		// get Board for user, get list of regions
 		// TODO:
 		ArrayList<Integer> regionList = new ArrayList<Integer>();
 //		myClient.getViewableRegions(curr_profile, regionList);
 		myClient.getViewableRegions(curr_username, regionList);
-		/**System.out.println(regionList);**/
 		int numRegions = regionList.size();
 		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
@@ -206,6 +203,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			case SOLDIER: maxRegions = 7; break;
 			default: maxRegions = 2; break;
 		}
+		
 		//add Covert button
 		if (numRegions < maxRegions){
 			add_covert.addActionListener(this);
@@ -306,6 +304,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// add notifications button
 		notifications.setForeground(Color.white);
 		notifications.addMouseListener(this);
+		ArrayList<Notification> notifs = update_notifs();
 		// add edit button
 		edit_button.setForeground(Color.white);
 		edit_button.addMouseListener(this);
@@ -447,8 +446,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public ArrayList<Notification> update_notifs(){
 		ArrayList<Notification> notifs = new ArrayList<Notification>();
 		try {
 			myClient.getNotifications(notifs);
@@ -457,6 +455,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
+		return notifs;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		ArrayList<Notification> notifs = update_notifs(); 
 		
 		//LEAVE A COMMENT
 		if (arg0.getSource() == comment_button) {
@@ -570,7 +574,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//split string by commas
 				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(",")));
 				//TODO:create a new board that only those users can view
-				ArrayList<Integer> regionList = null;
+				ArrayList<Integer> regionList = new ArrayList<Integer>();
 				try {
 					myClient.getViewableRegions(myUserName, regionList);
 					int new_rid = regionList.size();
@@ -590,15 +594,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		ArrayList<Notification> notifs = null;
-		try {
-			myClient.getNotifications(notifs);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		int num_not = notifs.size(); //number of notifications
-		notifications.setText(num_not + " | ");
+		ArrayList<Notification> notifs = update_notifs();
 		
 		if (arg0.getSource() == logo) {
 			System.out.println(arg0.getSource().getClass().getName());
@@ -629,7 +625,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
 			// TODO: GET LIST OF USER'S FRIENDS
-			ArrayList<String> friendsList = null;
+			ArrayList<String> friendsList = new ArrayList<String>();
 			try {
 				myClient.getFriendsList(friendsList);
 			} catch (ClassNotFoundException e) {
