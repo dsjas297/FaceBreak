@@ -211,23 +211,23 @@ public class SampleMain {
 //		testCreateUser(user2, pwd);
 		
 		FBClient client = new FBClient();
-//		loginUser(client, user1, pwd);
-//		
-//		Profile prof = new Profile(user1);
-//		prof.setFname("Sherlock");
-//		prof.setLname("Holmes");
-//		prof.setFamily("221Baker");
-//		prof.setTitle(Title.BOSS);
-//		client.editProfile(prof);
-//		client.logout();
-//		
-//		client = new FBClient();
-//		loginUser(client, user2, pwd);
-//		prof.setFname("John");
-//		prof.setLname("Watson");
-//		prof.setTitle(Title.CAPO);
-//		client.editProfile(prof);
-//		client.logout();
+		loginUser(client, user1, pwd);
+		
+		Profile prof = new Profile(user1);
+		prof.setFname("Sherlock");
+		prof.setLname("Holmes");
+		prof.setFamily("221Baker");
+		prof.setTitle(Title.BOSS);
+		client.editProfile(prof);
+		client.logout();
+		
+		client = new FBClient();
+		loginUser(client, user2, pwd);
+		prof.setFname("John");
+		prof.setLname("Watson");
+		prof.setTitle(Title.CAPO);
+		client.editProfile(prof);
+		client.logout();
 		
 		client = new FBClient();
 		loginUser(client, user1, pwd);
