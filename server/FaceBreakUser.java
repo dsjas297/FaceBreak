@@ -694,6 +694,11 @@ public class FaceBreakUser {
 				approved = true;
 			}
 			
+			String info = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
+					Integer.toString(oldProfile.getTitle().rank) + "\n" + oldProfile.getFamily() + "\n" + prof.getFname() + "\n" +
+					prof.getLname();
+			FileSystem.writeSecure(info,Integer.toString(uid) + "\\" + userInfoFile);
+			
 			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
 					(prof.getTitle() == oldProfile.getTitle() &&
 					 prof.getFamily().equals(oldProfile.getFamily()))) {
@@ -721,7 +726,7 @@ public class FaceBreakUser {
 		try{
 			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
 			if(friendUid == -1) {
-				// do stuff here
+				return -2;
 			}
 			
 			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
@@ -738,6 +743,7 @@ public class FaceBreakUser {
 			for(i = 0; i < friends.size(); i++) {
 				if(friends.get(i).equals(Integer.toString(friendUid))) {
 					exists = true;
+					break;
 				}
 			}
 			
@@ -809,6 +815,7 @@ public class FaceBreakUser {
 			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
 			if(friendUid == -1) {
 				// do stuff here
+				return 0;
 			}
 			
 			int requesterID = FaceBreakUser.checkIfUserExists(requesterName);
@@ -832,7 +839,7 @@ public class FaceBreakUser {
 			
 			String notificationContents = "";
 			
-			for(int i = 0; i < friendings.size() - 1; i++){
+			for(int i = 0; i < friendings.size(); i++){
 				notificationContents = notificationContents + friendings.get(i) + "\n";
 			}
 			// Need to deal with the last newline
@@ -923,8 +930,9 @@ public class FaceBreakUser {
 				NotificationType type = NotificationType.valueOf(notif_split[1]);
 				Notification tmp = new Notification(type);
 				tmp.setId(Integer.parseInt(notif_split[0]));
+				tmp.setUsername(notif_split[2]);
 				if(type == NotificationType.CHANGE_RANK)
-					tmp.setRank(Integer.parseInt(notif_split[2]));
+					tmp.setRank(Integer.parseInt(notif_split[3]));
 				notifications.add(tmp);
 			}
 			
@@ -954,7 +962,7 @@ public class FaceBreakUser {
 			
 			String notificationContents = "";
 			
-			for(int i = 0; i < notifications.size() - 1; i++){
+			for(int i = 0; i < notifications.size(); i++){
 				if(!(notifications.get(i).split(" ")[0].equals(Integer.toString(notificationID)))){
 					notificationContents = notificationContents + notifications.get(i) + "\n";
 				}
@@ -990,7 +998,7 @@ public class FaceBreakUser {
 			
 			String[] request = null;
 			
-			for(int i = 0; i < notifications.size() - 1; i++){
+			for(int i = 0; i < notifications.size(); i++){
 				if(notifications.get(i).split(" ")[0].equals(Integer.toString(notificationID))){
 					request = notifications.get(i).split(" ");
 				}
@@ -1032,7 +1040,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendNames = new ArrayList<String>();
 			
-			for(int i = 0; i < friendIDs.size() - 1; i++){
+			for(int i = 0; i < friendIDs.size(); i++){
 				friendNames.add(getUser(Integer.parseInt(friendIDs.get(i))).getUsername());
 			}
 			

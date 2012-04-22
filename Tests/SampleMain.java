@@ -23,10 +23,10 @@ import common.Post.RegionType;
 
 public class SampleMain {
 	public static final String username1 = "user";
-	public static final String pwd1 = "null";
+	public static final String pwd1 = "LongPwd111";
 
 	public static final String username2 = "friend";
-	public static final String pwd2 = "longpwd";
+	public static final String pwd2 = "OtherPwd222";
 	
 	/*
 	 * Create a new user
@@ -89,7 +89,20 @@ public class SampleMain {
 		e = client.login(username, "finaltry");
 		assert(e == Error.PWD_EXCEED_RETRIES);
 		e.print();
+	}
+	
+	/*
+	 * Create 2 new users; log in correctly; attempt to log in with bad username/pwd combos
+	 */
+	public static void basicLoginTest() throws ClassNotFoundException, IOException {
+		// create 2 new users
+		testCreateUser(username1, pwd1);
+		testCreateUser(username2, pwd2);
 		
+		testCorrectLogin(username1, pwd1);
+		
+		testFailedPassword(username1);
+		testFailedPassword(username2);
 	}
 	
 	/*
@@ -129,23 +142,26 @@ public class SampleMain {
 	}
 	
 	public static void testAddFriend(FBClient client, String friendName) throws ClassNotFoundException, IOException {
-		System.out.println("TEST: adding a pre-existing user as friend");
+		System.out.println("TEST: adding a pre-existing user " + friendName + " as friend");
 		Error e = client.addFriend(friendName);
 		e.print();
-	}
-	
-	public static void testPost() throws ClassNotFoundException, IOException {
 		
+		ArrayList<String> friends = new ArrayList<String>();
+		e = client.getFriendsList(friends);
+		e.print();
 		
-	}
-	
-	public static void testView() throws ClassNotFoundException, IOException {
-		
+		if(e == Error.SUCCESS) {
+			System.out.println("My friends list:");
+			for(String name : friends)
+				System.out.println(name);
+		}
 	}
 	
 	public static void testGetNotifications(FBClient client) throws ClassNotFoundException {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
-		client.getNotifications(notifications);
+		Error e = client.getNotifications(notifications);
+		e.print();
+		System.out.println("Number of notifications: " + notifications.size());
 		for(Notification n : notifications) {
 			System.out.println("Id: " + n.getId());
 			System.out.println("Type: " + n.getType().toString());
@@ -154,17 +170,32 @@ public class SampleMain {
 	}
 	
 	/*
-	 * Create 2 new users; log in correctly; attempt to log in with bad username/pwd combos
+	 * Post to someone's public board; should ALWAYS return success because public
 	 */
-	public static void basicLoginTest() throws ClassNotFoundException, IOException {
-		// create 2 new users
-		testCreateUser(username1, pwd1);
-		testCreateUser(username2, pwd2);
+	public static void postViewTest(FBClient client, String username) throws ClassNotFoundException {
+		Post post1 = new Post();
+		post1.setRegionId(0);
+		post1.setText("Yo yo yiggidy yo.");
+		post1.setOwnerName(username);
+		Error e = client.post(post1);
+		assert(e == Error.SUCCESS);
 		
-		testCorrectLogin(username1, pwd1);
+		Post post2 = new Post();
+		post2.setRegionId(0);
+		post2.setText("ffffuuuuuuuu");
+		post2.setOwnerName(username);
+		e = client.post(post2);
+		assert(e == Error.SUCCESS);
 		
-		testFailedPassword(username1);
-		testFailedPassword(username2);
+		Region reg = new Region(username, 0);
+		e = client.viewRegion(reg);
+		assert(e == Error.SUCCESS);
+		
+		Post[] board = reg.getPosts();
+		for(int i = 0; i < board.length; i++) {
+			System.out.println("Poster: " + board[i].getWriterName());
+			System.out.println("Text: " + board[i].getText());
+		}
 	}
 	
 	/*
@@ -172,16 +203,58 @@ public class SampleMain {
 	 * BOSS attempts to lower their own rank;
 	 * attempts to join new Family
 	 */
-	public static void basicProfileUpdate() {
+	public static void basicProfileUpdate() throws ClassNotFoundException, IOException {
+		String user1 = "holmes";
+		String user2 = "watson";
+		String pwd = "pwd";
+//		testCreateUser(user1, pwd);
+//		testCreateUser(user2, pwd);
 		
+		FBClient client = new FBClient();
+//		loginUser(client, user1, pwd);
+//		
+//		Profile prof = new Profile(user1);
+//		prof.setFname("Sherlock");
+//		prof.setLname("Holmes");
+//		prof.setFamily("221Baker");
+//		prof.setTitle(Title.BOSS);
+//		client.editProfile(prof);
+//		client.logout();
+//		
+//		client = new FBClient();
+//		loginUser(client, user2, pwd);
+//		prof.setFname("John");
+//		prof.setLname("Watson");
+//		prof.setTitle(Title.CAPO);
+//		client.editProfile(prof);
+//		client.logout();
+		
+		client = new FBClient();
+		loginUser(client, user1, pwd);
+		testGetNotifications(client);
+		client.logout();
 	}
 	
 	public static void approveFriendTest() {
 		
 	}
 	
-	public static void approveChangeRankTest() {
+	public static void approveChangeRankTest() throws ClassNotFoundException, IOException {
+		FBClient myClient = new FBClient();
+		loginUser(myClient, username2, pwd2);
+		testUpdateProfile(myClient, username2, Title.BOSS);
+		testGetProfile(myClient, username2);
+		testUpdateProfile(myClient, username2, Title.ASSOC);
+		testGetProfile(myClient, username2);
 		
+		myClient.logout();
+		
+		FBClient myClient2 = new FBClient();
+		loginUser(myClient2, username1, pwd1);
+		testUpdateProfile(myClient2, username1, Title.CAPO);
+		testGetProfile(myClient2, username2);
+		
+		myClient2.logout();
 	}
 	
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
@@ -192,70 +265,21 @@ public class SampleMain {
 //		basicLoginTest();
 		
 		FBClient myClient = new FBClient();
-		loginUser(myClient, username2, pwd2);
-		testAddFriend(myClient, username1);
-		testUpdateProfile(myClient, username2, Title.BOSS);
-		testGetProfile(myClient, username2);
-
-		testUpdateProfile(myClient, username2, Title.ASSOC);
-		testGetProfile(myClient, username2);
 		
-		myClient.logout();
+//		loginUser(myClient, username2, pwd2);
+//		testAddFriend(myClient, username1);
+//		postViewTest(myClient, username2);
+//		myClient.logout();
 		
-		FBClient myClient2 = new FBClient();
-		loginUser(myClient2, username1, pwd1);
-		testUpdateProfile(myClient2, username1, Title.CAPO);
-		testGetProfile(myClient2, username1);
-		testGetProfile(myClient2, username2);
+//		myClient = new FBClient();
+//		loginUser(myClient, username1, pwd1);
+//		testGetNotifications(myClient);
+//		Error e = myClient.logout();
+//		e.print();
 		
-		myClient2.logout();
+		basicProfileUpdate();
 		
 		System.out.println();
 		System.out.println("Finished test suite");
 	}
-	
-	/*
-	public static void main(String args[]) throws IOException, ClassNotFoundException {
-		try {
-			assert(e == Error.SUCCESS);
-			System.out.println("Name: " + myProf.getFname() + " " + myProf.getLname());
-			System.out.println("Title: " + myProf.getTitle().toString());
-			
-			Post post1 = new Post();
-			post1.setRegionId(0);
-			post1.setText("Yo yo yiggidy yo.");
-			post1.setOwnerName(username);
-			e = myClient.post(post1);
-			
-			Post post2 = new Post();
-			post2.setRegion(RegionType.PUBLIC);
-			post2.setRegionId(0);
-			post2.setText("ffffuuuuuuuu");
-			post2.setOwnerName(username);
-			e = myClient.post(post2);
-			
-			Region reg = new Region(username, 0);
-			e = myClient.viewRegion(reg);
-			System.out.println(e.toString());
-			
-			Post[] board = reg.getPosts();
-			for(int i = 0; i < board.length; i++) {
-				System.out.println("Poster: " + board[i].getWriterName());
-				System.out.println("Text: " + board[i].getText());
-			}
-			
-			myClient.logout();
-			
-//			e = myClient.login("me", "somepwd");
-//			System.out.println(e.toString());
-//			myClient.logout();
-
-//			
-//			e = myClient.deleteFriend("godfather");
-//			System.out.println(e.toString());
-		} catch (UnknownHostException e) {
-			System.out.println("Could not resolve host name");
-			e.printStackTrace();
-		}
-	}*/
 }

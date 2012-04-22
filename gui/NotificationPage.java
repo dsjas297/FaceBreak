@@ -155,7 +155,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 				try{
 					myClient.addFriend(nButton.get_username());
 					System.out.println("Added a friend");
-					myClient.respondToNotification(nButton.get_notif_id(), true);
+					myClient.respondToNotification(nButton.get_notif_id(), false);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

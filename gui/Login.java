@@ -43,6 +43,7 @@ public class Login extends JPanel implements ActionListener{
 	
 	//WARNINGS
 	JLabel loginFailed = new JLabel("Login failed; username or password incorrect");
+	JLabel loginsExceeded = new JLabel("Too many incorrect password attempts. Please try again later.");
 	JLabel duplicateUser = new JLabel("This user already exists. Please sign up under a different username.");
 	JLabel loggedOut = new JLabel("Thank you for using FaceBreak");
 	JLabel alphanum = new JLabel("Username and password must consist only of characters a-z, A-Z, 0-9");
@@ -170,6 +171,9 @@ public class Login extends JPanel implements ActionListener{
 		this.add(loginFailed);
 		loginFailed.setAlignmentX((float) 0.5);
 		loginFailed.setVisible(false);
+		this.add(loginsExceeded);
+		loginsExceeded.setAlignmentX((float) 0.5);
+		loginsExceeded.setVisible(false);
 		this.add(duplicateUser);
 		duplicateUser.setAlignmentX((float) 0.5);
 		duplicateUser.setVisible(false);
@@ -255,6 +259,7 @@ public class Login extends JPanel implements ActionListener{
 	//clear all displayed warnings
 	public void clearWarnings(){
 		loginFailed.setVisible(false);
+		loginsExceeded.setVisible(false);
 		duplicateUser.setVisible(false);
 		loggedOut.setVisible(false);
 		alphanum.setVisible(false);

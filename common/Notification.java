@@ -2,8 +2,6 @@ package common;
 
 import java.io.Serializable;
 
-import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
-
 public class Notification implements Serializable {
 
 	private static final long serialVersionUID = 6613012381243813845L;
@@ -11,7 +9,7 @@ public class Notification implements Serializable {
 	private NotificationType type;
 	private String username;
 	private int newRank;
-	
+	private boolean approved;
 	
 	public Notification(NotificationType type) {
 		this.type = type;
@@ -35,6 +33,14 @@ public class Notification implements Serializable {
 	
 	public NotificationType getType() {
 		return type;
+	}
+	
+	public void approve() {
+		approved = true;
+	}
+	
+	public void deny() {
+		approved = false;
 	}
 	
 	/*

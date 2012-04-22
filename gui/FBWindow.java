@@ -77,8 +77,12 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 				setContentPane(fbpage);
 				fbpage.logout.addMouseListener(this);
 			}
-			else {
+			else if(login_error == Error.USERNAME_PWD) {
 				login.loginFailed.setVisible(true);
+				System.out.println(login_error);
+			}
+			else if(login_error == Error.PWD_EXCEED_RETRIES) {
+				login.loginsExceeded.setVisible(true);
 				System.out.println(login_error);
 			}
 		} catch (ClassNotFoundException e1) {

@@ -38,7 +38,7 @@ import messages.ItemList;
 import messages.Item;
 import messages.KeyExchangeMsg;
 import messages.MsgSealer;
-import messages.MsgSigner;
+import messages.MsgWrapper;
 import messages.Reply;
 import messages.Request;
 import messages.Request.RequestType;
@@ -87,8 +87,13 @@ public class FBClientHandler extends Thread {
 	 * attacks
 	 * @param req - Client Request
 	 * @return	true if passes integrity check, false otherwise
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	private boolean verifyIntegrity(Request req) {
+	private boolean verifyIntegrity(Request req, byte[] checksum) throws NoSuchAlgorithmException, IOException {
+		byte[] msgHash = req.getHash();
+		MsgWrapper.compareChecksum(msgHash, checksum);
+		
 		long sentTime = req.getTimestamp();
 		boolean correct_time = System.currentTimeMillis() - sentTime < TIMESTAMP_DIFF;
 		boolean correct_count = req.getCount() == ++count;
@@ -99,7 +104,11 @@ public class FBClientHandler extends Thread {
 	/*
 	 * Parse a generic Request from client into login/logout/view/post/etc. requests
 	 */
-	private Reply parseRequest(Request req) {
+	private Reply parseRequest(MsgWrapper wrapper) {
+		
+		Request req = (Request)wrapper.getMsg();
+		byte[] checksum = wrapper.getChecksum();
+		
 		Reply myReply = new Reply();
 		
 		// TODO: FIX THIS!
@@ -244,7 +253,7 @@ public class FBClientHandler extends Thread {
 		}
 		
 		// stuff default values into profile
-		uid = FaceBreakUser.addUser(thisUser.getUsername(), Title.ASSOC, "Family", "fname", "lname", thisUser.getPassword());
+		uid = FaceBreakUser.addUser(thisUser.getUsername(), Title.ASSOC, "Default_Family", "First", "Last", thisUser.getPassword());
 
 		authUser = new AuthenticatedUser(thisUser.getUsername());
 		authUser.setId(uid);
@@ -297,12 +306,6 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 
 		Profile newProf = ((Item<Profile>)req.getDetails()).get();
-		
-		// cannot change own username!
-		if(!newProf.getUsername().equals(authUser.getUsername())) {
-			r.setReturnError(Error.MALFORMED_REQUEST);
-			return r;
-		}
 		
 		int err = FaceBreakUser.setProfile(authUser.getId(), newProf);
 		r.setReturnError(Error.SUCCESS);
@@ -361,7 +364,6 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		String friendName = ((Item<String>)req.getDetails()).get();
-		
 		int e = FaceBreakUser.addFriend(authUser.getId(), friendName);
 		if(e == -1)
 			r.setReturnError(Error.NO_USER);
@@ -393,6 +395,8 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		ArrayList<String> flist = FaceBreakUser.getFriendsList(authUser.getId());
+		flist.remove(0);
+		
 		ItemList<String> serializableFlist = new ItemList<String>();
 		serializableFlist.setArray(flist, String.class);
 		
@@ -406,6 +410,7 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		ArrayList<Notification> notifications = FaceBreakUser.getNotifications(authUser.getId());
+//		System.out.println("New notifications: " + notifications.size());
 		ItemList<Notification> serializableNot = new ItemList<Notification>();
 		serializableNot.setArray(notifications, Notification.class);
 		
@@ -421,14 +426,19 @@ public class FBClientHandler extends Thread {
 		
 		int nid = req.getId();
 		
-		// delete request nid
-		
 		String response = ((Item<String>)req.getDetails()).get();
 		boolean approve = response.equals("Approve");
 		
-		// approve the message?? something else?
+		int err;
+		if(!approve)
+			err = FaceBreakUser.deleteNotification(authUser.getId(), nid);
+		else
+			err = FaceBreakUser.approveNotification(authUser.getId(), nid);
 		
-		r.setReturnError(Error.SUCCESS);
+		if(err == 0)
+			r.setReturnError(Error.SUCCESS);
+		else
+			r.setReturnError(Error.UNKNOWN_ERROR);
 		return r;
 	}
 	
@@ -456,7 +466,7 @@ public class FBClientHandler extends Thread {
 	
 	private Reply processGetRegions(Request req) {
 		Reply r = new Reply();
-		String owername = ((Item<String>)r.getDetails()).get();
+		String owername = ((Item<String>)req.getDetails()).get();
 		int oid = FaceBreakUser.checkIfUserExists(owername);
 		
 		ArrayList<Integer> rids = FaceBreakRegion.getViewable(oid, authUser.getId());
@@ -471,7 +481,7 @@ public class FBClientHandler extends Thread {
 	
 	private void closeConnection() throws IOException {
 		if(ois != null) ois.close();
-		if(oos != null)oos.close();
+		if(oos != null) oos.close();
 		if(clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
 
 		authUser = null;
@@ -580,13 +590,14 @@ public class FBClientHandler extends Thread {
 				// examine client's request
 
 				// TODO: THIS IS DEBUG STUFF; CHANGE TO REAL CODE
-				Request clientReq = (Request)ois.readObject();
+				Object incoming = (Object)ois.readObject();
+				MsgWrapper wrappedMsg = (MsgWrapper)incoming;
 
 				Reply myReply = new Reply();
-				if(clientReq == null) 
+				if(wrappedMsg == null) 
 					myReply.setReturnError(Error.MSG_INTEGRITY);
 				else 
-					myReply = parseRequest(clientReq);
+					myReply = parseRequest(wrappedMsg);
 				myReply.setTimestamp();
 				myReply.setCount(++count);
 				oos.writeObject(myReply);

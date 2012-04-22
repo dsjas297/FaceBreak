@@ -7,7 +7,13 @@
 
 package messages;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 public class GenericMsg implements Serializable {
@@ -16,7 +22,6 @@ public class GenericMsg implements Serializable {
 	private long count;
 	private Serializable details;
 	private int id;
-	private byte[] checksum;
 	
 	public GenericMsg() {
 		count = 0;
@@ -58,8 +63,22 @@ public class GenericMsg implements Serializable {
 		return details;
 	}
 	
-	public byte[] getChecksum() {
-		return checksum;
+	public byte[] getBytes() throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutput out = new ObjectOutputStream(bos);   
+		out.writeObject(this);
+		out.close();
+		bos.close();
+
+		return bos.toByteArray();
+	}
+	
+	public byte[] getHash() throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(getBytes());
+ 
+        byte byteData[] = md.digest();
+        return byteData;
 	}
 }
 

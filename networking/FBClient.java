@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignedObject;
 import java.security.spec.X509EncodedKeySpec;
@@ -29,7 +30,7 @@ import messages.ItemList;
 import messages.Item;
 import messages.KeyExchangeMsg;
 import messages.MsgSealer;
-import messages.MsgSigner;
+import messages.MsgWrapper;
 import messages.Reply;
 import messages.Request;
 import messages.Request.RequestType;
@@ -94,8 +95,12 @@ public class FBClient implements Client {
 			// TODO: CHANGE FROM DEBUG MODE
 			req.setTimestamp();
 			req.setCount(++count);
-
-			outStream.writeObject(req);
+			
+			MsgWrapper wrapper = new MsgWrapper();
+			wrapper.setMsg(req);
+			wrapper.setChecksum();
+			
+			outStream.writeObject(wrapper);
 			
 //			SealedObject sealedReq = sealer.encrypt(req);
 //			SignedObject signedReq = signer.sign(sealedReq);
@@ -118,7 +123,7 @@ public class FBClient implements Client {
 //				return nullRep;
 //			}
 //			return unsealedRep;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return nullRep;
 		}
 	}
@@ -208,11 +213,9 @@ public class FBClient implements Client {
 //			return Error.MALFORMED_REQUEST;
 
 		try {
-			if(socket == null || socket.isClosed()) {
-				socket = new Socket(serverAddr, PORT_NUM);
-				outStream = new ObjectOutputStream(socket.getOutputStream());
-				inStream = new ObjectInputStream(socket.getInputStream());
-			}
+			socket = new Socket(serverAddr, PORT_NUM);
+			outStream = new ObjectOutputStream(socket.getOutputStream());
+			inStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
@@ -277,11 +280,10 @@ public class FBClient implements Client {
 			return Error.LOGIN;
 		
 		try {
-			if(socket == null || socket.isClosed()) {
-				socket = new Socket(serverAddr, PORT_NUM);
-				outStream = new ObjectOutputStream(socket.getOutputStream());
-				inStream = new ObjectInputStream(socket.getInputStream());
-			}
+			System.out.println("Creating new socket!");
+			socket = new Socket(serverAddr, PORT_NUM);
+			outStream = new ObjectOutputStream(socket.getOutputStream());
+			inStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
@@ -531,6 +533,27 @@ public class FBClient implements Client {
 		readNotification.setId(id);
 		Item<String> approval = new Item<String>();
 		approval.set(response);
+		readNotification.setDetails(approval);
+
+		Reply serverReply = sendRequest(readNotification);
+		Error e = serverReply.getReturnError();
+
+		return e;
+	}
+	
+
+	public Error respondToNotification(Notification notif, boolean approve) throws ClassNotFoundException {
+		// sanity check
+		if (socket == null || user == null)
+			return Error.LOGIN;
+
+		Request readNotification = new Request(RequestType.GET_NOTIFICATIONS);
+		if(approve)
+			notif.approve();
+		else
+			notif.deny();
+		Item<Notification> approval = new Item<Notification>();
+		approval.set(notif);
 		readNotification.setDetails(approval);
 
 		Reply serverReply = sendRequest(readNotification);

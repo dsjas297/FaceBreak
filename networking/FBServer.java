@@ -4,7 +4,6 @@
  * Starts server (needs password), initializes filesystem, waits for incoming connections
  * to hand off to FBClientHandler thread.
  * 
- * SERVER PWD: SrrEs5d7Um
  */
 
 package networking;

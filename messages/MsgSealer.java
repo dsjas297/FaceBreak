@@ -10,6 +10,9 @@ package messages;
 
 import java.io.Serializable;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.KeySpec;
@@ -22,6 +25,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import networking.RandomGenerator;
+
 
 public class MsgSealer {
 	private Cipher encrypter;
@@ -29,16 +34,20 @@ public class MsgSealer {
 	
 	private PrivateKey privateKey;
 	private PublicKey publicKey;
+	private PublicKey remotePublicKey;
+	
 	private char[] secret;
 	
 	/* specify algorithm, mode, and padding
 	 * AES because secure and fast; CBC because common and more secure than EBC
 	 * PKCS5Padding
 	 */
-	private static final String ALG_MODE_PAD = "AES/CBC/PKCS5Padding";
-	private static final String ALGORITHM = "AES";
+//	private static final String ALG_MODE_PAD = "AES/CBC/PKCS5Padding";
+//	private static final String ALG_MODE_PAD = "RSA/ECB/PKCS1Padding";
+	private static final String ALG_MODE_PAD = "RSA";
+	private static final String ALGORITHM = "RSA";
 	private static final String KEY_GEN_ALG = "PBKDF2WithHmacSHA1";
-	private static final int NUM_BYTES = 128;
+	private static final int KEY_SIZE = 512;
 	
 	public MsgSealer() {
 		try {
@@ -51,35 +60,26 @@ public class MsgSealer {
 			System.exit(-1);
 		}
 	}
-	
-	public void init(byte[] array) throws InvalidKeyException, Exception {
-		int len = array.length;
-		secret = new char[len];
-		
-		byte[] salt = new byte[2];
-		salt[0] = 0;
-		salt[1] = 0;
-		
-		byte[] iv = new byte[16];
-		for(int i = 0; i < iv.length; i++)
-			iv[i] = 0;
-		
-		for(int i = 0; i < len; i++) 
-			secret[i] = (char)array[i];
-		
-		SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_GEN_ALG);
-		KeySpec spec = new PBEKeySpec(secret, salt, 65536, NUM_BYTES);
-		SecretKey tmp = factory.generateSecret(spec);
-		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), ALGORITHM);
-		
-		encrypter.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(iv));
-		decrypter.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
+
+	public void genKeys() throws NoSuchAlgorithmException {
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+		kpg.initialize(KEY_SIZE);
+		KeyPair kp = kpg.genKeyPair();
+		publicKey = kp.getPublic();
+		privateKey = kp.getPrivate();
 	}
 	
-	// zero out byte array??
-	public void destroy() {
-		for(int i = 0; i < secret.length; i++)
-			secret[i] = '0';
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
+	
+	public void init() throws InvalidKeyException, Exception {
+		encrypter.init(Cipher.ENCRYPT_MODE, privateKey);
+		decrypter.init(Cipher.DECRYPT_MODE, remotePublicKey);
+	}
+	
+	public void setRemotePublicKey(PublicKey pub) {
+		remotePublicKey = pub;
 	}
 	
 	// "seals" a generic message

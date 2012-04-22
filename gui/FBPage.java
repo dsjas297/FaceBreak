@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 
 import networking.FBClient;
 
-import common.Board;
 import common.Error;
 import common.Notification;
 import common.Post;
@@ -163,7 +162,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		rem_friend.setVisible(false);
 		
 		if (!curr_username.equals(myUserName)){
-			ArrayList<String> myFriendsList = null;
+			ArrayList<String> myFriendsList = new ArrayList<String>();
 			Error friends_e = myClient.getFriendsList(myFriendsList);
 			//TODO: GET LIST OF FRIENDS (myFriendsList)
 			if (myFriendsList.contains(curr_profile)){
@@ -171,7 +170,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				rem_friend.setVisible(true);
 			}
 			else{ 
-				rem_friend.setVisible(true);
+				add_friend.setVisible(true);
 			}	
 		}
 		
@@ -570,7 +569,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//split string by commas
 				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(",")));
 				//TODO:create a new board that only those users can view
-				ArrayList<Integer> regionList = null;
+				ArrayList<Integer> regionList = new ArrayList<Integer>();
 				try {
 					myClient.getViewableRegions(myUserName, regionList);
 					int new_rid = regionList.size();
@@ -590,7 +589,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		ArrayList<Notification> notifs = null;
+		ArrayList<Notification> notifs = new ArrayList<Notification>();
 		try {
 			myClient.getNotifications(notifs);
 		} catch (ClassNotFoundException e) {
@@ -628,7 +627,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
 			// TODO: GET LIST OF USER'S FRIENDS
-			ArrayList<String> friendsList = null;
+			ArrayList<String> friendsList = new ArrayList<String>();
 			try {
 				myClient.getFriendsList(friendsList);
 			} catch (ClassNotFoundException e) {
