@@ -393,6 +393,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> listOfFriends = FileSystem.readSecure(Integer.toString(uid) + "\\" + userFriendsFile);
             if(listOfFriends.get(0).equals("ERROR")){
+            	FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return false;
 			}
@@ -440,6 +441,7 @@ public class FaceBreakUser {
 			ArrayList<String> untrustworthyList = FileSystem.readSecure(filename);
 
 			if(untrustworthyList.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return -1;
 			}
@@ -528,6 +530,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> temp = FileSystem.readSecure(filename);
             if(temp.get(0).equals("ERROR")){
+            	FileSystem.lockMap.get(filename).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
@@ -564,6 +567,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> temp = FileSystem.readSecure(filename);
 			if(temp.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
@@ -625,6 +629,7 @@ public class FaceBreakUser {
 			ArrayList<String> friendsStr = FileSystem.readSecure(idStr + "\\" + userFriendsFile);
 			
 			if(friendsStr.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(idStr + "\\" + userFriendsFile).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
@@ -662,6 +667,7 @@ public class FaceBreakUser {
 			ArrayList<String> lines = FileSystem.readSecure(idStr + "\\" + userUntrustworthyFile);
 			
 			if(lines.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(idStr + "\\" + userUntrustworthyFile).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
@@ -767,6 +773,7 @@ public class FaceBreakUser {
 			ArrayList<String> friends = FileSystem.readSecure(friendsFileName);
 			
 			if(friends.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(friendsFileName).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return -1;
 			}
@@ -823,6 +830,7 @@ public class FaceBreakUser {
 			ArrayList<String> friends = FileSystem.readSecure(friendsFileName);
 			
 			if(friends.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(friendsFileName).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return -1;
 			}
@@ -869,6 +877,7 @@ public class FaceBreakUser {
 			
 			if(friendings.get(0).equals("ERROR")){
 				System.out.println("FILE INTEGRITY COMPROMISED");
+				FileSystem.lockMap.get(notificationsFileName).unlock();
 				return -1;
 			}
 			
@@ -914,6 +923,7 @@ public class FaceBreakUser {
 			
 			if(friendings.get(0).equals("ERROR")){
 				System.out.println("FILE INTEGRITY COMPROMISED");
+				FileSystem.lockMap.get(notificationsFileName).unlock();
 				return -1;
 			}
 			
@@ -963,6 +973,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> notif_strings = FileSystem.readSecure(notificationsFileName);
 			if(notif_strings.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(notificationsFileName).lock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
@@ -1012,6 +1023,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> notifications = FileSystem.readSecure(notificationsFileName);
 			if(notifications.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(notificationsFileName).lock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return -1;
 			}

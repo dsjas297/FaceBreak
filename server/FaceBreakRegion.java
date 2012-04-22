@@ -200,6 +200,7 @@ public class FaceBreakRegion {
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
 			
 			if(allowed.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return -1;
 			}
@@ -245,6 +246,7 @@ public class FaceBreakRegion {
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
 			
 			if(allowed.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return false;
 			}
@@ -395,6 +397,7 @@ public class FaceBreakRegion {
 			ArrayList<String> posts = FileSystem.readSecure(path);
 			
 			if(posts.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(path).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return false;
 			}
@@ -442,6 +445,7 @@ public class FaceBreakRegion {
 		ArrayList<String> postLines = FileSystem.readSecure(path);
 		
 		if(postLines.get(0).equals("ERROR")){
+			FileSystem.lockMap.get(path).unlock();
 			System.out.println("FILE INTEGRITY COMPROMISED");
 			return null;
 		}
