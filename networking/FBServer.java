@@ -103,6 +103,9 @@ public class FBServer {
 						passwd_bytes[i] = 0;
 					}
 				}
+				for(int i = 0; i < passwd.length; i++){
+					passwd[i] = 0;
+				}
 				//password = reader.readLine().trim();
 				numChars = reader.read(passwd);
 				//System.out.println(numChars);
@@ -130,6 +133,9 @@ public class FBServer {
 						passwd_bytes[i] = 0;
 					}
 				}
+				for(int i = 0; i < passwd.length; i++){
+					passwd[i] = 0;
+				}
 				System.out.println(e.getMessage());
 			}
 		}
@@ -139,6 +145,9 @@ public class FBServer {
 			for(int i = 0; i < passwd_bytes.length; i++){
 				passwd_bytes[i] = 0;
 			}
+		}
+		for(int i = 0; i < passwd.length; i++){
+			passwd[i] = 0;
 		}
 		
 		try {
