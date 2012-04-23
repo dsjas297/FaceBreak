@@ -122,6 +122,9 @@ public class FaceBreakUser {
 			
 			return newUserID;
 		} catch (Exception e) {
+			if(FileSystem.lockMap.get(usersListFile).isHeldByCurrentThread()){
+				FileSystem.lockMap.get(usersListFile).unlock();
+			};
 			System.err.println("Error: " + e.getMessage());
 			e.printStackTrace();
 			return -1;
@@ -209,6 +212,7 @@ public class FaceBreakUser {
 			
 			return -1;
 		} catch(Exception e){
+			FileSystem.lockMap.get(usersListFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			e.printStackTrace();
 			return -2;
@@ -243,6 +247,7 @@ public class FaceBreakUser {
 			
 			return false;
 		} catch(Exception e){
+			FileSystem.lockMap.get(usersListFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return false;
 		}
@@ -398,8 +403,6 @@ public class FaceBreakUser {
 				return false;
 			}
 			
-			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).unlock();
-			
 			for( int i = 0; i < listOfFriends.size(); i ++){
 				/*
 				String [] linesplit = temp.split(":");
@@ -415,8 +418,12 @@ public class FaceBreakUser {
 					return true;
 				}
 			}
+			
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).unlock();
+			
 			return false;
 		} catch(Exception e){
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userFriendsFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return false;
 		}
@@ -424,13 +431,13 @@ public class FaceBreakUser {
 	
 	// This is also used to mark users as trustworthy
 	public static int markUntrustworthy(int uid, int foeID){
+		String filename = Integer.toString(uid) + "\\" + userUntrustworthyFile;
 		try{
 			if(!checkIfUserExists(foeID)){
 				System.err.println("Error: Attempted to mark nonexistent user untrustworthy");
 				return -1;
 			}
 			String timestamp = Long.toString((new Date()).getTime());
-			String filename = Integer.toString(uid) + "\\" + userUntrustworthyFile;
 			
 			if(FileSystem.lockMap.get(filename) == null){
 				FileSystem.lockMap.put(filename, new ReentrantLock());
@@ -462,6 +469,7 @@ public class FaceBreakUser {
 			return 0;
 			
 		} catch (Exception e){
+			FileSystem.lockMap.get(filename).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
@@ -503,6 +511,7 @@ public class FaceBreakUser {
 			
 			return id;
 		} catch(Exception e){
+			FileSystem.lockMap.get(userIDFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return 0;
 		}
@@ -515,13 +524,15 @@ public class FaceBreakUser {
 	*/
 	
 	public static User getUser(int uid){
+		
+		String idStr = Integer.toString(uid);
+		String filename = idStr + "\\" + userInfoFile;
+		
 		try{
+			
 			if(!checkIfUserExists(uid)){
 				return null;
 			}
-		
-			String idStr = Integer.toString(uid);
-			String filename = idStr + "\\" + userInfoFile;
 		
 			if(FileSystem.lockMap.get(filename) == null){
 				FileSystem.lockMap.put(filename, new ReentrantLock());
@@ -546,19 +557,21 @@ public class FaceBreakUser {
 			return user;
 			
 		} catch (Exception e) {
+			FileSystem.lockMap.get(filename).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
 	
 	public static Profile getProfile(int uid){
+		
+		String idStr = Integer.toString(uid);
+		String filename = idStr + "\\" + userInfoFile;
+		
 		try{
 			if(!checkIfUserExists(uid)){
 				return null;
 			}
-			
-			String idStr = Integer.toString(uid);
-			String filename = idStr + "\\" + userInfoFile;
 		
 			if(FileSystem.lockMap.get(filename) == null){
 				FileSystem.lockMap.put(filename, new ReentrantLock());
@@ -606,18 +619,20 @@ public class FaceBreakUser {
 			return profile;
 			
 		} catch (Exception e) {
+			FileSystem.lockMap.get(filename).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
 	
 	public static ArrayList<Integer> getFriends(int uid){
+		
+		String idStr = Integer.toString(uid);
+		
 		try{
 			if(!checkIfUserExists(uid)){
 				return null;
 			}
-			
-			String idStr = Integer.toString(uid);
 			
 			if(FileSystem.lockMap.get(idStr + "\\" + userFriendsFile) == null){
 				FileSystem.lockMap.put(idStr + "\\" + userFriendsFile, new ReentrantLock());
@@ -643,18 +658,20 @@ public class FaceBreakUser {
 			return friends;
 			
 		} catch (Exception e) {
+			FileSystem.lockMap.get(idStr + "\\" + userFriendsFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
 	
 	public static HashMap<Integer, ArrayList<String>> getUntrustworthy(int uid){
+		
+		String idStr = Integer.toString(uid);
+		
 		try{
 			if(!checkIfUserExists(uid)){
 				return null;
 			}
-			
-			String idStr = Integer.toString(uid);
 			
 			// Load hashmap of untrustworthy people
 			HashMap<Integer, ArrayList<String>> untrustworthy = new HashMap<Integer, ArrayList<String>>();
@@ -691,6 +708,7 @@ public class FaceBreakUser {
 			return untrustworthy;
 			
 		} catch (Exception e) {
+			FileSystem.lockMap.get(idStr + "\\" + userUntrustworthyFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
@@ -768,13 +786,14 @@ public class FaceBreakUser {
 	}
 	
 	public static int addFriend(int requestUid, String friendName) {
+		
+		String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+		
 		try{
 			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
 			if(friendUid == -1) {
 				return -2;
 			}
-			
-			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
 			
 			if(FileSystem.lockMap.get(friendsFileName) == null){
 				FileSystem.lockMap.put(friendsFileName, new ReentrantLock());
@@ -819,19 +838,21 @@ public class FaceBreakUser {
 			return 0;
 			
 		} catch (Exception e){
+			FileSystem.lockMap.get(friendsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 	
 	public static int deleteFriend(int requestUid, String friendName) {
+		
+		String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
+		
 		try{
 			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
 			if(friendUid == -1) {
 				// do stuff here
 			}
-			
-			String friendsFileName = Integer.toString(requestUid) + "\\" + userFriendsFile;
 
 			if(FileSystem.lockMap.get(friendsFileName) == null){
 				FileSystem.lockMap.put(friendsFileName, new ReentrantLock());
@@ -862,22 +883,24 @@ public class FaceBreakUser {
 			
 			return 0;
 		} catch (Exception e){
+			FileSystem.lockMap.get(friendsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 	
 	public static int notifyAddFriend(String friendName, String requesterName) {
+		
+		int friendUid = FaceBreakUser.checkIfUserExists(friendName);
+		String notificationsFileName = Integer.toString(friendUid) + "\\" + notificationsFile;
+		
 		try{
-			int friendUid = FaceBreakUser.checkIfUserExists(friendName);
 			if(friendUid == -1) {
 				// do stuff here
 				return 0;
 			}
 			
 			int requesterID = FaceBreakUser.checkIfUserExists(requesterName);
-			
-			String notificationsFileName = Integer.toString(friendUid) + "\\" + notificationsFile;
 				
 			if(FileSystem.lockMap.get(notificationsFileName) == null){
 				FileSystem.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -914,16 +937,18 @@ public class FaceBreakUser {
 			
 			return 0;
 		} catch (Exception e){
+			FileSystem.lockMap.get(notificationsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 	
 	public static int notifyChangeTitle(String requesterName, int bossID, Profile prof) {
+
+		String notificationsFileName = Integer.toString(bossID) + "\\" + notificationsFile;
+		
 		try{
 			int requesterID = FaceBreakUser.checkIfUserExists(requesterName);
-			
-			String notificationsFileName = Integer.toString(bossID) + "\\" + notificationsFile;
 				
 			if(FileSystem.lockMap.get(notificationsFileName) == null){
 				FileSystem.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -964,18 +989,20 @@ public class FaceBreakUser {
 			
 			return 0;
 		} catch (Exception e){
+			FileSystem.lockMap.get(notificationsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 	
 	public static ArrayList<Notification> getNotifications(int requestUid) {
+		
+		String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+		
 		try{
 			if(!checkIfUserExists(requestUid)){
 				return null;
 			}
-			
-			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
 				
 			if(FileSystem.lockMap.get(notificationsFileName) == null){
 				FileSystem.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -1015,18 +1042,20 @@ public class FaceBreakUser {
 			
 			return notifications;
 		} catch (Exception e){
+			FileSystem.lockMap.get(notificationsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
 	}
 	
 	public static int deleteNotification(int requestUid, int notificationID) {
+		
+		String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+		
 		try{
 			if(!checkIfUserExists(requestUid)){
 				return -1;
 			}
-			
-			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
 				
 			if(FileSystem.lockMap.get(notificationsFileName) == null){
 				FileSystem.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -1058,18 +1087,19 @@ public class FaceBreakUser {
 			
 			return 0;
 		} catch (Exception e){
+			FileSystem.lockMap.get(notificationsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 
 	public static int approveNotification(int requestUid, int notificationID) {
+		String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
+		
 		try{
 			if(!checkIfUserExists(requestUid)){
 				return -1;
 			}
-			
-			String notificationsFileName = Integer.toString(requestUid) + "\\" + notificationsFile;
 				
 			if(FileSystem.lockMap.get(notificationsFileName) == null){
 				FileSystem.lockMap.put(notificationsFileName, new ReentrantLock());
@@ -1097,19 +1127,21 @@ public class FaceBreakUser {
 			FileSystem.lockMap.get(notificationsFileName).unlock();
 			
 			return deleteNotification(requestUid, notificationID);
-		} catch (Exception e){
+		} catch (Exception e){		
+			FileSystem.lockMap.get(notificationsFileName).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 	
 	public static ArrayList<String> getFriendsList (int requestUid) {
+		
+		String friendsFile = Integer.toString(requestUid) + "\\" + userFriendsFile;
+		
 		try{
 			if(!checkIfUserExists(requestUid)){
 				return null;
 			}
-			
-			String friendsFile = Integer.toString(requestUid) + "\\" + userFriendsFile;
 				
 			if(FileSystem.lockMap.get(friendsFile) == null){
 				FileSystem.lockMap.put(friendsFile, new ReentrantLock());
@@ -1128,6 +1160,7 @@ public class FaceBreakUser {
 			
 			return friendNames;
 		} catch (Exception e){
+			FileSystem.lockMap.get(friendsFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return null;
 		}
@@ -1160,6 +1193,7 @@ public class FaceBreakUser {
 			
 			return -1;
 		} catch(Exception e){
+			FileSystem.lockMap.get(familiesFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			e.printStackTrace();
 			return -2;
@@ -1196,6 +1230,7 @@ public class FaceBreakUser {
 			
 			return -1;
 		} catch(Exception e){
+			FileSystem.lockMap.get(familiesFile).unlock();
 			System.err.println("Error: " + e.getMessage());
 			e.printStackTrace();
 			return -2;
