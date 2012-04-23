@@ -17,6 +17,9 @@ public class ItemList<T> implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	public void setArray(ArrayList<T> list, Class<T> clazz) {
+		if(list == null) {
+			return;
+		}
 		int len = list.size();
 		array = (T[]) Array.newInstance(clazz, len);
 		for(int i = 0; i < len; i++) {
@@ -29,6 +32,6 @@ public class ItemList<T> implements Serializable {
 	}
 	
 	public int getSize() {
-		return array.length;
+		return (array == null) ? 0 : array.length;
 	}
 }
