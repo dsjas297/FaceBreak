@@ -1042,9 +1042,12 @@ public class FaceBreakUser {
 					notificationContents = notificationContents + notifications.get(i) + "\n";
 				}
 			}
+			System.out.println(notificationContents.length());
 			// Need to deal with the last newline
-			notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
-			
+			if(notifications.size() > 0){
+				notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
+			}
+				
 			FileSystem.writeSecure(notificationContents, notificationsFileName);
 			
 			FileSystem.lockMap.get(notificationsFileName).unlock();
