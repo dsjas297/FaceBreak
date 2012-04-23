@@ -206,7 +206,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			default: maxRegions = 2; break;
 		}
 		//add Covert button
-		if (numRegions < maxRegions){
+		if (curr_username.equals(myUserName) && numRegions < maxRegions){
 			add_covert.addActionListener(this);
 			profile.add(add_covert);
 		}
