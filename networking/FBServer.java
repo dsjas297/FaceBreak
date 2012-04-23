@@ -68,7 +68,7 @@ public class FBServer {
 	private static void validatePassword() {
 		short numRetries = 0;
 
-		// Password is: SrrEs5d7Um
+		// Password is ???
 		byte[] passwordHash = { 101, -122, 80, 50, 40, -53, 67, 46, 23, 19, 18,
 				-73, 79, 83, 13, -15, 60, 98, -109, -4, 84, -117, 48, 18, -74,
 				-95, 82, 83, -78, -36, -60, -120, 0 };
