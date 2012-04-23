@@ -183,10 +183,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		int numRegions = regionList.size();
 		for (int i = 0; i < numRegions; i++) {
 			Regionlink region;
-			if (i==0){
+			if (regionList.get(i)==0){
 				region = new Regionlink("Public", regionList.get(i), curr_username, curr_profile);
 			}
-			else if (i==1){
+			else if (regionList.get(i)==1){
 				region = new Regionlink("Private", regionList.get(i), curr_username, curr_profile);
 			}
 			else {
