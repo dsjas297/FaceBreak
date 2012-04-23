@@ -47,6 +47,7 @@ import common.Error;
 import common.FBClientUser;
 import common.Notification;
 import common.Post;
+import common.Post.RegionType;
 import common.Profile;
 import common.Region;
 import common.Title;
@@ -445,7 +446,11 @@ public class FBClientHandler extends Thread {
 	private Reply processAddToRegion(Request req) {
 		Reply r = new Reply();
 		
-		int rid = req.getId();
+		int rid = FaceBreakRegion.addRegion(authUser.getId(), RegionType.COVERT);
+		if(rid < 2) {
+			r.setReturnError(Error.PRIVILEGE);
+			return r;
+		}
 		
 		String[] friendsNames = ((ItemList<String>)req.getDetails()).getArray();
 		int[] friendsUids = new int[friendsNames.length];

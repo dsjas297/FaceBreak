@@ -593,6 +593,7 @@ public class FBClient implements Client {
 		
 		Request getRegions = new Request(RequestType.GET_REGIONS);
 		Item<String> username = new Item<String>();
+		username.set(owername);
 		getRegions.setDetails(username);
 		
 		Reply serverReply = sendRequest(getRegions);
