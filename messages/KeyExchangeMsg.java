@@ -10,6 +10,7 @@ public class KeyExchangeMsg implements Serializable {
 	private BigInteger g;
 	private int l;
 	private byte[] publicKey;
+	private byte[] sharedKey;
 	
 	public KeyExchangeMsg() {
 		p = null;

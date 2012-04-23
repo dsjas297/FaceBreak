@@ -14,7 +14,7 @@ public class ItemList<T> implements Serializable {
 
 	private static final long serialVersionUID = -2422372207778533437L;
 	private T[] array;
-
+	
 	@SuppressWarnings("unchecked")
 	public void setArray(ArrayList<T> list, Class<T> clazz) {
 		if(list == null) {
