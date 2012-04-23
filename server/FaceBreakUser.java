@@ -927,7 +927,7 @@ public class FaceBreakUser {
 			
 			ArrayList<String> friendings = FileSystem.readSecure(notificationsFileName);
 			
-			if(friendings.get(0).equals("ERROR")){
+			if(friendings.size()>0 && friendings.get(0).equals("ERROR")){
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				FileSystem.lockMap.get(notificationsFileName).unlock();
 				return -1;
@@ -978,8 +978,9 @@ public class FaceBreakUser {
 			FileSystem.lockMap.get(notificationsFileName).lock();
 			
 			ArrayList<String> notif_strings = FileSystem.readSecure(notificationsFileName);
+
 			if(notif_strings.get(0).equals("ERROR")){
-				FileSystem.lockMap.get(notificationsFileName).lock();
+				FileSystem.lockMap.get(notificationsFileName).unlock();
 				System.out.println("FILE INTEGRITY COMPROMISED");
 				return null;
 			}
