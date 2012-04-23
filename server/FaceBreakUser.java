@@ -1042,9 +1042,12 @@ public class FaceBreakUser {
 					notificationContents = notificationContents + notifications.get(i) + "\n";
 				}
 			}
+			System.out.println(notifications.size());
 			System.out.println(notificationContents.length());
+			System.out.println("notifid: " + notificationID);
+			System.out.println(notificationContents);
 			// Need to deal with the last newline
-			if(notifications.size() > 0){
+			if(notificationContents.length() > 0){
 				notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
 			}
 				
