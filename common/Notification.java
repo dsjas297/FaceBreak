@@ -16,7 +16,6 @@ public class Notification implements Serializable {
 	private NotificationType type;
 	private String username;
 	private int newRank;
-	private boolean approved;
 	
 	private static final String notificationIDFile = FileSystem.notificationIDFile;
 	
@@ -67,14 +66,6 @@ public class Notification implements Serializable {
 	
 	public NotificationType getType() {
 		return type;
-	}
-	
-	public void approve() {
-		approved = true;
-	}
-	
-	public void deny() {
-		approved = false;
 	}
 	
 	/*

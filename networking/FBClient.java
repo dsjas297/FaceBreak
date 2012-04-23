@@ -518,27 +518,6 @@ public class FBClient implements Client {
 		return e;
 	}
 	
-
-	public Error respondToNotification(Notification notif, boolean approve) throws ClassNotFoundException {
-		// sanity check
-		if (socket == null || user == null)
-			return Error.LOGIN;
-
-		Request readNotification = new Request(RequestType.GET_NOTIFICATIONS);
-		if(approve)
-			notif.approve();
-		else
-			notif.deny();
-		Item<Notification> approval = new Item<Notification>();
-		approval.set(notif);
-		readNotification.setDetails(approval);
-
-		Reply serverReply = sendRequest(readNotification);
-		Error e = serverReply.getReturnError();
-
-		return e;
-	}
-	
 	public Error addToCovert(int rid, ArrayList<String> usernames) throws ClassNotFoundException {
 		// sanity check
 		if (socket == null || user == null)
