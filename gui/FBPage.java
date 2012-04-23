@@ -65,7 +65,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JScrollPane wall_scroller;
 	private JPanel wall;
 	private JTextArea comment_box;
-	private JButton comment_button;
+	private JButton comment_button = new JButton("Post");
 	//EDITOR ELEMENTS
 	private JPanel edit;
 	private JButton save_edit = new JButton("Save profile");
@@ -147,17 +147,14 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.add(user_info);
 
 		//view friends
-		view_friends.addMouseListener(this);
 		view_friends.setForeground(new Color(130, 0, 0));
 		profile.add(view_friends);
 		profile.add(Box.createRigidArea(new Dimension(0,10)));
 		
 		//add friend
-		add_friend.addActionListener(this);
 		profile.add(add_friend);
 		add_friend.setVisible(false);
 		//remove friend
-		rem_friend.addActionListener(this);
 		profile.add(rem_friend);
 		rem_friend.setVisible(false);
 		
@@ -319,6 +316,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		topnav.add(notifications);
 		topnav.add(edit_button);
 		topnav.add(logout);
+		
+		//move profile actionlistener statements here
+		view_friends.addMouseListener(this);
+		add_friend.addActionListener(this);
+		rem_friend.addActionListener(this);
+		comment_button.addActionListener(this);
 	}
 
 	public JPanel create_profile() {
@@ -398,8 +401,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		commPanel.setBackground(Color.white);
 		commPanel.setMaximumSize(new Dimension(wall_width - 20, 20));
 		// add comment button
-		comment_button = new JButton("Post");
-		comment_button.addActionListener(this);
 		commPanel.add(Box.createHorizontalGlue());
 		commPanel.add(comment_button);
 
