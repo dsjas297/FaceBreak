@@ -496,25 +496,25 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			System.out.println("saving");
 			//send new profile info to server
 			try {
-				String newFname, newLname, newFam;
+				//String newFname, newLname, newFam;
 				
 				Profile oldProfile = new Profile(myUserName);
 				myClient.viewProfile(oldProfile);
 				String[] fields = ((ProfileEditor) edit).get_fields();
 				//check for blank fields
-				if (fields[0].equals("")){newFname = oldProfile.getFname();}
-				else{newFname = fields[0];}
-				if (fields[1].equals("")){newLname = oldProfile.getLname();}
-				else{newLname = fields[1];} 
-				if (fields[3].equals("")){newFam = oldProfile.getFamily();}
-				else{newFam = fields[3];}
+				if (!fields[0].isEmpty()){oldProfile.setFname(fields[0]);}
+				//else{newFname = fields[0];}
+				if (!fields[1].isEmpty()){oldProfile.setLname(fields[1]);}
+				//else{newLname = fields[1];} 
+				if (!fields[3].isEmpty()){oldProfile.setFamily(fields[3]);}
+				//else{newFam = fields[3];}
 
-				Profile newProfile = new Profile(myUserName, newFname, newLname); 
-				newProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
-				newProfile.setFamily(newFam);
+				//Profile newProfile = new Profile(myUserName, newFname, newLname); 
+				oldProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
+				//newProfile.setFamily(newFam);
 				
 				//tell client to edit profile
-				Error e = myClient.editProfile(newProfile);
+				Error e = myClient.editProfile(oldProfile);
 				if (e == Error.SUCCESS)
 					change_profile(myUserName);
 			} catch (ClassNotFoundException e) {
