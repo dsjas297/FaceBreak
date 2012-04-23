@@ -146,10 +146,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.add(username);
 		profile.add(user_info);
 
-		//view friends
-		view_friends.setForeground(new Color(130, 0, 0));
-		profile.add(view_friends);
-		profile.add(Box.createRigidArea(new Dimension(0,10)));
+		//view my own friends
+		if (curr_username.equals(myUserName)){
+			view_friends.setForeground(new Color(130, 0, 0));
+			profile.add(view_friends);
+			profile.add(Box.createRigidArea(new Dimension(0,10)));
+		}
 		
 		//add friend
 		profile.add(add_friend);
@@ -627,7 +629,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
-			// TODO: GET LIST OF USER'S FRIENDS
 			ArrayList<String> friendsList = new ArrayList<String>();
 			try {
 				myClient.getFriendsList(friendsList);
