@@ -115,6 +115,7 @@ public class FileSystem {
 	 */
 	public static void writeSecure(String fileContents, String filename){
 		try {
+			
 			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
 			byte bytes[] = new byte[1];
 			random.nextBytes(bytes);
@@ -136,6 +137,8 @@ public class FileSystem {
 			//for(i = 0; i < 8; i++){salt[i] = 0;}
 			
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+			char[] tmpDebug = new String(password).toCharArray();
 			KeySpec spec = new PBEKeySpec(new String(password).toCharArray(), salt, 65536, 128);
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");

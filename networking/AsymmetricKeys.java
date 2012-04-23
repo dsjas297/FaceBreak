@@ -18,8 +18,11 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
 
 import javax.crypto.Cipher;
+
+import server.FileSystem;
 
 import messages.SymmetricKEM;
 
@@ -33,7 +36,7 @@ public class AsymmetricKeys {
 	private static final String ALG = "RSA";
 	private static final int LEN = 2048;
 	private static final String PUBLIC_KEY_FILE = "public.key";
-	private static final String PRIVATE_KEY_FILE = "private.key";
+	private static final String PRIVATE_KEY_FILE = "encryptedPrivate.key";
 	
 	protected void genMyKeys() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -110,38 +113,19 @@ public class AsymmetricKeys {
 	}
 	
 	protected static PrivateKey readPrivateKeyFromFile() throws IOException {
-		InputStream in = AsymmetricKeys.class.getResourceAsStream(PRIVATE_KEY_FILE);
-		ObjectInputStream oin = new ObjectInputStream(new BufferedInputStream(in));
-
 		try {
-			BigInteger m = (BigInteger) oin.readObject();
-			BigInteger e = (BigInteger) oin.readObject();
+			ArrayList<String> me = FileSystem.readSecure("encryptedPrivate.key");
+			
+			BigInteger m = new BigInteger(me.get(0));
+			BigInteger e = new BigInteger(me.get(1));
+			
 			RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(m, e);
 			KeyFactory fact = KeyFactory.getInstance("RSA");
 			PrivateKey privKey = fact.generatePrivate(keySpec);
+			
 			return privKey;
 		} catch (Exception e) {
 			throw new RuntimeException("Spurious serialisation error", e);
-		} finally {
-			oin.close();
 		}
-	}
-	
-	public static void main(String[] args) throws Exception {
-		RandomGenerator.init();
-		
-		byte[] sharedKey = RandomGenerator.getByteArray(128);
-		SymmetricKEM reply = new SymmetricKEM();
-		reply.setSharedKey(sharedKey);
-		
-		AsymmetricKeys keys = new AsymmetricKeys();
-		keys.genMyKeys();
-		PublicKey pub = readPublicKeyFromFile();
-		keys.setRemotePublicKey(pub);
-		
-		byte[] kemBa = reply.getBytes();
-		System.out.println(kemBa.length);
-		byte[] encrypted = keys.encrypt(kemBa);
-		System.out.println(encrypted.length);
 	}
 }

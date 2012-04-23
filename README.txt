@@ -90,10 +90,10 @@ FBPage: Displays a menu at the top with home, search, profile edit, and logout o
     -Home (â€œFaceBreakâ€� label): Allows user to view his own profile and public region.
     -Search: Searching for a username will return the profile and public region for that user. Assumes existing usernames.
     -Profile edit: Displays user profile normally. In place of public region, displays a panel that allows user to modify his first name, last name, title, family, and profile picture.
-    -User Profile: Displays a userâ€™s first name, last name, title, family, and profile picture (if it exists). Displays Regionlinks to access userâ€™s regions (public, private, and coverts). Currently displays all regions.
+    -User Profile: Displays a user's first name, last name, title, family, and profile picture (if it exists). Displays Regionlinks to access userâ€™s regions (public, private, and coverts). Currently displays all regions.
     -User Region: Always defaults to public region (same user whose profile is being displayed). Shows a comment box, and calls client to get all (if any) posts ever made in the region. Each post contains the name (first and last) of its writer, the message, and the time it was posted. Clicking on the name of the writer will display their profile.
 
-FriendsPage: Displays list of userâ€™s friends.
+FriendsPage: Displays list of user's friends.
 
 NotificationPage: Displays list of notifications. You can approve/deny other user requests.
 
@@ -107,12 +107,11 @@ NotifButton, Regionlink, Userlink: actionListeners with user/region/notification
 
 This layer takes care of
 (1) creating messages that correspond to different users' actions,
-(2) serializing messages,and sending them over the network to the server
+(2) serializing messages, encrypting, sending over the network to the server
 (here we assume that client and server are operating from the same machine, localhost),
-(3) doing basic error checking (additional security features to be implemented later),
-(4) deserializing messages on the server side and "querying" the server for information
-that client user needs/expects,
-(5) returning the information to the client in a usable format (or an error message).
+(3) decrypt message on recipient's end and deserialize
+(4) basic error checking such as checksum; also checking a "counter" (basically a nonce) and 
+time stamp to guard against basic replay attacks
 
 Users are allowed the following actions: login, logout, create new user, view profile, edit profile,
 create post, view all posts, add friend, and (to be implemented) post deletion.
@@ -134,6 +133,17 @@ FBClientHandler
     - returns 'replies' with appropriate information/error messages
 Some additional helper classes
 
+********************************************************************************************
+
+----MESSAGES----
+
+These are messages sent over the network, of which there are 3 main types:
+1) Requests from Client to Server
+2) Replies from Server to Client
+3) Key Exchange messages
+
+Requests and replies are encrypted using symmetric AES keys. Key exchange messages, which are much shorter,
+are encrypted using RSA public keys.
 
 ********************************************************************************************
 
@@ -151,7 +161,7 @@ The Server package
     - It creates and manages the files on the server that store the information for a user.
     - It has a constructor which creates a representation of a User object, but any changes made to this object are automatically copied to disk (this should hopefully keep the state consistent)
     - It contains methods to add a user, check if user exists, add a friend for a user, delete a friend for a user, generate notifications, and edit profile information.
---FieSystem
+--FileSystem
     - Function initDirTree() initializes the directory structure:
     	- Creating an empty users file if one does not exist
     	- Creates user ID file if it doesn't exist (to assign unique user IDs)
@@ -161,10 +171,12 @@ The Server package
     - Function readSecure reads what writeSecure has written
     - Also contains system setup constants (like the location of the above files)
 
+********************************************************************************************
+
 INSTALLATION
-1. Unzip the files. You will see a folder titled â€œFaceBreakâ€�
+1. Unzip the files. You will see a folder titled FaceBreak
 2. Open Eclipse (download at http://www.eclipse.org/downloads/moreinfo/java.php)
-3. Create a new project named FaceBreak from the â€œFaceBreakâ€� folder you just unzipped.
+3. Create a new project named FaceBreak from the FaceBreak folder you just unzipped.
 
 COMPILING
 4. File > Export: Select Java > JAR file
@@ -172,36 +184,37 @@ COMPILING
 
 RUNNING
 6. Run FaceBreakServer.bat
+	- Password is SrrEs5d7Um
 7. Run FaceBreakGui.bat
 
 TUTORIAL
 [Log in screen]
-Signing up: Enter desired username/password combination. Click â€œSign upâ€�.
-Logging in: Enter username/password combination. Click â€œLog inâ€�.
+Signing up: Enter desired username/password combination. Click Sign up.
+Logging in: Enter username/password combination. Click Log in.
 
 [FaceBreak screen after logging in]
-Log out: Click on â€œLogoutâ€� in the top right hand corner.
-Edit Profile: Click on â€œEditâ€� in the top right hand corner.
-Access userâ€™s own profile: Click on the FaceBreak logo in the top left hand corner.
-Search user: Type an existing username into the search bar. Click â€œSearchâ€�. That userâ€™s profile should now be displayed.
+Log out: Click on Logout in the top right hand corner.
+Edit Profile: Click on Edit in the top right hand corner.
+Access user's own profile: Click on the FaceBreak logo in the top left hand corner.
+Search user: Type an existing username into the search bar. Click "Search". That user's profile should now be displayed.
 
 [Edit Profile]
-Fill in first name, last name, title, and family fields. Click â€œSaveâ€�. You should see immediate updates to your profile.
+Fill in first name, last name, title, and family fields. Click "Save". You should see immediate updates to your profile.
 
 [Adding friends/viewing users]
-Search for another user to view their profile. In the left pane, click on â€œAdd friendâ€� to add them as a friend.
+Search for another user to view their profile. In the left pane, click on "Add friend" to add them as a friend.
 
 [Removing friends]
-Search for another user to view their profile. In the left pane, click on â€œRemove friendâ€� to remove them from your friends. This assumes you have added them as a friend previously.
+Search for another user to view their profile. In the left pane, click on "Remove friend" to remove them from your friends. This assumes you have added them as a friend previously.
 
 [Viewing friends]
-In the left pane, click on â€œView friendsâ€� to view a users friends.
+In the left pane, click on "View friends" to view a users friends.
 
 [Viewing posts]
 The right pane shows public region posts for the user whose profile is currently being viewed. To view posts in other regions, select the appropriate region from the list in the left pane.
 
 [Posting to a region]
-Type a comment in the test box at the top of the right pane. Click â€œPostâ€� to post the comment and see the region updated immediately.
+Type a comment in the test box at the top of the right pane. Click "Post" to post the comment and see the region updated immediately.
 
 [Viewing notifications]
 Notifications are updated every time an action is performed. The digit next to "Edit" shows the number of notifications pending.
