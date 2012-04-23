@@ -28,6 +28,7 @@ public class FileSystem {
 	public static final String regionPostsFile = "posts";
 	public static final String regionInfoFile = "regionInfo";
 	
+	public static final String notificationIDFile = "nid_counter";
 	public static final String notificationsFile = "notifications";
 	
 	public static final String familiesFile = "families";
@@ -45,6 +46,7 @@ public class FileSystem {
 		File uidFile = new File(globalUidCounter);
 		File usersFile = new File(globalUsers);
 		File famFile = new File(familiesFile);
+		File nidFile = new File(notificationIDFile);
 
 		if (!usersFile.exists()) {
 			try {
@@ -81,6 +83,19 @@ public class FileSystem {
 			} catch (IOException ioe) {
 				System.err
 						.println("OH NOES!! Cannot initialize file for user ID counter.");
+				ioe.printStackTrace();
+			}
+		}
+		
+		if (!nidFile.exists()) {
+			try {
+				BufferedWriter bWriter = new BufferedWriter(new FileWriter(
+						notificationIDFile, true));
+				bWriter.write("0\n");
+				bWriter.close();
+			} catch (IOException ioe) {
+				System.err
+						.println("OH NOES!! Cannot initialize file for notification ID counter.");
 				ioe.printStackTrace();
 			}
 		}
