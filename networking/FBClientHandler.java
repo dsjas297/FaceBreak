@@ -487,7 +487,6 @@ public class FBClientHandler extends Thread {
 		ois = null;
 		oos = null;
 		clientSocket = null;
-		sealer.destroy();
 	}
 
 	private Reply establishSecureConn() {

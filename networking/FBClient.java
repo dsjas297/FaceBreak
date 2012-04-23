@@ -130,7 +130,6 @@ public class FBClient implements Client {
 		if(socket != null && !socket.isClosed()) socket.close();
 		
 		user = null;
-		sealer.destroy();
 		System.out.println("Closed connection on client end.");
 	}
 	
@@ -184,11 +183,9 @@ public class FBClient implements Client {
 //			return Error.MALFORMED_REQUEST;
 
 		try {
-			if(socket == null || socket.isClosed()) {
-				socket = new Socket(serverAddr, PORT_NUM);
-				outStream = new ObjectOutputStream(socket.getOutputStream());
-				inStream = new ObjectInputStream(socket.getInputStream());
-			}
+			socket = new Socket(serverAddr, PORT_NUM);
+			outStream = new ObjectOutputStream(socket.getOutputStream());
+			inStream = new ObjectInputStream(socket.getInputStream());
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
