@@ -282,7 +282,13 @@ public class FaceBreakRegion {
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
 				
 				File f = new File(filename);
-				if(f.exists()){
+				if(regionID == 0){
+					viewableList.add(new Integer(regionID));
+				} else if(regionID == 1){
+					if(FaceBreakUser.getProfile(uid).getFamily().equals(FaceBreakUser.getProfile(friendID).getFamily())){
+						viewableList.add(new Integer(regionID));
+					}
+				}else if(f.exists()){
 					if(checkViewable(uid, regionID, friendID)){
 						viewableList.add(new Integer(regionID));
 					}
