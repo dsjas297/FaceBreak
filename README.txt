@@ -182,7 +182,8 @@ INSTALLATION
 
 COMPILING
 4. File > Export: Select Java > JAR file
-5. Under Resources to Export, select FaceBreak (left pane), .classpath and .project (right pane). Set the export destination to [current working directory]/FaceBreak.jar
+5. Under Resources to Export, select FaceBreak (left pane) and everything in the right pane. Set the export destination to [current working directory]/FaceBreak.jar
+Copy the encryptedPrivate.key to the directory that the JAR sits in.
 
 RUNNING
 6. Run FaceBreakServer.bat
