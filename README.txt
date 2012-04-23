@@ -114,7 +114,9 @@ This layer takes care of
 time stamp to guard against basic replay attacks
 
 Users are allowed the following actions: login, logout, create new user, view profile, edit profile,
-create post, view all posts, add friend, and (to be implemented) post deletion.
+create post, view all posts, add friend, delete friend, viewing covert boards and adding users
+to covert boards, getting notifications (friend requests and title changes that
+need to be approved by the Boss), etc.
 
 The networking package consists of:
 
