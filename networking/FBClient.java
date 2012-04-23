@@ -529,7 +529,7 @@ public class FBClient implements Client {
 
 		String response = approve ? "Approve" : "Deny";
 		
-		Request readNotification = new Request(RequestType.GET_NOTIFICATIONS);
+		Request readNotification = new Request(RequestType.RESPOND_NOTIFICATIONS);
 		readNotification.setId(id);
 		Item<String> approval = new Item<String>();
 		approval.set(response);
