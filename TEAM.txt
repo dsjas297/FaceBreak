@@ -3,11 +3,8 @@ Gaomin Deng (gd226)
 Jasdeep Hundal (jsh263)
 Boiar Qin (bq27)
 
-Gaomin: 
-Authentication over network: diffie-hellman key exchange, encrypting/decrypting
-message, signing messages, misc error checks 
-~15hrs
+Gaomin: Modified networking; added message encryption; tested and debugged networking, GUI, server packages. [~20 hrs]
 
-Jasdeep: [~15 hours]
+Jasdeep: Added synchronization and encryption to file system; added notifications to server side; updated README. [~20 hrs]
 
-Boiar: Fixed corner cases in GUI; created page for viewing friends; tested locking mechanism in server backend; fixed variable/class discrepancies in networking package. [~15 hours]
+Boiar: Added notifications to GUI; tested end-to-end system; extensively debugged GUI, networking, server packages. [~20 hrs]
