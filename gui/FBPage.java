@@ -206,7 +206,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//add Covert button
 		if (curr_username.equals(myUserName) && numRegions < maxRegions){
-			add_covert.addActionListener(this);
 			profile.add(add_covert);
 		}
 		//profile.add(Box.createVerticalGlue());
@@ -324,6 +323,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		add_friend.addActionListener(this);
 		rem_friend.addActionListener(this);
 		comment_button.addActionListener(this);
+		add_covert.addActionListener(this);
 	}
 
 	public JPanel create_profile() {
