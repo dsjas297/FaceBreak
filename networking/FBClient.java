@@ -377,12 +377,17 @@ public class FBClient implements Client {
 
 		Request editProfile = new Request(RequestType.EDIT_PROFILE);
 		Item<Profile> profileReq = new Item<Profile>();
-		profileReq.set(myProfile);
+		Profile newProfile = new Profile(user.getUsername(), 
+				myProfile.getFname(), 
+				myProfile.getLname(),
+				myProfile.getFamily(),
+				myProfile.getTitle());
+		profileReq.set(newProfile);
 		editProfile.setDetails(profileReq);
 		
 		Reply serverReply = sendRequest(editProfile);
 		Error e = serverReply.getReturnError();
-		
+		newProfile.setUsername("");
 		return e;
 	}
 	
