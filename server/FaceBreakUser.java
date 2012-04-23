@@ -740,7 +740,7 @@ public class FaceBreakUser {
 			
 			boolean exists = false;
 			int i;
-			for(i = 0; i < friends.size(); i++) {
+			for(i = 0; i < friends.size() - 1; i++) {
 				if(friends.get(i).equals(Integer.toString(friendUid))) {
 					exists = true;
 					break;
@@ -883,7 +883,7 @@ public class FaceBreakUser {
 			
 			String notificationContents = "";
 			
-			for(int i = 0; i < friendings.size() - 1; i++){
+			for(int i = 0; i < friendings.size(); i++){
 				notificationContents = notificationContents + friendings.get(i) + "\n";
 			}
 			// Need to deal with the last newline
@@ -1106,7 +1106,7 @@ public class FaceBreakUser {
 			
 			FileWriter fWriter = new FileWriter(familiesFile);
 			BufferedWriter fileWriter = new BufferedWriter(fWriter);
-			for(int i = 0; i < families.size() - 1; i++){
+			for(int i = 0; i < families.size(); i++){
 				fileWriter.write(temp + "\n");
 			}
 			fileWriter.write(familyName + ":" + Integer.toString(uid));

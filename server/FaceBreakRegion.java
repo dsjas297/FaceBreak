@@ -163,7 +163,7 @@ public class FaceBreakRegion {
 			FileSystem.writeSecure(info, ownerIDstr + "\\" + regionsFolder + "\\" +
 					Integer.toString(regionID) + "\\" + regionInfoFile);
 
-			return 0;
+			return regionID;
 
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
@@ -210,7 +210,7 @@ public class FaceBreakRegion {
 			
 			String fileContents = "";
 			
-			for(int i = 0; i < allowed.size() - 1; i++){
+			for(int i = 0; i < allowed.size(); i++){
 				fileContents = fileContents + allowed.get(i) + "\n";
 			}
 			fileContents = fileContents + allowed.get(allowed.size() - 1);

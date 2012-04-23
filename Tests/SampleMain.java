@@ -87,8 +87,8 @@ public class SampleMain {
 		
 		// 4th try
 		e = client.login(username, "finaltry");
-		assert(e == Error.PWD_EXCEED_RETRIES);
 		e.print();
+//		assert(e == Error.PWD_EXCEED_RETRIES);
 	}
 	
 	/*
@@ -175,17 +175,19 @@ public class SampleMain {
 	public static void postViewTest(FBClient client, String username) throws ClassNotFoundException {
 		Post post1 = new Post();
 		post1.setRegionId(0);
-		post1.setText("Yo yo yiggidy yo.");
+		post1.setText("Post #1.");
 		post1.setOwnerName(username);
 		Error e = client.post(post1);
-		assert(e == Error.SUCCESS);
+		e.print();
+//		assert(e == Error.SUCCESS);
 		
 		Post post2 = new Post();
 		post2.setRegionId(0);
-		post2.setText("ffffuuuuuuuu");
+		post2.setText("Post #2");
 		post2.setOwnerName(username);
 		e = client.post(post2);
-		assert(e == Error.SUCCESS);
+		e.print();
+//		assert(e == Error.SUCCESS);
 		
 		Region reg = new Region(username, 0);
 		e = client.viewRegion(reg);
@@ -212,6 +214,7 @@ public class SampleMain {
 		
 		FBClient client = new FBClient();
 		loginUser(client, user1, pwd);
+		testUpdateProfile(client, username1, Title.BOSS);
 		
 		Profile prof = new Profile(user1);
 		prof.setFname("Sherlock");
@@ -223,6 +226,7 @@ public class SampleMain {
 		
 		client = new FBClient();
 		loginUser(client, user2, pwd);
+		prof.setUsername(user2);
 		prof.setFname("John");
 		prof.setLname("Watson");
 		prof.setTitle(Title.CAPO);
@@ -260,11 +264,22 @@ public class SampleMain {
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 		System.out.println("Running test suite...");
 		
-//		FileSystem.cleanup();
-		
 //		basicLoginTest();
 		
 		FBClient myClient = new FBClient();
+		loginUser(myClient, username2, pwd2);
+		
+//		testUpdateProfile(myClient, username1, Title.BOSS);
+		
+		ArrayList<Integer> rids = new ArrayList<Integer>();
+//		usernames.add(username2);
+//		Error e = myClient.addToCovert(2, usernames);
+		Error e = myClient.getViewableRegions(username1, rids);
+		e.print();
+		for(int rid : rids) {
+			System.out.println("Region id: " + rid);
+		}
+		myClient.logout();
 		
 //		loginUser(myClient, username2, pwd2);
 //		testAddFriend(myClient, username1);
@@ -277,7 +292,7 @@ public class SampleMain {
 //		Error e = myClient.logout();
 //		e.print();
 		
-		basicProfileUpdate();
+//		basicProfileUpdate();
 		
 		System.out.println();
 		System.out.println("Finished test suite");
