@@ -49,6 +49,17 @@ CONTENTS
 --LaunchGui
 --LaunchServer
 
+-messages
+--AsymmetricKEM
+--GenericMsg
+--Item
+--ItemList
+--MsgSealer
+--MsgWrapper
+--Reply
+--Request
+--SymmetricKEM
+
 -networking
 --AsymmetricKeys
 --AuthenticatedUser
@@ -84,7 +95,11 @@ FBPage: Displays a menu at the top with home, search, profile edit, and logout o
 
 FriendsPage: Displays list of userâ€™s friends.
 
+NotificationPage: Displays list of notifications. You can approve/deny other user requests.
+
 LimitedText: Text field with character limit
+
+NotifButton, Regionlink, Userlink: actionListeners with user/region/notification information
 
 ********************************************************************************************
 
@@ -135,11 +150,16 @@ The Server package
     - FaceBreakUser contains the server side code for creating and managing users. These methods are used by the ServerBackend and FBClientHandler classes to interact with user information.
     - It creates and manages the files on the server that store the information for a user.
     - It has a constructor which creates a representation of a User object, but any changes made to this object are automatically copied to disk (this should hopefully keep the state consistent)
-    - It contains methods to add a user, check if user exists, add a friend for a user, delete a friend for a user, mark other users trustworthy or untrustworthy, and edit profile information.
---ServerBackend
-    - Function initDirTree() initializes the directory structure by creating an empty users file if one does not exist, and creating the userID file which we
-    - Other functions are createPost, viewPosts, addFriend, and deleteFriend
-    - This does repeat some functionality in the other files and will have to be refactored
+    - It contains methods to add a user, check if user exists, add a friend for a user, delete a friend for a user, generate notifications, and edit profile information.
+--FieSystem
+    - Function initDirTree() initializes the directory structure:
+    	- Creating an empty users file if one does not exist
+    	- Creates user ID file if it doesn't exist (to assign unique user IDs)
+    	- Creates notification ID file if it doesn't exist (to assign unique notification IDs)
+    	- Creates family / boss file if it doesn't exist
+    - Function writeSecure uses a hash of the server password to write data and a hash of the data to disk in an encrypted format
+    - Function readSecure reads what writeSecure has written
+    - Also contains system setup constants (like the location of the above files)
 
 INSTALLATION
 1. Unzip the files. You will see a folder titled â€œFaceBreakâ€�
@@ -171,6 +191,9 @@ Fill in first name, last name, title, and family fields. Click â€œSaveâ€�
 [Adding friends/viewing users]
 Search for another user to view their profile. In the left pane, click on â€œAdd friendâ€� to add them as a friend.
 
+[Removing friends]
+Search for another user to view their profile. In the left pane, click on â€œRemove friendâ€� to remove them from your friends. This assumes you have added them as a friend previously.
+
 [Viewing friends]
 In the left pane, click on â€œView friendsâ€� to view a users friends.
 
@@ -179,3 +202,7 @@ The right pane shows public region posts for the user whose profile is currently
 
 [Posting to a region]
 Type a comment in the test box at the top of the right pane. Click â€œPostâ€� to post the comment and see the region updated immediately.
+
+[Viewing notifications]
+Notifications are updated every time an action is performed. The digit next to "Edit" shows the number of notifications pending.
+Once you have performed an action on a notification, reload the notifications page to update it.
