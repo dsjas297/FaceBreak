@@ -130,6 +130,7 @@ public class FBClient implements Client {
 		if(socket != null && !socket.isClosed()) socket.close();
 		
 		user = null;
+		isSecure = false;
 		System.out.println("Closed connection on client end.");
 	}
 	
@@ -186,6 +187,7 @@ public class FBClient implements Client {
 			socket = new Socket(serverAddr, PORT_NUM);
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
+			sealer = new MsgSealer();
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
@@ -253,6 +255,7 @@ public class FBClient implements Client {
 			socket = new Socket(serverAddr, PORT_NUM);
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
+			sealer = new MsgSealer();
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
