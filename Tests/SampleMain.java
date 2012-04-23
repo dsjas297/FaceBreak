@@ -209,8 +209,8 @@ public class SampleMain {
 		String user1 = "holmes";
 		String user2 = "watson";
 		String pwd = "pwd";
-//		testCreateUser(user1, pwd);
-//		testCreateUser(user2, pwd);
+		testCreateUser(user1, pwd);
+		testCreateUser(user2, pwd);
 		
 		FBClient client = new FBClient();
 		loginUser(client, user1, pwd);
@@ -264,7 +264,8 @@ public class SampleMain {
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 		System.out.println("Running test suite...");
 		
-		basicLoginTest();
+//		basicLoginTest();
+//		basicProfileUpdate();
 		
 //		FBClient myClient = new FBClient();
 //		Error e = myClient.login(username1, pwd1);

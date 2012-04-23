@@ -68,7 +68,6 @@ public class MsgSealer {
 		decrypter.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(INIT_VECTOR));
 	}
 	
-	// zero out byte array??
 	public void destroy() {
 		for(int i = 0; i < secret.length; i++)
 			secret[i] = '0';
