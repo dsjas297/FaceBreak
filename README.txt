@@ -107,12 +107,11 @@ NotifButton, Regionlink, Userlink: actionListeners with user/region/notification
 
 This layer takes care of
 (1) creating messages that correspond to different users' actions,
-(2) serializing messages,and sending them over the network to the server
+(2) serializing messages, encrypting, sending over the network to the server
 (here we assume that client and server are operating from the same machine, localhost),
-(3) doing basic error checking (additional security features to be implemented later),
-(4) deserializing messages on the server side and "querying" the server for information
-that client user needs/expects,
-(5) returning the information to the client in a usable format (or an error message).
+(3) decrypt message on recipient's end and deserialize
+(4) basic error checking such as checksum; also checking a "counter" (basically a nonce) and 
+time stamp to guard against basic replay attacks
 
 Users are allowed the following actions: login, logout, create new user, view profile, edit profile,
 create post, view all posts, add friend, and (to be implemented) post deletion.
@@ -137,6 +136,14 @@ Some additional helper classes
 ********************************************************************************************
 
 ----MESSAGES----
+
+These are messages sent over the network, of which there are 3 main types:
+1) Requests from Client to Server
+2) Replies from Server to Client
+3) Key Exchange messages
+
+Requests and replies are encrypted using symmetric AES keys. Key exchange messages, which are much shorter,
+are encrypted using RSA public keys.
 
 ********************************************************************************************
 
@@ -177,36 +184,37 @@ COMPILING
 
 RUNNING
 6. Run FaceBreakServer.bat
+	- Password is SrrEs5d7Um
 7. Run FaceBreakGui.bat
 
 TUTORIAL
 [Log in screen]
-Signing up: Enter desired username/password combination. Click â€œSign upâ€�.
-Logging in: Enter username/password combination. Click â€œLog inâ€�.
+Signing up: Enter desired username/password combination. Click Sign up.
+Logging in: Enter username/password combination. Click Log in.
 
 [FaceBreak screen after logging in]
 Log out: Click on Logout in the top right hand corner.
 Edit Profile: Click on Edit in the top right hand corner.
 Access user's own profile: Click on the FaceBreak logo in the top left hand corner.
-Search user: Type an existing username into the search bar. Click â€œSearchâ€�. That userâ€™s profile should now be displayed.
+Search user: Type an existing username into the search bar. Click "Search". That user's profile should now be displayed.
 
 [Edit Profile]
-Fill in first name, last name, title, and family fields. Click â€œSaveâ€�. You should see immediate updates to your profile.
+Fill in first name, last name, title, and family fields. Click "Save". You should see immediate updates to your profile.
 
 [Adding friends/viewing users]
-Search for another user to view their profile. In the left pane, click on â€œAdd friendâ€� to add them as a friend.
+Search for another user to view their profile. In the left pane, click on "Add friend" to add them as a friend.
 
 [Removing friends]
-Search for another user to view their profile. In the left pane, click on â€œRemove friendâ€� to remove them from your friends. This assumes you have added them as a friend previously.
+Search for another user to view their profile. In the left pane, click on "Remove friend" to remove them from your friends. This assumes you have added them as a friend previously.
 
 [Viewing friends]
-In the left pane, click on View friends to view a users friends.
+In the left pane, click on "View friends" to view a users friends.
 
 [Viewing posts]
 The right pane shows public region posts for the user whose profile is currently being viewed. To view posts in other regions, select the appropriate region from the list in the left pane.
 
 [Posting to a region]
-Type a comment in the test box at the top of the right pane. Click Post to post the comment and see the region updated immediately.
+Type a comment in the test box at the top of the right pane. Click "Post" to post the comment and see the region updated immediately.
 
 [Viewing notifications]
 Notifications are updated every time an action is performed. The digit next to "Edit" shows the number of notifications pending.
