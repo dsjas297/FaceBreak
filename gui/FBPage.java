@@ -462,6 +462,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		
 		return notifs;
 	}
+	public void refresh_notifs(){
+		ArrayList<Notification> notifs = update_notifs();
+		wall_scroller.setViewportView(new NotificationPage(this, myClient, wall_width, notifs));
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -641,7 +645,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//view notifications
 		if (arg0.getSource() == notifications) {
-			wall_scroller.setViewportView(new NotificationPage(myClient, wall_width, notifs));
+			wall_scroller.setViewportView(new NotificationPage(this, myClient, wall_width, notifs));
 		}
 	}
 
