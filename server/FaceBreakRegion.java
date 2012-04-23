@@ -189,11 +189,13 @@ public class FaceBreakRegion {
 	}
 
 	public static int addToViewable(int uid, int regionID, int[] friendIDs){
+		
+		String ownerIDstr = Integer.toString(uid);
+		String regionIDstr = Integer.toString(regionID);
+		String filename = ownerIDstr + "\\" + regionsFolder + "\\" +
+				regionIDstr + "\\" + regionInfoFile;
+		
 		try{
-			String ownerIDstr = Integer.toString(uid);
-			String regionIDstr = Integer.toString(regionID);
-			String filename = ownerIDstr + "\\" + regionsFolder + "\\" +
-					regionIDstr + "\\" + regionInfoFile;
 			
 			if(FileSystem.lockMap.get(filename) == null){
 				FileSystem.lockMap.put(filename, new ReentrantLock());
@@ -230,16 +232,18 @@ public class FaceBreakRegion {
 			
 			return 0;
 		}catch(Exception e){
+			FileSystem.lockMap.get(filename).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return -1;
 		}
 	}
 
 	private static boolean checkViewable(int uid, int regionID, int friendID){
+		
+		String filename = Integer.toString(uid) +
+				"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
+		
 		try{
-			
-			String filename = Integer.toString(uid) +
-					"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
 			
 			if(FileSystem.lockMap.get(filename) == null){
 				FileSystem.lockMap.put(filename, new ReentrantLock());
@@ -264,6 +268,7 @@ public class FaceBreakRegion {
 
 			return false;
 		} catch(Exception e){
+			FileSystem.lockMap.get(filename).unlock();
 			System.err.println("Error: " + e.getMessage());
 			return false;
 		}
@@ -393,10 +398,11 @@ public class FaceBreakRegion {
 		// int wid = myPost.getWriterId();
 		int rid = myPost.getRegionId();
 
+		String path = Integer.toString(oid) + "\\"
+				+ regionsFolder + "\\" + Integer.toString(rid) + "\\"
+				+ regionPostsFile;
+		
 		try {
-			String path = Integer.toString(oid) + "\\"
-					+ regionsFolder + "\\" + Integer.toString(rid) + "\\"
-					+ regionPostsFile;
 			
 			if(FileSystem.lockMap.get(path) == null){
 				FileSystem.lockMap.put(path, new ReentrantLock());
@@ -429,7 +435,7 @@ public class FaceBreakRegion {
 			
 			return true;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			FileSystem.lockMap.get(path).unlock();
 			e.printStackTrace();
 			return false;
 		}
@@ -480,7 +486,7 @@ public class FaceBreakRegion {
 			
 			return allPosts;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			FileSystem.lockMap.get(path).unlock();
 			e.printStackTrace();
 			return null;
 		}
