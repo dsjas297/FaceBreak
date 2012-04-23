@@ -155,7 +155,10 @@ public class FaceBreakRegion {
 					Integer.toString(regionID) + "\\" + regionPostsFile;
 			File postsFile = new File(path);
 			postsFile.getParentFile().mkdirs();
-			postsFile.createNewFile();
+			String newPost = Long.toString((new Date()).getTime()) + ":"
+			+ "System Message" + ":" + "Board created";
+			FileSystem.writeSecure(newPost, path);
+			//postsFile.createNewFile();
 
 			// Fill in info for user
 			// For now this file only contains allowed viewers of the board
