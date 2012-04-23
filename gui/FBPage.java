@@ -305,6 +305,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// add notifications button
 		notifications.setForeground(Color.white);
 		notifications.addMouseListener(this);
+		update_notifs();
 		// add edit button
 		edit_button.setForeground(Color.white);
 		edit_button.addMouseListener(this);
@@ -446,8 +447,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public ArrayList<Notification> update_notifs(){
 		ArrayList<Notification> notifs = new ArrayList<Notification>();
 		try {
 			myClient.getNotifications(notifs);
@@ -456,6 +456,13 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		int num_not = notifs.size(); //number of notifications
 		notifications.setText(num_not + " | ");
+		
+		return notifs;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		update_notifs();
 		
 		//LEAVE A COMMENT
 		if (arg0.getSource() == comment_button) {
@@ -567,7 +574,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 				//eliminate whitespace
 				s = s.replaceAll("\\s+", "");
 				//split string by commas
-				ArrayList<String> usernames = new ArrayList(Arrays.asList(s.split(",")));
+				ArrayList<String> usernames = new ArrayList<String>(Arrays.asList(s.split(",")));
 				//TODO:create a new board that only those users can view
 				ArrayList<Integer> regionList = new ArrayList<Integer>();
 				try {
@@ -589,14 +596,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		ArrayList<Notification> notifs = new ArrayList<Notification>();
-		try {
-			myClient.getNotifications(notifs);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		int num_not = notifs.size(); //number of notifications
-		notifications.setText(num_not + " | ");
+		ArrayList<Notification> notifs = update_notifs();
 		
 		if (arg0.getSource() == logo) {
 			System.out.println(arg0.getSource().getClass().getName());
