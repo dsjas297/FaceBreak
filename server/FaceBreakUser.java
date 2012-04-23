@@ -739,7 +739,11 @@ public class FaceBreakUser {
 			}
 			FileSystem.writeSecure(info,Integer.toString(uid) + "\\" + userInfoFile);
 			
-			if(approved || bossID == -1 || prof.getTitle() == null || prof.getTitle() == Title.ASSOC ||
+			if(prof.getTitle() == null){
+				prof.setTitle(oldProfile.getTitle());
+			}
+			
+			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
 					(prof.getTitle() == oldProfile.getTitle() &&
 					 prof.getFamily().equals(oldProfile.getFamily()))) {
 				// Fill in info for user
