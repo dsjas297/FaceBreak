@@ -65,7 +65,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	private JScrollPane wall_scroller;
 	private JPanel wall;
 	private JTextArea comment_box;
-	private JButton comment_button;
+	private JButton comment_button = new JButton("Post");
 	//EDITOR ELEMENTS
 	private JPanel edit;
 	private JButton save_edit = new JButton("Save profile");
@@ -146,27 +146,27 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		profile.add(username);
 		profile.add(user_info);
 
-		//view friends
-		view_friends.addMouseListener(this);
-		view_friends.setForeground(new Color(130, 0, 0));
-		profile.add(view_friends);
-		profile.add(Box.createRigidArea(new Dimension(0,10)));
+		//view my own friends
+		if (curr_username.equals(myUserName)){
+			view_friends.setForeground(new Color(130, 0, 0));
+			profile.add(view_friends);
+			profile.add(Box.createRigidArea(new Dimension(0,10)));
+		}
 		
 		//add friend
-		add_friend.addActionListener(this);
 		profile.add(add_friend);
 		add_friend.setVisible(false);
 		//remove friend
-		rem_friend.addActionListener(this);
 		profile.add(rem_friend);
 		rem_friend.setVisible(false);
 		
 		if (!curr_username.equals(myUserName)){
 			ArrayList<String> myFriendsList = new ArrayList<String>();
 			Error friends_e = myClient.getFriendsList(myFriendsList);
+			System.out.println(friends_e);
 			//TODO: GET LIST OF FRIENDS (myFriendsList)
-			if (myFriendsList.contains(curr_profile)){
-				// if curr_profile is friends with myUser
+			if (myFriendsList.contains(curr_username)){
+				// if curr_username is friends with myUser
 				rem_friend.setVisible(true);
 			}
 			else{ 
@@ -177,7 +177,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// get Board for user, get list of regions
 		// TODO:
 		ArrayList<Integer> regionList = new ArrayList<Integer>();
-//		myClient.getViewableRegions(curr_profile, regionList);
 		myClient.getViewableRegions(curr_username, regionList);
 		/**System.out.println(regionList);**/
 		int numRegions = regionList.size();
@@ -319,6 +318,12 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		topnav.add(notifications);
 		topnav.add(edit_button);
 		topnav.add(logout);
+		
+		//move profile actionlistener statements here
+		view_friends.addMouseListener(this);
+		add_friend.addActionListener(this);
+		rem_friend.addActionListener(this);
+		comment_button.addActionListener(this);
 	}
 
 	public JPanel create_profile() {
@@ -398,8 +403,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		commPanel.setBackground(Color.white);
 		commPanel.setMaximumSize(new Dimension(wall_width - 20, 20));
 		// add comment button
-		comment_button = new JButton("Post");
-		comment_button.addActionListener(this);
 		commPanel.add(Box.createHorizontalGlue());
 		commPanel.add(comment_button);
 
@@ -493,25 +496,25 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 			System.out.println("saving");
 			//send new profile info to server
 			try {
-				String newFname, newLname, newFam;
+				//String newFname, newLname, newFam;
 				
 				Profile oldProfile = new Profile(myUserName);
 				myClient.viewProfile(oldProfile);
 				String[] fields = ((ProfileEditor) edit).get_fields();
 				//check for blank fields
-				if (fields[0].equals("")){newFname = oldProfile.getFname();}
-				else{newFname = fields[0];}
-				if (fields[1].equals("")){newLname = oldProfile.getLname();}
-				else{newLname = fields[1];} 
-				if (fields[3].equals("")){newFam = oldProfile.getFamily();}
-				else{newFam = fields[3];}
+				if (!fields[0].isEmpty()){oldProfile.setFname(fields[0]);}
+				//else{newFname = fields[0];}
+				if (!fields[1].isEmpty()){oldProfile.setLname(fields[1]);}
+				//else{newLname = fields[1];} 
+				if (!fields[3].isEmpty()){oldProfile.setFamily(fields[3]);}
+				//else{newFam = fields[3];}
 
-				Profile newProfile = new Profile(myUserName, newFname, newLname); 
-				newProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
-				newProfile.setFamily(newFam);
+				//Profile newProfile = new Profile(myUserName, newFname, newLname); 
+				oldProfile.setTitle(Title.valueOf(fields[2].toUpperCase()));
+				//newProfile.setFamily(newFam);
 				
 				//tell client to edit profile
-				Error e = myClient.editProfile(newProfile);
+				Error e = myClient.editProfile(oldProfile);
 				if (e == Error.SUCCESS)
 					change_profile(myUserName);
 			} catch (ClassNotFoundException e) {
@@ -626,7 +629,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		}
 		//view this user's friends
 		else if (arg0.getSource() == view_friends) {
-			// TODO: GET LIST OF USER'S FRIENDS
 			ArrayList<String> friendsList = new ArrayList<String>();
 			try {
 				myClient.getFriendsList(friendsList);

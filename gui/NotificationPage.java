@@ -87,7 +87,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 					notif_msg.setLineWrap(true);
 					notif_msg.setWrapStyleWord(true);
 					//add buttons "Approve/Deny"
-					NotifButton approve_b = new NotifButton("Approve", notifications.get(i).getId(), notifications.get(i).getUsername(), Title.getTitle(notifications.get(i).getNewRank()).toString());
+					NotifButton approve_b = new NotifButton("Approve", notifications.get(i).getId(), notifications.get(i).getUsername(), Title.getTitle(notifications.get(i).getNewRank()));
 					approve_b.addActionListener(this);
 					NotifButton deny_b = new NotifButton("Deny", notifications.get(i).getId(), notifications.get(i).getUsername());
 					deny_b.addActionListener(this);
@@ -140,7 +140,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 					String notifUser = nButton.get_username();
 					Profile oldProfile = new Profile(notifUser);
 					myClient.viewProfile(oldProfile);
-					oldProfile.setTitle(Title.valueOf(nButton.get_newtitle().toUpperCase()));
+					oldProfile.setTitle(nButton.get_newtitle());
 					//tell client to edit profile
 					Error e = myClient.editProfile(oldProfile);
 					if (e == Error.SUCCESS)

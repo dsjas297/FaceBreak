@@ -709,7 +709,7 @@ public class FaceBreakUser {
 			if(FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile) == null){
 				FileSystem.lockMap.put(Integer.toString(uid) + "\\" + userInfoFile, new ReentrantLock());
 			}
-			
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 			// Make request to boss, encode string in request
 			
 			Profile oldProfile = getProfile(uid);
@@ -739,25 +739,30 @@ public class FaceBreakUser {
 			}
 			FileSystem.writeSecure(info,Integer.toString(uid) + "\\" + userInfoFile);
 			
+			if(prof.getTitle() == null){
+				prof.setTitle(oldProfile.getTitle());
+			}
+			
 			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
 					(prof.getTitle() == oldProfile.getTitle() &&
 					 prof.getFamily().equals(oldProfile.getFamily()))) {
-				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 				// Fill in info for user
 				String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
 						Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 						prof.getLname();
 				FileSystem.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
-				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			}
 			
 			else{ // make request
+				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 				return notifyChangeTitle(prof.getUsername(), bossID, prof);
 			}
 			
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			return 0;
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			return -1;
 		}
 	}
@@ -1043,8 +1048,10 @@ public class FaceBreakUser {
 				}
 			}
 			// Need to deal with the last newline
-			notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
-			
+			if(notificationContents.length() > 0){
+				notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
+			}
+				
 			FileSystem.writeSecure(notificationContents, notificationsFileName);
 			
 			FileSystem.lockMap.get(notificationsFileName).unlock();
@@ -1082,10 +1089,8 @@ public class FaceBreakUser {
 			if(request == null){
 				return -1;
 			}
-			
-			Profile profile = new Profile(request[1], request[5], request[6]);
-			profile.setFamily(request[7]);
-			profile.setTitle(Title.valueOf(request[4]));
+			Profile profile = getProfile(checkIfUserExists(request[2]));
+			profile.setTitle(Title.getTitle(Integer.parseInt(request[3])));
 			
 			setProfile(checkIfUserExists(profile.getUsername()), profile, true);
 			

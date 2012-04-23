@@ -1,6 +1,13 @@
 package common;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
+
+import server.FileSystem;
 
 public class Notification implements Serializable {
 
@@ -11,8 +18,35 @@ public class Notification implements Serializable {
 	private int newRank;
 	private boolean approved;
 	
+	private static final String notificationIDFile = FileSystem.notificationIDFile;
+	
+	private static int getNewNotifID(){
+		try{
+			if(FileSystem.lockMap.get(notificationIDFile) == null){
+				FileSystem.lockMap.put(notificationIDFile, new ReentrantLock());
+			}
+			FileSystem.lockMap.get(notificationIDFile).lock();
+			
+			FileReader fReader = new FileReader(notificationIDFile);
+			BufferedReader inputReader = new BufferedReader(fReader);
+			String temp = inputReader.readLine();
+			int id = Integer.parseInt(temp);
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(notificationIDFile, false));
+			bWriter.write(Integer.toString(id + 1));
+			bWriter.close();
+			
+			FileSystem.lockMap.get(notificationIDFile).unlock();
+			
+			return id;
+		} catch(Exception e){
+			System.err.println("Error: " + e.getMessage());
+			return 0;
+		}
+	}
+	
 	public Notification(NotificationType type) {
 		this.type = type;
+		this.nid = getNewNotifID();
 	}
 	
 	public void setUsername(String username) {
