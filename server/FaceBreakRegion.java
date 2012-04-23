@@ -131,7 +131,7 @@ public class FaceBreakRegion {
 			}
 			
 			
-			int regionID = 1;
+			int regionID = 0;
 			File regionFolder;
 			if(regionType == Post.RegionType.COVERT){
 				do{
