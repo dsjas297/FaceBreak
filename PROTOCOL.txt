@@ -1,7 +1,9 @@
 PROTOCOL.txt
 
 GOALS
--Use Diffie-Hellman key exchange as part of public key infrastructure.
+-Use public key encryption to send the key exchange messages, culminating in
+client and server established a shared symmetric key for encrypting subsequent
+messages (shared key only valid for this session).
 -Server should be able to catch modified or random messages. Server should believe that any other message was sent by a legitimate Client.
 -Client should be able to catch modified or random messages. Client should believe that any other message was sent by the Server.
 -After Server is taken offline, no secrets remain in memory.
@@ -66,21 +68,29 @@ ASSUMPTIONS
 -All Java security libraries used are secure.
 
 CLIENT-SERVER AUTHENTICATION, MESSAGE EXCHANGE
-(1) Perform Diffie-Hellman key exchange:
-(i) Server -> Client: p, where p is a securely generated large prime
-(ii) Client and Server both compute symmetric shared secret key
-(iii) Server: securely generates a random number for the counter/nonce
-(iv) Both client and server generate public/private keys for signing message and
-send the public key to the each other
-
-(2) Secure session: message and incremented counter are now encrypted [AES, CBC
-mode with PKCS5 padding] creating a SealedObject. SealedObjects are then signed using signing key to create SignedObject.
-
-(3) The receiving end verifies signature and decrypts message. It also checks the ‘counter’ on each message and the timestamp to prevent replay attacks.
-
-(4) End of secure session occurs when user logs out. Clear all secrets from memory by ANDing everything with 0.
+(1) Hardcoded a 'public.key' file which contains the server's default public key
+(2) Client generates public/private key pair; encrypts public key with server's
+default public key and sends to Server
+(3) Server decrypts client's message with its default private key.
+(4) Server generates a random byte array and encrypts with client's public key;
+sends to Client
+(5) Both client and server have established a shared key; create an AES key for
+further encryption
+(6) Server: securely generates a random number for the counter/nonce
+(7) End of secure session occurs when user logs out. The client's public/private
+key and the shared key are valid only for this session.
 
 DESIGN REASONING
--Public key encryption used to verify Client and Server to each other
--Each message includes a counter and timestamp to prevent replay attacks.
-
+-Public key encryption used to perform key exchange; this is because public key
+encryption tends to be slower; additionally, cannot encrypt long messages using
+RSA, which is problematic for client/server communication
+-Symmetric key encryption is much faster
+-Previously used Diffie Hellman key exchange, which was vulnerable to man in the
+middle attacks. This scheme is less vulnerable to such attacks as no messages
+are being sent out "in the open". We rely on the fact that an attacker cannot
+access/learn the server's default private key.
+-Additionally replay attacks are difficult because the need to break client's
+private key; we also rely on the unlikelihood of that the replayed count/nonce
+is valid
+-For the default public/private key pair, we generate large keys (512 bytes);
+the shared key is 128 bytes
