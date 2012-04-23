@@ -24,12 +24,14 @@ import common.Title;
 public class NotificationPage extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 1L;
 	FBClient myClient;
+	FBPage parent;
 	
 	/**NotificationPage takes the list of notification messages, and displays one at a time 
 	with options for each.
 	**/
-	public NotificationPage(FBClient myClient, int wall_width, ArrayList<Notification> notifications){
+	public NotificationPage(FBPage parent, FBClient myClient, int wall_width, ArrayList<Notification> notifications){
 		this.myClient = myClient;
+		this.parent = parent;
 		
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		setMinimumSize(new Dimension(wall_width,300));
@@ -172,7 +174,7 @@ public class NotificationPage extends JPanel implements ActionListener{
 			}
 			//remove the notification
 			//nButton.get_notif_id();
-			
+			parent.refresh_notifs();
 			
 			//refresh page
 		}	//end notifButton	

@@ -121,7 +121,8 @@ public class FBWindow extends JFrame implements ActionListener, MouseListener {
 						client.editProfile(newProfile);
 						
 						//auto-login
-						//login_protocol();	
+						//login_protocol();
+						login.clearPwd();
 						login.setVisible(false);
 						fbpage = new FBPage(client, login.usernameEntry.getText());
 						setContentPane(fbpage);
