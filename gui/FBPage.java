@@ -324,6 +324,7 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		rem_friend.addActionListener(this);
 		comment_button.addActionListener(this);
 		add_covert.addActionListener(this);
+		save_edit.addActionListener(this);
 	}
 
 	public JPanel create_profile() {
@@ -446,7 +447,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 	}
 
 	public void edit_profile() {
-		save_edit.addActionListener(this);
 		edit = new ProfileEditor(wall_width, save_edit);
 	}
 
