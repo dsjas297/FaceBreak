@@ -21,13 +21,17 @@ import java.security.spec.RSAPublicKeySpec;
 
 import javax.crypto.Cipher;
 
+import messages.SymmetricKEM;
+
 public class AsymmetricKeys {
 	private PublicKey myPublicKey;
 	private PrivateKey myPrivateKey;
 	private PublicKey remotePublicKey;
+	private byte[] publicKeyMod;
+	private byte[] publicKeyExp;
 	
 	private static final String ALG = "RSA";
-	private static final int LEN = 1028;
+	private static final int LEN = 2048;
 	private static final String PUBLIC_KEY_FILE = "public.key";
 	private static final String PRIVATE_KEY_FILE = "private.key";
 	
@@ -37,10 +41,37 @@ public class AsymmetricKeys {
 		KeyPair kp = kpg.genKeyPair();
 		myPublicKey = kp.getPublic();
 		myPrivateKey = kp.getPrivate();
+		
+		KeyFactory fact = KeyFactory.getInstance("RSA");
+		RSAPublicKeySpec pub = fact.getKeySpec(kp.getPublic(),
+		RSAPublicKeySpec.class);
+		RSAPrivateKeySpec priv = fact.getKeySpec(kp.getPrivate(), RSAPrivateKeySpec.class);
+
+		BigInteger mod = pub.getModulus();
+		BigInteger exp = pub.getPublicExponent();
+		
+		publicKeyMod = mod.toByteArray();
+		publicKeyExp = exp.toByteArray();
+	}
+	
+	protected byte[] getPublicKeyMod() {
+		return publicKeyMod;
+	}
+	
+	protected byte[] getPublicKeyExp() {
+		return publicKeyExp;
 	}
 	
 	protected void setRemotePublicKey(PublicKey remotePublicKey) {
 		this.remotePublicKey = remotePublicKey;
+	}
+	
+	protected void genRemotePublicKey(byte[] mod, byte[] exp) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		BigInteger m = new BigInteger(mod);
+		BigInteger e = new BigInteger(exp);
+		RSAPublicKeySpec keySpec = new RSAPublicKeySpec(m, e);
+		KeyFactory fact = KeyFactory.getInstance(ALG);
+		remotePublicKey = fact.generatePublic(keySpec);
 	}
 	
 	protected void setMyPrivateKey(PrivateKey privateKey) {
@@ -96,7 +127,21 @@ public class AsymmetricKeys {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		RandomGenerator.init();
 		
+		byte[] sharedKey = RandomGenerator.getByteArray(128);
+		SymmetricKEM reply = new SymmetricKEM();
+		reply.setSharedKey(sharedKey);
+		
+		AsymmetricKeys keys = new AsymmetricKeys();
+		keys.genMyKeys();
+		PublicKey pub = readPublicKeyFromFile();
+		keys.setRemotePublicKey(pub);
+		
+		byte[] kemBa = reply.getBytes();
+		System.out.println(kemBa.length);
+		byte[] encrypted = keys.encrypt(kemBa);
+		System.out.println(encrypted.length);
 	}
 }

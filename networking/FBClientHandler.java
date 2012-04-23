@@ -7,40 +7,30 @@
 
 package networking;
 
+import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.math.BigInteger;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.SignedObject;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 
-import javax.crypto.KeyAgreement;
 import javax.crypto.SealedObject;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.DESKeySpec;
-import javax.crypto.spec.DHParameterSpec;
 
 import server.FaceBreakRegion;
 import server.FaceBreakUser;
 
+import messages.AsymmetricKEM;
 import messages.ItemList;
 import messages.Item;
-import messages.KeyExchangeMsg;
 import messages.MsgSealer;
 import messages.MsgWrapper;
 import messages.Reply;
 import messages.Request;
+import messages.SymmetricKEM;
 import messages.Request.RequestType;
 
 import common.Error;
@@ -63,10 +53,8 @@ public class FBClientHandler extends Thread {
 	private long count;
 	private MsgSealer sealer;
 	
-	private static final int NUM_BITS = 1024;
 	private static final short MAX_NUM_RETRIES = 3; 
 	private static final long TIMESTAMP_DIFF = 2000;	// 2 seconds for max delay between send/receive?
-	private static final String PROTOCOL = "DH";
 	
 	protected FBClientHandler(Socket clientSocket) {
 		this.clientSocket = clientSocket;
@@ -93,32 +81,37 @@ public class FBClientHandler extends Thread {
 	 */
 	private boolean verifyIntegrity(Request req, byte[] checksum) throws NoSuchAlgorithmException, IOException {
 		byte[] msgHash = req.getHash();
-		MsgWrapper.compareChecksum(msgHash, checksum);
+		boolean passChecksum = MsgWrapper.compareChecksum(msgHash, checksum);
 		
 		long sentTime = req.getTimestamp();
 		boolean correct_time = System.currentTimeMillis() - sentTime < TIMESTAMP_DIFF;
 		boolean correct_count = req.getCount() == ++count;
 		
-		return correct_time && correct_count;
+		return passChecksum && correct_time && correct_count;
 	}
 
 	/*
 	 * Parse a generic Request from client into login/logout/view/post/etc. requests
 	 */
 	private Reply parseRequest(MsgWrapper wrapper) {
+		Reply myReply = new Reply();
 		
 		Request req = (Request)wrapper.getMsg();
 		byte[] checksum = wrapper.getChecksum();
 		
-		Reply myReply = new Reply();
-		
-		// TODO: FIX THIS!
 		// sanity checks
-//		if(!verifyIntegrity(req)) {
-//			myReply.setReturnError(Error.MSG_INTEGRITY);
-//			System.out.println("replay attack?");
-//			return myReply;
-//		}
+		try {
+			if(!verifyIntegrity(req, checksum)) {
+				myReply.setReturnError(Error.MSG_INTEGRITY);
+				System.out.println("replay attack?");
+				return myReply;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.err.println("Could not check message integrity! No algorithm or IO problem!");
+			e.printStackTrace();
+			return null;
+		}
 
 		RequestType type = req.getRequestType();
 		System.out.println("type: " + type);
@@ -215,6 +208,9 @@ public class FBClientHandler extends Thread {
 			authUser.logIn();
 			retries = 0;
 			r.setReturnError(Error.SUCCESS);
+			
+
+			System.out.println("Logged in user: " + username);
 		}
 		else
 			r.setReturnError(Error.USERNAME_PWD);
@@ -426,16 +422,14 @@ public class FBClientHandler extends Thread {
 		Reply r = new Reply();
 		
 		int nid = req.getId();
+		int uid = authUser.getId();
 		
 		String response = ((Item<String>)req.getDetails()).get();
 		boolean approve = response.equals("Approve");
 		
-		int err;
-		if(!approve)
-			err = FaceBreakUser.deleteNotification(authUser.getId(), nid);
-		else
-			err = FaceBreakUser.approveNotification(authUser.getId(), nid);
-		
+		int err = approve ? FaceBreakUser.approveNotification(uid, nid)
+				: FaceBreakUser.deleteNotification(uid, nid);
+
 		if(err == 0)
 			r.setReturnError(Error.SUCCESS);
 		else
@@ -493,8 +487,53 @@ public class FBClientHandler extends Thread {
 		ois = null;
 		oos = null;
 		clientSocket = null;
+		sealer.destroy();
 	}
 
+	private Reply establishSecureConn() {
+		try {
+			// READ FROM WIRE
+			DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
+			OutputStream socketOutputStream = clientSocket.getOutputStream();
+			
+			byte[] kemByteArray = new byte[512];
+			for (int i = 0; i < 512; i++) {
+				kemByteArray[i] = dis.readByte();
+			}
+			
+			AsymmetricKeys defaultKeys = new AsymmetricKeys();
+			PrivateKey privateKey = AsymmetricKeys.readPrivateKeyFromFile();
+			defaultKeys.setMyPrivateKey(privateKey);
+			
+			byte[] decryptedKem = defaultKeys.decrypt(kemByteArray);
+			AsymmetricKEM kem = AsymmetricKEM.toKEMObject(decryptedKem);
+			byte[] mod = kem.getPublicKeyMod();
+			byte[] exp = kem.getPublicKeyExp();
+			defaultKeys.genRemotePublicKey(mod, exp);
+
+			// generate shared key
+			byte[] sharedKey = RandomGenerator.getByteArray(128);
+			SymmetricKEM reply = new SymmetricKEM();
+			reply.setSharedKey(sharedKey);
+			
+			// WRITE TO WIRE
+			byte[] encryptedSharedKey = defaultKeys.encrypt(reply.getBytes());
+			socketOutputStream.write(encryptedSharedKey);
+			
+			sealer.init(sharedKey);
+			initCount();
+			secureSession = true;
+			
+			Reply r = new Reply();
+			r.setReturnError(Error.SUCCESS);
+			
+			return r;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	/**
 	 * TODO: CHANGE FROM DH TO PUBLIC KEY
 	 * @param req
@@ -563,12 +602,10 @@ public class FBClientHandler extends Thread {
 //	}
 	
 	// TODO: CHANGE
-//	private Request unpackRequest(SignedObject signedReq) {
+//	private MsgWrapper unpackRequest(SealedObject sealed) {
 //		System.out.println("Unpacking request!");
-//		SealedObject sealedReq = signer.extract(signedReq);
-//		if(sealedReq == null)
-//			return null;
-//		return (Request) sealer.decrypt(sealedReq);
+//		MsgWrapper wrappedMsg = (MsgWrapper)sealer.decrypt(sealed);
+//		return wrappedMsg;
 //	}
 	
 //	private SignedObject packReply(Reply rep) {
@@ -592,20 +629,29 @@ public class FBClientHandler extends Thread {
 			oos = new ObjectOutputStream(clientSocket.getOutputStream());
 			
 			while(clientSocket.isConnected() && keepAlive) {
-				// examine client's request
-
-				// TODO: THIS IS DEBUG STUFF; CHANGE TO REAL CODE
-				Object incoming = (Object)ois.readObject();
-				MsgWrapper wrappedMsg = (MsgWrapper)incoming;
-
 				Reply myReply = new Reply();
-				if(wrappedMsg == null) 
-					myReply.setReturnError(Error.MSG_INTEGRITY);
-				else 
-					myReply = parseRequest(wrappedMsg);
+				
+				if(!secureSession) {
+					myReply = establishSecureConn();
+					if(myReply == null)
+						keepAlive = false;
+				}
+				else {
+					SealedObject incoming = (SealedObject)ois.readObject();
+					MsgWrapper wrappedMsg = (MsgWrapper)sealer.decrypt(incoming);
+	
+					if(wrappedMsg == null) 
+						myReply.setReturnError(Error.MSG_INTEGRITY);
+					else 
+						myReply = parseRequest(wrappedMsg);
+				}
 				myReply.setTimestamp();
 				myReply.setCount(++count);
-				oos.writeObject(myReply);
+				MsgWrapper wrappedReply = new MsgWrapper();
+				wrappedReply.setMsg(myReply);
+				wrappedReply.setChecksum();
+				SealedObject sealedReply = sealer.encrypt(wrappedReply);
+				oos.writeObject(sealedReply);
 				
 				/*
 				if(!secureSession) {
@@ -635,7 +681,9 @@ public class FBClientHandler extends Thread {
 		} catch(IOException e) {
 			System.err.println("Could not send message to client on output stream");
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			Reply myReply = new Reply();
 			myReply.setReturnError(Error.UNKNOWN_ERROR);
 			myReply.setTimestamp();

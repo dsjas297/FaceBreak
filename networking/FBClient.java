@@ -7,33 +7,29 @@
 
 package networking;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.SignedObject;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 
-import javax.crypto.KeyAgreement;
 import javax.crypto.SealedObject;
-import javax.crypto.spec.DHParameterSpec;
 
+import messages.AsymmetricKEM;
 import messages.ItemList;
 import messages.Item;
-import messages.KeyExchangeMsg;
 import messages.MsgSealer;
 import messages.MsgWrapper;
 import messages.Reply;
 import messages.Request;
 import messages.Request.RequestType;
+import messages.SymmetricKEM;
 
 import common.Error;
 import common.FBClientUser;
@@ -76,12 +72,17 @@ public class FBClient implements Client {
 	 * 
 	 * @param signedReply
 	 * @return
+	 * @throws IOException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	private boolean verifyMsg(Reply rep) {
+	private boolean verifyMsg(Reply rep, byte[] checksum) throws NoSuchAlgorithmException, IOException {
+		byte[] msgHash = rep.getHash();
+		boolean passChecksum = MsgWrapper.compareChecksum(msgHash, checksum);
+		
 		boolean correct_count = rep.getCount() == ++count;
 		boolean correct_time = System.currentTimeMillis() - rep.getTimestamp() < TIMESTAMP_DIFF;
 		
-		return correct_count && correct_time;
+		return passChecksum && correct_count && correct_time;
 	}
 	
 	private Reply sendRequest(Request req) throws ClassNotFoundException {
@@ -92,37 +93,29 @@ public class FBClient implements Client {
 			return nullRep;
 		
 		try {
-			// TODO: CHANGE FROM DEBUG MODE
 			req.setTimestamp();
 			req.setCount(++count);
-			
 			MsgWrapper wrapper = new MsgWrapper();
 			wrapper.setMsg(req);
 			wrapper.setChecksum();
 			
-			outStream.writeObject(wrapper);
-			
-//			SealedObject sealedReq = sealer.encrypt(req);
-//			SignedObject signedReq = signer.sign(sealedReq);
-//			outStream.writeObject(signedReq);
+			SealedObject sealedReq = sealer.encrypt(wrapper);
+			outStream.writeObject(sealedReq);
 
-			Reply rep = (Reply)inStream.readObject();
+			SealedObject sealedRep = (SealedObject)inStream.readObject();
+			MsgWrapper unsealedRep = (MsgWrapper)sealer.decrypt(sealedRep);
 			
-//			SignedObject signedRep = (SignedObject)inStream.readObject();
-//			SealedObject sealedRep = signer.extract(signedRep);
+			if(unsealedRep == null) {
+				nullRep.setReturnError(Error.MSG_INTEGRITY);
+				return nullRep;
+			}
 			
-			if(rep == null) {
+			Reply rep = (Reply) unsealedRep.getMsg();
+			if(!verifyMsg(rep, unsealedRep.getChecksum())) {
 				nullRep.setReturnError(Error.MSG_INTEGRITY);
 				return nullRep;
 			}
 			return rep;
-			
-//			Reply unsealedRep = (Reply)sealer.decrypt(sealedRep);
-//			if(!verifyMsg(unsealedRep)) {
-//				nullRep.setReturnError(Error.MSG_INTEGRITY);
-//				return nullRep;
-//			}
-//			return unsealedRep;
 		} catch (Exception e) {
 			return nullRep;
 		}
@@ -137,69 +130,47 @@ public class FBClient implements Client {
 		if(socket != null && !socket.isClosed()) socket.close();
 		
 		user = null;
+		sealer.destroy();
 		System.out.println("Closed connection on client end.");
 	}
 	
-	/*
-	 * TODO: CHANGE FROM DH TO PUBLIC KEY
-	 * Performs key exchange protocol with server:
-	 * Client initiates by writing to server; server responds 
-	 */
-//	private boolean establishSecureConnection() throws Exception {
-//		Request req = new Request(RequestType.EST_SECURE);
-//		outStream.writeObject(req);
-//		
-//		try {
-//			Reply rep = (Reply)inStream.readObject();
-//			KeyExchangeMsg dhMsg = (KeyExchangeMsg)rep.getDetails();
-//			
-//			KeyPairGenerator kpg = KeyPairGenerator.getInstance("DH");
-//			DHParameterSpec dhSpec = new DHParameterSpec(dhMsg.getP(), dhMsg.getG(), dhMsg.getL());
-//			kpg.initialize(dhSpec);
-//			KeyPair kp = kpg.generateKeyPair();
-//			byte[] mySecret = kp.getPublic().getEncoded();
-//			byte[] remotePublicKey = dhMsg.getPublicKey();
-//			
-//			// send myPublicKey to server
-//			byte[] myPublicKey = kp.getPublic().getEncoded();
-//			
-//			req = new Request(RequestType.EST_SECURE);
-//			KeyExchangeMsg dhReply = new KeyExchangeMsg();
-//			dhReply.setPublicKey(myPublicKey);
-//			req.setDetails(dhReply);
-//			outStream.writeObject(req);
-//			
-//			KeyAgreement ka = KeyAgreement.getInstance("DH");
-//			ka.init(kp.getPrivate());
-//
-//			KeyFactory kf = KeyFactory.getInstance("DH");
-//			X509EncodedKeySpec x509Spec = new X509EncodedKeySpec(remotePublicKey);
-//			PublicKey pk = kf.generatePublic(x509Spec);
-//			ka.doPhase(pk, true);
-//			byte sharedSecret[] = ka.generateSecret();
-//			sealer.init(sharedSecret);
-//			
-//			SealedObject sealedRep = (SealedObject)inStream.readObject();
-//			Reply rep2 = (Reply)sealer.decrypt(sealedRep);
-//			count = rep2.getCount();
-//			PublicKey signingKey = ((KeyExchangeMsg)rep2.getDetails()).getSigningKey();
-//			PublicKey mySigningKey = signer.init(signingKey);
-//			
-//			req = new Request(RequestType.EST_SECURE);
-//			KeyExchangeMsg signingInfo = new KeyExchangeMsg();
-//			signingInfo.setSigningKey(mySigningKey);
-//			req.setDetails(signingInfo);
-//			SealedObject sealedReq2 = sealer.encrypt(req);
-//			outStream.writeObject(sealedReq2);
-//			
-//			isSecure = true;
-//			return true;
-//		} catch (ClassNotFoundException e) {
-//			System.err.println("Cannot read server's reply. Terminating.");
-//			e.printStackTrace();
-//			return false;
-//		}
-//	}
+	private boolean establishSecureConnection() throws Exception {
+		AsymmetricKeys defaultKeys = new AsymmetricKeys();
+		defaultKeys.genMyKeys();
+		PublicKey serverKey = AsymmetricKeys.readPublicKeyFromFile();
+		defaultKeys.setRemotePublicKey(serverKey);
+		
+		// send public key to server
+		byte[] mod = defaultKeys.getPublicKeyMod();
+		byte[] exp = defaultKeys.getPublicKeyExp();
+		
+		AsymmetricKEM kem = new AsymmetricKEM();
+		kem.setPublicKey(mod, exp);
+		byte[] encryptedKem = defaultKeys.encrypt(kem.getBytes());
+		
+		// WRITE TO WIRE
+		OutputStream socketOutputStream = socket.getOutputStream();
+		socketOutputStream.write(encryptedKem);
+		
+		DataInputStream dis = new DataInputStream(socket.getInputStream());
+		byte[] sharedKeyBa = new byte[256];
+		for (int i = 0; i < 256; i++) {
+			sharedKeyBa[i] = dis.readByte();
+		}
+		
+		byte[] decryptedServerKem = defaultKeys.decrypt(sharedKeyBa);
+		SymmetricKEM serverKem = SymmetricKEM.toKEMObject(decryptedServerKem);
+		sealer.init(serverKem.getSharedKey());
+		
+		// READ FROM WIRE
+		SealedObject sealedInitMsg = (SealedObject)inStream.readObject();
+		MsgWrapper wrappedMsg = (MsgWrapper)sealer.decrypt(sealedInitMsg);
+		Reply initMsg = (Reply)wrappedMsg.getMsg();
+		count = initMsg.getCount();
+		isSecure = true;
+		
+		return true;
+	}
 	
 	/**
 	 * Logs in user with (username, pwd) combo. Fails if another user is already logged in.
@@ -213,28 +184,29 @@ public class FBClient implements Client {
 //			return Error.MALFORMED_REQUEST;
 
 		try {
-			socket = new Socket(serverAddr, PORT_NUM);
-			outStream = new ObjectOutputStream(socket.getOutputStream());
-			inStream = new ObjectInputStream(socket.getInputStream());
+			if(socket == null || socket.isClosed()) {
+				socket = new Socket(serverAddr, PORT_NUM);
+				outStream = new ObjectOutputStream(socket.getOutputStream());
+				inStream = new ObjectInputStream(socket.getInputStream());
+			}
 		} catch (IOException e1) {
 			closeConnection();
 			return Error.CONNECTION;
 		}
 
-		// perform key exchange protocol
-//		try {
-//			if(!isSecure) {
-//				if(!establishSecureConnection()) {
-//					closeConnection();
-//					return Error.CONNECTION;
-//				}
-//			}
-//		} catch (Exception e1) {
-//			System.err.println("Could not establish secure connection");
-//			e1.printStackTrace();
-//			closeConnection();
-//			return Error.CONNECTION;
-//		}
+		if(!isSecure) {
+			try {
+				if (!establishSecureConnection()) {
+					closeConnection();
+					return Error.CONNECTION;
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				closeConnection();
+				return Error.CONNECTION;
+			}
+		}
 		
 		// create request object
 		Request login = new Request(RequestType.LOGIN);
@@ -245,7 +217,7 @@ public class FBClient implements Client {
 		Reply serverReply = sendRequest(login);
 		Error e = serverReply.getReturnError();
 
-		if (e == Error.SUCCESS) 
+		if(e == Error.SUCCESS) 
 			user = new FBClientUser(username, pwd);
 		
 		return e;
@@ -288,20 +260,20 @@ public class FBClient implements Client {
 			closeConnection();
 			return Error.CONNECTION;
 		}
-
-//		try {
-//			if(!isSecure) {
-//				if(!establishSecureConnection()) {
-//					closeConnection();
-//					return Error.CONNECTION;
-//				}
-//			}
-//		} catch (Exception e1) {
-//			System.err.println("Could not establish secure connection");
-//			e1.printStackTrace();
-//			closeConnection();
-//			return Error.CONNECTION;
-//		}
+		
+		if(!isSecure) {
+			try {
+				if (!establishSecureConnection()) {
+					closeConnection();
+					return Error.CONNECTION;
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				closeConnection();
+				return Error.CONNECTION;
+			}
+		}
 		
 		Request createUser = new Request(RequestType.CREATE_USER);
 		Item<FBClientUser> userInfo = new Item<FBClientUser>();
@@ -529,7 +501,7 @@ public class FBClient implements Client {
 
 		String response = approve ? "Approve" : "Deny";
 		
-		Request readNotification = new Request(RequestType.GET_NOTIFICATIONS);
+		Request readNotification = new Request(RequestType.RESPOND_NOTIFICATIONS);
 		readNotification.setId(id);
 		Item<String> approval = new Item<String>();
 		approval.set(response);

@@ -8,13 +8,7 @@
 
 package messages;
 
-import java.io.Serializable;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.spec.KeySpec;
 
 import javax.crypto.Cipher;
@@ -25,16 +19,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import networking.RandomGenerator;
-
 
 public class MsgSealer {
 	private Cipher encrypter;
 	private Cipher decrypter;
-	
-	private PrivateKey privateKey;
-	private PublicKey publicKey;
-	private PublicKey remotePublicKey;
 	
 	private char[] secret;
 	
@@ -42,13 +30,16 @@ public class MsgSealer {
 	 * AES because secure and fast; CBC because common and more secure than EBC
 	 * PKCS5Padding
 	 */
-//	private static final String ALG_MODE_PAD = "AES/CBC/PKCS5Padding";
-//	private static final String ALG_MODE_PAD = "RSA/ECB/PKCS1Padding";
-	private static final String ALG_MODE_PAD = "RSA";
-	private static final String ALGORITHM = "RSA";
+	private static final String ALG_MODE_PAD = "AES/CBC/PKCS5Padding";
+	private static final String ALGORITHM = "AES";
 	private static final String KEY_GEN_ALG = "PBKDF2WithHmacSHA1";
-	private static final int KEY_SIZE = 512;
+	private static final int NUM_BYTES = 128;
 	
+	private static final byte[] SALT = { -66, 112, -76, -97, 120, -114, -107,
+			114, -79, 40, 23, 52, -20, -43, -128, 51 };
+	private static final byte[] INIT_VECTOR = { -13, 119, -85, -98, -57, 110,
+			34, 33, 97, -60, -55, -45, -48, -103, -94, 72 };
+
 	public MsgSealer() {
 		try {
 			encrypter = Cipher.getInstance(ALG_MODE_PAD);
@@ -60,30 +51,31 @@ public class MsgSealer {
 			System.exit(-1);
 		}
 	}
-
-	public void genKeys() throws NoSuchAlgorithmException {
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-		kpg.initialize(KEY_SIZE);
-		KeyPair kp = kpg.genKeyPair();
-		publicKey = kp.getPublic();
-		privateKey = kp.getPrivate();
+	
+	public void init(byte[] array) throws InvalidKeyException, Exception {
+		int len = array.length;
+		secret = new char[len];
+		
+		for(int i = 0; i < len; i++) 
+			secret[i] = (char)array[i];
+		
+		SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_GEN_ALG);
+		KeySpec spec = new PBEKeySpec(secret, SALT, 65536, NUM_BYTES);
+		SecretKey tmp = factory.generateSecret(spec);
+		SecretKey secret = new SecretKeySpec(tmp.getEncoded(), ALGORITHM);
+		
+		encrypter.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(INIT_VECTOR));
+		decrypter.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(INIT_VECTOR));
 	}
 	
-	public PublicKey getPublicKey() {
-		return publicKey;
-	}
-	
-	public void init() throws InvalidKeyException, Exception {
-		encrypter.init(Cipher.ENCRYPT_MODE, privateKey);
-		decrypter.init(Cipher.DECRYPT_MODE, remotePublicKey);
-	}
-	
-	public void setRemotePublicKey(PublicKey pub) {
-		remotePublicKey = pub;
+	// zero out byte array??
+	public void destroy() {
+		for(int i = 0; i < secret.length; i++)
+			secret[i] = '0';
 	}
 	
 	// "seals" a generic message
-	public SealedObject encrypt(Serializable obj) {
+	public SealedObject encrypt(MsgWrapper obj) {
 		try {
 			return new SealedObject(obj, encrypter);
 		} catch (Exception e) {
@@ -94,34 +86,13 @@ public class MsgSealer {
 	}
 	
 	// "unseals" a sealed object to the serializable message passed between client/server
-	public Serializable decrypt(SealedObject sealedMsg) {
+	public MsgWrapper decrypt(SealedObject sealedMsg) {
 		try {
-			return (Serializable)sealedMsg.getObject(decrypter);
+			return (MsgWrapper)sealedMsg.getObject(decrypter);
 		} catch (Exception e) {
 			System.err.println("COULD NOT DECRYPT SEALED OBJECT!");
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
-//	public SealedObject encrypt(KeyExchangeMsg obj) {
-//		try {
-//			return new SealedObject(obj, encrypter);
-//		} catch (IllegalBlockSizeException | IOException e) {
-//			System.err.println("Bad encryption algorithm: ");
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-//	
-//	public KeyExchangeMsg decryptKEM(SealedObject sealedMsg) {
-//		try {
-//			return (KeyExchangeMsg) sealedMsg.getObject(decrypter);
-//		} catch (ClassNotFoundException | IllegalBlockSizeException
-//				| BadPaddingException | IOException e) {
-//			System.err.println("Bad decryption algorithm: ");
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
 }

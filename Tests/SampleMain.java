@@ -264,9 +264,13 @@ public class SampleMain {
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 		System.out.println("Running test suite...");
 		
-//		basicLoginTest();
+		basicLoginTest();
 		
-		FBClient myClient = new FBClient();
+//		FBClient myClient = new FBClient();
+//		Error e = myClient.login(username1, pwd1);
+//		e.print();
+//		myClient.logout();
+		
 //		loginUser(myClient, username1, pwd1);
 //		
 //		testUpdateProfile(myClient, username1, Title.BOSS);
@@ -295,10 +299,10 @@ public class SampleMain {
 //		testGetNotifications(myClient);
 //		Error e = myClient.logout();
 //		e.print();
-		
+//		
 //		basicProfileUpdate();
-		
-		System.out.println();
-		System.out.println("Finished test suite");
+//		
+//		System.out.println();
+//		System.out.println("Finished test suite");
 	}
 }
