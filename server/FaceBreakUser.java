@@ -786,7 +786,7 @@ public class FaceBreakUser {
 			
 			boolean exists = false;
 			int i;
-			for(i = 0; i < friends.size() - 1; i++) {
+			for(i = 0; i < friends.size(); i++) {
 				if(friends.get(i).equals(Integer.toString(friendUid))) {
 					exists = true;
 					break;
@@ -1181,7 +1181,7 @@ public class FaceBreakUser {
 			
 			FileWriter fWriter = new FileWriter(familiesFile);
 			BufferedWriter fileWriter = new BufferedWriter(fWriter);
-			for(int i = 0; i < families.size(); i++){
+			for(int i = 0; i < families.size() - 1; i++){
 				fileWriter.write(temp + "\n");
 			}
 			fileWriter.write(familyName + ":" + Integer.toString(uid));
