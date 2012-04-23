@@ -1047,10 +1047,6 @@ public class FaceBreakUser {
 					notificationContents = notificationContents + notifications.get(i) + "\n";
 				}
 			}
-			System.out.println(notifications.size());
-			System.out.println(notificationContents.length());
-			System.out.println("notifid: " + notificationID);
-			System.out.println(notificationContents);
 			// Need to deal with the last newline
 			if(notificationContents.length() > 0){
 				notificationContents = notificationContents.substring(0,notificationContents.length() - 1);
@@ -1093,10 +1089,8 @@ public class FaceBreakUser {
 			if(request == null){
 				return -1;
 			}
-			
-			Profile profile = new Profile(request[1], request[5], request[6]);
-			profile.setFamily(request[7]);
-			profile.setTitle(Title.valueOf(request[4]));
+			Profile profile = getProfile(checkIfUserExists(request[2]));
+			profile.setTitle(Title.getTitle(Integer.parseInt(request[3])));
 			
 			setProfile(checkIfUserExists(profile.getUsername()), profile, true);
 			
