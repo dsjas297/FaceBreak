@@ -4,6 +4,7 @@
  * Starts server (needs password), initializes filesystem, waits for incoming connections
  * to hand off to FBClientHandler thread.
  * 
+ * SERVER PWD: SrrEs5d7Um
  */
 
 package networking;
@@ -71,6 +72,7 @@ public class FBServer {
 		byte[] passwordHash = { 101, -122, 80, 50, 40, -53, 67, 46, 23, 19, 18,
 				-73, 79, 83, 13, -15, 60, 98, -109, -4, 84, -117, 48, 18, -74,
 				-95, 82, 83, -78, -36, -60, -120, 0 };
+		
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				System.in));
 		MessageDigest md = null;
@@ -80,6 +82,10 @@ public class FBServer {
 			System.out.println(e.getMessage());
 		}
 
+		char[] passwd = new char[50];
+		byte[] passwd_bytes = null; 
+		int numChars = 0;
+		
 		String password = "";
 		byte[] hashed;
 
@@ -91,8 +97,24 @@ public class FBServer {
 			
 			System.out.println("Enter password:");
 			try {
-				password = reader.readLine().trim();
-				md.update(password.getBytes());
+				numChars = 0;
+				if(passwd_bytes != null){
+					for(int i = 0; i < passwd_bytes.length; i++){
+						passwd_bytes[i] = 0;
+					}
+				}
+				for(int i = 0; i < passwd.length; i++){
+					passwd[i] = 0;
+				}
+				//password = reader.readLine().trim();
+				numChars = reader.read(passwd);
+				//System.out.println(numChars);
+				passwd_bytes = new byte[numChars - 2];
+				for(int i = 0; i < passwd_bytes.length; i++){
+					passwd_bytes[i] = (byte)(passwd[i]);
+				}
+				md.update(passwd_bytes);
+				//md.update(password.getBytes());
 				hashed = md.digest();
 				int i = 0;
 				while (i < hashed.length) {
@@ -105,8 +127,27 @@ public class FBServer {
 					break;
 				Thread.sleep(2000);
 			} catch (Exception e) {
+				numChars = 0;
+				if(passwd_bytes != null){
+					for(int i = 0; i < passwd_bytes.length; i++){
+						passwd_bytes[i] = 0;
+					}
+				}
+				for(int i = 0; i < passwd.length; i++){
+					passwd[i] = 0;
+				}
 				System.out.println(e.getMessage());
 			}
+		}
+		
+		numChars = 0;
+		if(passwd_bytes != null){
+			for(int i = 0; i < passwd_bytes.length; i++){
+				passwd_bytes[i] = 0;
+			}
+		}
+		for(int i = 0; i < passwd.length; i++){
+			passwd[i] = 0;
 		}
 		
 		try {

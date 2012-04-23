@@ -155,7 +155,10 @@ public class FaceBreakRegion {
 					Integer.toString(regionID) + "\\" + regionPostsFile;
 			File postsFile = new File(path);
 			postsFile.getParentFile().mkdirs();
-			postsFile.createNewFile();
+			String newPost = Long.toString((new Date()).getTime()) + ":"
+			+ "System Message" + ":" + "Board created";
+			FileSystem.writeSecure(newPost, path);
+			//postsFile.createNewFile();
 
 			// Fill in info for user
 			// For now this file only contains allowed viewers of the board
@@ -199,6 +202,12 @@ public class FaceBreakRegion {
 			
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
 			
+			if(allowed.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return -1;
+			}
+			
 			for(int i = 0; i < friendIDs.length; i++){
 				if(friendIDs[i] == -1)
 					continue;
@@ -238,6 +247,12 @@ public class FaceBreakRegion {
 			FileSystem.lockMap.get(filename).lock();
 			
 			ArrayList<String> allowed = FileSystem.readSecure(filename);
+			
+			if(allowed.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(filename).unlock();
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return false;
+			}
 
 			FileSystem.lockMap.get(filename).unlock();
 			
@@ -267,7 +282,13 @@ public class FaceBreakRegion {
 						"\\" + regionsFolder + "\\" + Integer.toString(regionID) + "\\" + regionInfoFile;
 				
 				File f = new File(filename);
-				if(f.exists()){
+				if(regionID == 0){
+					viewableList.add(new Integer(regionID));
+				} else if(regionID == 1){
+					if(FaceBreakUser.getProfile(uid).getFamily().equals(FaceBreakUser.getProfile(friendID).getFamily())){
+						viewableList.add(new Integer(regionID));
+					}
+				}else if(f.exists()){
 					if(checkViewable(uid, regionID, friendID)){
 						viewableList.add(new Integer(regionID));
 					}
@@ -384,6 +405,12 @@ public class FaceBreakRegion {
 			
 			ArrayList<String> posts = FileSystem.readSecure(path);
 			
+			if(posts.get(0).equals("ERROR")){
+				FileSystem.lockMap.get(path).unlock();
+				System.out.println("FILE INTEGRITY COMPROMISED");
+				return false;
+			}
+			
 			String newPost = Long.toString((new Date()).getTime()) + ":"
 					+ myPost.getWriterName() + ":" + myPost.getText() + "\n";
 
@@ -425,6 +452,12 @@ public class FaceBreakRegion {
 		FileSystem.lockMap.get(path).lock();
 		
 		ArrayList<String> postLines = FileSystem.readSecure(path);
+		
+		if(postLines.get(0).equals("ERROR")){
+			FileSystem.lockMap.get(path).unlock();
+			System.out.println("FILE INTEGRITY COMPROMISED");
+			return null;
+		}
 		
 		ArrayList<Post> allPosts = new ArrayList<Post>();
 

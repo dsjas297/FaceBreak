@@ -226,9 +226,6 @@ public class Login extends JPanel implements ActionListener{
 		boolean pwd_group1 = Pattern.matches(".*[a-z]+.*", new String(pwdEntry.getPassword()));
 		boolean pwd_group2 = Pattern.matches(".*[A-Z]+.*", new String(pwdEntry.getPassword()));
 		boolean pwd_group3 = Pattern.matches(".*[0-9]+.*", new String(pwdEntry.getPassword()));
-		System.out.print(pwd_group1);
-		System.out.print(pwd_group2);
-		System.out.print(pwd_group3);
 		if (pwd_group1 && pwd_group2 && pwd_group3){
 			return true;
 		}
@@ -249,11 +246,8 @@ public class Login extends JPanel implements ActionListener{
 	//check validity of password
 	public boolean is_valid(){
 		boolean pwd_is_an = is_alphanum();
-		System.out.print(pwd_is_an);
 		boolean pwd_has_3groups = has_3groups();
-		System.out.print(pwd_has_3groups);
 		boolean pwd_correct_length = check_lengthreq();
-		System.out.print(pwd_correct_length);
 		return pwd_is_an && pwd_has_3groups && pwd_correct_length;
 	}
 	//clear all displayed warnings
