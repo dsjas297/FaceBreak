@@ -25,6 +25,14 @@ public class Profile implements Serializable {
 		family = null;
 		title = null;
 	}
+
+	public Profile(String username, String fname, String lname, String family, Title title) {
+		this.username = username;
+		this.fname = fname;
+		this.lname = lname;
+		this.family = family;
+		this.title = title;
+	}
 	
 	public String getUsername() {
 		return username;
