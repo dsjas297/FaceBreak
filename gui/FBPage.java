@@ -164,9 +164,10 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		if (!curr_username.equals(myUserName)){
 			ArrayList<String> myFriendsList = new ArrayList<String>();
 			Error friends_e = myClient.getFriendsList(myFriendsList);
+			System.out.println(friends_e);
 			//TODO: GET LIST OF FRIENDS (myFriendsList)
-			if (myFriendsList.contains(curr_profile)){
-				// if curr_profile is friends with myUser
+			if (myFriendsList.contains(curr_username)){
+				// if curr_username is friends with myUser
 				rem_friend.setVisible(true);
 			}
 			else{ 
@@ -177,7 +178,6 @@ public class FBPage extends JPanel implements ActionListener, MouseListener {
 		// get Board for user, get list of regions
 		// TODO:
 		ArrayList<Integer> regionList = new ArrayList<Integer>();
-//		myClient.getViewableRegions(curr_profile, regionList);
 		myClient.getViewableRegions(curr_username, regionList);
 		/**System.out.println(regionList);**/
 		int numRegions = regionList.size();
