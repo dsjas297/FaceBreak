@@ -131,7 +131,7 @@ public class FaceBreakRegion {
 			}
 			
 			
-			int regionID = 1;
+			int regionID = 0;
 			File regionFolder;
 			if(regionType == Post.RegionType.COVERT){
 				do{
@@ -166,7 +166,7 @@ public class FaceBreakRegion {
 			FileSystem.writeSecure(info, ownerIDstr + "\\" + regionsFolder + "\\" +
 					Integer.toString(regionID) + "\\" + regionInfoFile);
 
-			return 0;
+			return regionID;
 
 		} catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
