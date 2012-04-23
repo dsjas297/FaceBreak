@@ -516,7 +516,7 @@ public class FBClient implements Client {
 		if(e == Error.SUCCESS) {
 			ItemList<Notification> tmp = (ItemList<Notification>)serverReply.getDetails();
 			Notification[] notifyArray = tmp.getArray();
-			for(int i = 0; i < notifyArray.length; i++)
+			for(int i = 0; i < tmp.getSize(); i++)
 				notifications.add(notifyArray[i]);
 		}
 		return e;

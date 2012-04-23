@@ -219,7 +219,7 @@ public class FaceBreakRegion {
 			
 			String fileContents = "";
 			
-			for(int i = 0; i < allowed.size(); i++){
+			for(int i = 0; i < allowed.size() - 1; i++){
 				fileContents = fileContents + allowed.get(i) + "\n";
 			}
 			fileContents = fileContents + allowed.get(allowed.size() - 1);

@@ -267,19 +267,23 @@ public class SampleMain {
 //		basicLoginTest();
 		
 		FBClient myClient = new FBClient();
-		loginUser(myClient, username2, pwd2);
-		
+//		loginUser(myClient, username1, pwd1);
+//		
 //		testUpdateProfile(myClient, username1, Title.BOSS);
-		
-		ArrayList<Integer> rids = new ArrayList<Integer>();
+//		ArrayList<String> usernames	 = new ArrayList<String>();
 //		usernames.add(username2);
-//		Error e = myClient.addToCovert(2, usernames);
-		Error e = myClient.getViewableRegions(username1, rids);
-		e.print();
-		for(int rid : rids) {
-			System.out.println("Region id: " + rid);
-		}
-		myClient.logout();
+//		myClient.addToCovert(0, usernames);
+//		myClient.logout();
+
+//		myClient = new FBClient();
+//		loginUser(myClient, username2, pwd2);
+//		ArrayList<Integer> rids = new ArrayList<Integer>();
+//		Error e = myClient.getViewableRegions(username1, rids);
+//		e.print();
+//		for(int rid : rids) {
+//			System.out.println("Region id: " + rid);
+//		}
+//		myClient.logout();
 		
 //		loginUser(myClient, username2, pwd2);
 //		testAddFriend(myClient, username1);
