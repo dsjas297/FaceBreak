@@ -709,7 +709,7 @@ public class FaceBreakUser {
 			if(FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile) == null){
 				FileSystem.lockMap.put(Integer.toString(uid) + "\\" + userInfoFile, new ReentrantLock());
 			}
-			
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 			// Make request to boss, encode string in request
 			
 			Profile oldProfile = getProfile(uid);
@@ -739,25 +739,26 @@ public class FaceBreakUser {
 			}
 			FileSystem.writeSecure(info,Integer.toString(uid) + "\\" + userInfoFile);
 			
-			if(approved || bossID == -1 || prof.getTitle() == Title.ASSOC ||
+			if(approved || bossID == -1 || prof.getTitle() == null || prof.getTitle() == Title.ASSOC ||
 					(prof.getTitle() == oldProfile.getTitle() &&
 					 prof.getFamily().equals(oldProfile.getFamily()))) {
-				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).lock();
 				// Fill in info for user
 				String userInfo = Integer.toString(uid) + "\n" + getUser(uid).getUsername() + "\n" + 
 						Integer.toString(prof.getTitle().rank) + "\n" + prof.getFamily() + "\n" + prof.getFname() + "\n" +
 						prof.getLname();
 				FileSystem.writeSecure(userInfo,Integer.toString(uid) + "\\" + userInfoFile);
-				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			}
 			
 			else{ // make request
+				FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 				return notifyChangeTitle(prof.getUsername(), bossID, prof);
 			}
 			
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			return 0;
 		}catch(Exception e){
 			System.err.println("Error: " + e.getMessage());
+			FileSystem.lockMap.get(Integer.toString(uid) + "\\" + userInfoFile).unlock();
 			return -1;
 		}
 	}
